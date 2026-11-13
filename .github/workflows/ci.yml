@@ -80,7 +80,7 @@ jobs:
           if [ -z "$FILES" ]; then echo "Nothing generated: scaffold is complete."; exit 0; fi
           echo "$FILES"
           echo "----- BEGIN SCAFFOLD TGZ -----"
-          tar czf - $FILES | base64
+          tar czf - $FILES | base64 -b 76
           echo "----- END SCAFFOLD TGZ -----"
 
       - name: Generated bridge code is up to date
