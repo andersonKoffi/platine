@@ -6,39 +6,36 @@
 import '../frb_generated.dart';
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
+// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `assert_fields_are_eq`, `clone`, `eq`, `fmt`
 
-            // These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `assert_fields_are_eq`, `clone`, `eq`, `fmt`
-
-
-            /// Health check of the bridge: always answers `"pong"`.
-String  ping() => RustLib.instance.api.crateApiDiagnosticsPing();
+/// Health check of the bridge: always answers `"pong"`.
+String ping() => RustLib.instance.api.crateApiDiagnosticsPing();
 
 /// Returns the versions of the native crates.
-NativeVersions  nativeVersions() => RustLib.instance.api.crateApiDiagnosticsNativeVersions();
+NativeVersions nativeVersions() =>
+    RustLib.instance.api.crateApiDiagnosticsNativeVersions();
 
-            /// Versions of the native crates, shown in the app's "About" panel.
-class NativeVersions  {
-                final String domain;
-final String engine;
-final String infra;
+/// Versions of the native crates, shown in the app's "About" panel.
+class NativeVersions {
+  final String domain;
+  final String engine;
+  final String infra;
 
-                const NativeVersions({required this.domain ,required this.engine ,required this.infra ,});
+  const NativeVersions({
+    required this.domain,
+    required this.engine,
+    required this.infra,
+  });
 
+  @override
+  int get hashCode => domain.hashCode ^ engine.hashCode ^ infra.hashCode;
 
-
-
-
-        @override
-        int get hashCode => domain.hashCode^engine.hashCode^infra.hashCode;
-
-
-
-        @override
-        bool operator ==(Object other) =>
-            identical(this, other) ||
-            other is NativeVersions &&
-                runtimeType == other.runtimeType
-                && domain == other.domain&& engine == other.engine&& infra == other.infra;
-
-            }
-            
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is NativeVersions &&
+          runtimeType == other.runtimeType &&
+          domain == other.domain &&
+          engine == other.engine &&
+          infra == other.infra;
+}

@@ -6,6 +6,8 @@ analyzer:
     - "**/*.g.dart"
     - "**/*.freezed.dart"
     - rust_builder/**
+    - build/**
+    - macos/**
   language:
     strict-casts: true
     strict-inference: true
