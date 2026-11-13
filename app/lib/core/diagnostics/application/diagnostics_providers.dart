@@ -1,4 +1,3 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:platine/core/diagnostics/data/frb_diagnostics_repository.dart';
 import 'package:platine/core/diagnostics/domain/diagnostics_repository.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';

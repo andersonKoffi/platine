@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:platine/core/diagnostics/presentation/bridge_status_badge.dart';
 
 /// Root widget of Platine.
