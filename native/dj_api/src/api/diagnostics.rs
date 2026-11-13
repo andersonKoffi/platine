@@ -42,8 +42,8 @@ mod tests {
     #[test]
     fn native_versions_are_filled() {
         let versions = native_versions();
-        assert!(!versions.domain.is_empty());
-        assert!(!versions.engine.is_empty());
-        assert!(!versions.infra.is_empty());
+        assert_ne!(versions.domain, "");
+        assert_ne!(versions.engine, "");
+        assert_ne!(versions.infra, "");
     }
 }

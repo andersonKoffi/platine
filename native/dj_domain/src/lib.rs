@@ -16,6 +16,6 @@ mod tests {
 
     #[test]
     fn exposes_crate_version() {
-        assert!(!VERSION.is_empty());
+        assert_ne!(VERSION, "");
     }
 }
