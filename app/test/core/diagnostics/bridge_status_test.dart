@@ -5,7 +5,7 @@ import 'package:platine/core/diagnostics/application/diagnostics_providers.dart'
 import 'package:platine/core/diagnostics/domain/diagnostics_repository.dart';
 
 class _MockDiagnosticsRepository extends Mock
-    implements DiagnosticsRepository {}
+    implements DiagnosticsRepository;
 
 void main() {
   late _MockDiagnosticsRepository repository;

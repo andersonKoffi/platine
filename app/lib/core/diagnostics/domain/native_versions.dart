@@ -3,7 +3,7 @@ import 'package:flutter/foundation.dart';
 /// Versions of the native Rust crates, as a plain Dart model.
 @immutable
 class NativeVersions {
-  const NativeVersions({
+  const new({
     required this.domain,
     required this.engine,
     required this.infra,

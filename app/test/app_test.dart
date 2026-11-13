@@ -7,7 +7,7 @@ import 'package:platine/core/diagnostics/domain/diagnostics_repository.dart';
 import 'package:platine/core/diagnostics/domain/native_versions.dart';
 
 class _FakeDiagnosticsRepository implements DiagnosticsRepository {
-  const _FakeDiagnosticsRepository();
+  const new();
 
   @override
   String ping() => 'pong';

@@ -5,7 +5,7 @@ import 'package:platine/core/diagnostics/presentation/bridge_status_badge.dart';
 ///
 /// P0 shell: the design system, decks, mixer and library land in P4.
 class PlatineApp extends StatelessWidget {
-  const PlatineApp({super.key});
+  const new({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -22,7 +22,7 @@ class PlatineApp extends StatelessWidget {
 }
 
 class _ShellPage extends StatelessWidget {
-  const _ShellPage();
+  const new();
 
   @override
   Widget build(BuildContext context) {

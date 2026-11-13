@@ -4,7 +4,7 @@ import 'package:platine/core/diagnostics/application/diagnostics_providers.dart'
 
 /// Small badge showing whether the Rust engine answers.
 class BridgeStatusBadge extends ConsumerWidget {
-  const BridgeStatusBadge({super.key});
+  const new({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
