@@ -1,0 +1,31 @@
+name: platine
+description: "Platine — a beautiful, fun DJ app for macOS."
+publish_to: "none"
+version: 0.1.0+1
+
+environment:
+  sdk: ^3.9.0
+  flutter: ">=3.50.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_riverpod: ^3.5.0
+  riverpod_annotation: ^4.0.8
+  # Must match the Rust crate version exactly (see native/Cargo.toml).
+  flutter_rust_bridge: 2.13.0
+  rust_lib_platine:
+    path: rust_builder
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  integration_test:
+    sdk: flutter
+  build_runner: ^2.17.1
+  riverpod_generator: ^4.0.10
+  mocktail: ^1.0.5
+  very_good_analysis: ^11.0.0
+
+flutter:
+  uses-material-design: true

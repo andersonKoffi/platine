@@ -1,0 +1,14 @@
+[package]
+name = "test_support"
+description = "Shared test helpers for Platine: fixture generation and fakes."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+repository.workspace = true
+publish.workspace = true
+
+[dependencies]
+dj_domain.workspace = true
+
+[lints]
+workspace = true

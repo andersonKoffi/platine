@@ -1,0 +1,22 @@
+# macOS
+.DS_Store
+
+# Rust
+native/target/
+
+# Flutter / Dart
+app/.dart_tool/
+app/build/
+app/.flutter-plugins
+app/.flutter-plugins-dependencies
+app/macos/Flutter/ephemeral/
+app/macos/Pods/
+**/*.g.dart
+**/*.freezed.dart
+coverage/
+
+# IDE
+.idea/
+.vscode/*
+!.vscode/extensions.json
+*.iml

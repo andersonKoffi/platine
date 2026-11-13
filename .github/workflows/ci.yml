@@ -1,0 +1,113 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  FLUTTER_VERSION: "3.50.0"
+  FRB_VERSION: "2.13.0"
+  CARGO_TERM_COLOR: always
+
+jobs:
+  rust:
+    name: Rust (fmt, clippy, tests)
+    runs-on: macos-latest
+    defaults:
+      run:
+        working-directory: native
+    steps:
+      - uses: actions/checkout@v7
+      - name: Install pinned toolchain (rust-toolchain.toml)
+        run: rustup show active-toolchain || rustup toolchain install
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: native
+      - name: cargo fmt
+        run: cargo fmt --all --check
+      - name: cargo clippy
+        run: cargo clippy --workspace --all-targets -- -D warnings
+      - name: cargo test
+        run: cargo test --workspace
+
+  flutter:
+    name: Flutter (codegen, analyze, tests, macOS build)
+    runs-on: macos-latest
+    needs: rust
+    defaults:
+      run:
+        working-directory: app
+    steps:
+      - uses: actions/checkout@v7
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+      - name: Install pinned Rust toolchain
+        working-directory: native
+        run: rustup show active-toolchain || rustup toolchain install
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: native
+          cache-bin: true
+      - name: Install flutter_rust_bridge_codegen
+        run: |
+          if ! flutter_rust_bridge_codegen --version 2>/dev/null | grep -q "$FRB_VERSION"; then
+            cargo install flutter_rust_bridge_codegen --version "$FRB_VERSION" --locked
+          fi
+
+      - name: Complete the macOS runner scaffold if needed
+        run: ../tool/bootstrap_macos.sh
+
+      - name: flutter pub get
+        run: flutter pub get
+
+      - name: Regenerate bridge code
+        run: ../tool/gen_bridge.sh
+
+      - name: Upload generated scaffold (for review)
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: generated-scaffold
+          path: |
+            app/macos
+            app/lib/src/rust
+            native/dj_api/src/frb_generated.rs
+            app/pubspec.lock
+          retention-days: 7
+
+      - name: Generated bridge code is up to date
+        working-directory: .
+        run: git diff --exit-code -- app/lib/src/rust native/dj_api/src/frb_generated.rs
+
+      - name: build_runner (Riverpod codegen)
+        run: dart run build_runner build --delete-conflicting-outputs
+
+      - name: flutter analyze
+        run: flutter analyze --fatal-infos --fatal-warnings
+
+      - name: dart format
+        run: dart format --output=none --set-exit-if-changed lib test integration_test
+
+      - name: flutter test
+        run: flutter test
+
+      - name: Build universal macOS app (release)
+        run: flutter build macos --release
+
+      - name: Check the binary is universal
+        run: |
+          BIN="build/macos/Build/Products/Release/Platine.app/Contents/MacOS/Platine"
+          lipo -info "$BIN"
+          lipo -info "$BIN" | grep -q "x86_64" && lipo -info "$BIN" | grep -q "arm64"
+
+      - name: Integration tests (real Rust engine)
+        run: flutter test integration_test -d macos
