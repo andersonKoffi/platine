@@ -8,7 +8,8 @@ import 'package:platine/core/engine/application/engine_providers.dart';
 import 'package:platine/core/engine/domain/models.dart';
 import 'package:platine/features/settings/application/settings_controller.dart';
 
-/// Auto-mix controls: on/off, fade length, curve, shuffle, repeat, status.
+/// Auto-mix side panel: on/off and status, fade length and curve, shuffle
+/// and repeat, and the reorderable queue.
 class AutoMixPanel extends ConsumerWidget {
   const new({super.key});
 
@@ -18,75 +19,104 @@ class AutoMixPanel extends ConsumerWidget {
     final settings = ref.watch(mixSettingsControllerProvider);
     final controller = ref.read(mixSettingsControllerProvider.notifier);
     final mode = ref.watch(sessionStoreProvider.select((s) => s.mode));
-    return GlassPanel(
-      padding: EdgeInsets.symmetric(
-        horizontal: tokens.space4,
-        vertical: tokens.space3,
-      ),
-      child: Wrap(
-        spacing: tokens.space5,
-        runSpacing: tokens.space3,
-        crossAxisAlignment: WrapCrossAlignment.center,
+    return PanelBox(
+      padding: EdgeInsets.all(tokens.space3),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          _AutoMixSwitch(
-            enabled: settings.automix,
-            onChanged: (value) => controller.setAutoMix(enabled: value),
+          Row(
+            children: [
+              Text(
+                'AUTOMIX',
+                style: Theme.of(
+                  context,
+                ).textTheme.titleMedium?.copyWith(letterSpacing: 2),
+              ),
+              const Spacer(),
+              Semantics(
+                label: 'Activer l’auto-mix',
+                child: Switch(
+                  value: settings.automix,
+                  onChanged: (value) => controller.setAutoMix(enabled: value),
+                ),
+              ),
+            ],
           ),
-          _StatusBadge(mode: mode),
+          _StatusRow(mode: mode),
+          SizedBox(height: tokens.space3),
           _CrossfadeControl(
             seconds: settings.crossfadeSeconds,
             onChanged: controller.setCrossfadeSeconds,
           ),
-          _CurvePicker(curve: settings.curve, onChanged: controller.setCurve),
-          _ToggleChip(
-            icon: Icons.shuffle_rounded,
-            label: 'Aléatoire',
-            selected: settings.shuffle,
-            onChanged: (value) => controller.setShuffle(enabled: value),
+          SizedBox(height: tokens.space3),
+          const ControlLabel('Courbe'),
+          SizedBox(height: tokens.space1),
+          Row(
+            children: [
+              for (final (curve, label) in [
+                (CrossfadeCurveType.equalPower, 'SMOOTH'),
+                (CrossfadeCurveType.linear, 'LINÉAIRE'),
+                (CrossfadeCurveType.cut, 'CUT'),
+              ]) ...[
+                Expanded(
+                  child: PadButton(
+                    label: label,
+                    tooltip: switch (curve) {
+                      CrossfadeCurveType.equalPower =>
+                        'Courbe equal-power (volume constant)',
+                      CrossfadeCurveType.linear => 'Courbe linéaire',
+                      CrossfadeCurveType.cut => 'Coupure franche',
+                    },
+                    active: settings.curve == curve,
+                    onPressed: () => controller.setCurve(curve),
+                  ),
+                ),
+                if (curve != CrossfadeCurveType.cut)
+                  SizedBox(width: tokens.space1),
+              ],
+            ],
           ),
-          _ToggleChip(
-            icon: Icons.repeat_rounded,
-            label: 'Repeat',
-            selected: settings.repeat,
-            onChanged: (value) => controller.setRepeat(enabled: value),
+          SizedBox(height: tokens.space2),
+          Row(
+            children: [
+              Expanded(
+                child: PadButton(
+                  label: 'ALÉATOIRE',
+                  icon: Icons.shuffle_rounded,
+                  tooltip: 'Aléatoire',
+                  color: tokens.deckB,
+                  active: settings.shuffle,
+                  onPressed: () =>
+                      controller.setShuffle(enabled: !settings.shuffle),
+                ),
+              ),
+              SizedBox(width: tokens.space1),
+              Expanded(
+                child: PadButton(
+                  label: 'REPEAT',
+                  icon: Icons.repeat_rounded,
+                  tooltip: 'Repeat',
+                  color: tokens.deckB,
+                  active: settings.repeat,
+                  onPressed: () =>
+                      controller.setRepeat(enabled: !settings.repeat),
+                ),
+              ),
+            ],
           ),
+          SizedBox(height: tokens.space3),
+          Divider(color: tokens.panelBorder),
+          SizedBox(height: tokens.space2),
+          const ControlLabel('File d’attente'),
+          SizedBox(height: tokens.space1),
+          const Expanded(child: _QueueList()),
         ],
       ),
     );
   }
 }
 
-class _AutoMixSwitch extends StatelessWidget {
-  const new({required this.enabled, required this.onChanged});
-
-  final bool enabled;
-  final ValueChanged<bool> onChanged;
-
-  @override
-  Widget build(BuildContext context) {
-    final tokens = context.tokens;
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        ShaderMask(
-          shaderCallback: tokens.neonGradient.createShader,
-          child: Text(
-            'AUTO-MIX',
-            style: Theme.of(context).textTheme.titleMedium
-                ?.copyWith(color: Colors.white, letterSpacing: 2),
-          ),
-        ),
-        SizedBox(width: tokens.space2),
-        Semantics(
-          label: 'Activer l’auto-mix',
-          child: Switch(value: enabled, onChanged: onChanged),
-        ),
-      ],
-    );
-  }
-}
-
-class _StatusBadge extends ConsumerWidget {
+class _StatusRow extends ConsumerWidget {
   const new({required this.mode});
 
   final AutoMixMode mode;
@@ -100,25 +130,39 @@ class _StatusBadge extends ConsumerWidget {
       AutoMixMode.off => ('Arrêté', tokens.textMuted),
     };
     return Row(
-      mainAxisSize: MainAxisSize.min,
       children: [
         Semantics(
           liveRegion: true,
           label: 'Auto-mix $label',
-          child: Chip(
-            avatar: Icon(Icons.circle, size: 10, color: color),
-            label: Text(label),
+          excludeSemantics: true,
+          child: Row(
+            children: [
+              Container(
+                width: 8,
+                height: 8,
+                decoration: BoxDecoration(
+                  color: color,
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(color: color.withValues(alpha: 0.6), blurRadius: 6),
+                  ],
+                ),
+              ),
+              SizedBox(width: tokens.space2),
+              Text(label, style: TextStyle(color: color, fontSize: 12)),
+            ],
           ),
         ),
-        if (mode == AutoMixMode.suspended) ...[
-          SizedBox(width: tokens.space2),
-          FilledButton.icon(
+        const Spacer(),
+        if (mode == AutoMixMode.suspended)
+          PadButton(
+            label: 'Reprendre',
+            icon: Icons.play_arrow_rounded,
+            color: tokens.warning,
+            height: 26,
             onPressed: () =>
                 unawaited(ref.read(engineGatewayProvider).resumeAutoMix()),
-            icon: const Icon(Icons.play_circle_outline_rounded),
-            label: const Text('Reprendre'),
           ),
-        ],
       ],
     );
   }
@@ -133,93 +177,123 @@ class _CrossfadeControl extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final tokens = context.tokens;
-    return Row(
-      mainAxisSize: MainAxisSize.min,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text('Fondu', style: TextStyle(color: tokens.textSecondary)),
-        SizedBox(
-          width: 160,
-          child: Semantics(
-            label: 'Durée du fondu',
-            child: Slider(
-              value: seconds,
-              max: MixSettings.maxCrossfadeSeconds,
-              divisions: 60,
-              label: '${seconds.toStringAsFixed(1)} s',
-              onChanged: onChanged,
+        Row(
+          children: [
+            const ControlLabel('Fondu'),
+            const Spacer(),
+            Text(
+              '${seconds.toStringAsFixed(seconds % 1 == 0 ? 0 : 1)} s',
+              style: counterStyle(context, size: 14),
             ),
+          ],
+        ),
+        Semantics(
+          label: 'Durée du fondu',
+          child: Slider(
+            value: seconds,
+            max: MixSettings.maxCrossfadeSeconds,
+            divisions: 60,
+            label: '${seconds.toStringAsFixed(1)} s',
+            onChanged: onChanged,
           ),
         ),
-        SizedBox(
-          width: 48,
-          child: Text(
-            '${seconds.toStringAsFixed(seconds % 1 == 0 ? 0 : 1)} s',
-            style: counterStyle(context, size: 14),
-          ),
+        Row(
+          children: [
+            for (final preset in MixSettings.crossfadePresets) ...[
+              Expanded(
+                child: PadButton(
+                  label: '${preset.round()}',
+                  tooltip: 'Fondu de ${preset.round()} secondes',
+                  height: 26,
+                  active: seconds == preset,
+                  onPressed: () => onChanged(preset),
+                ),
+              ),
+              if (preset != MixSettings.crossfadePresets.last)
+                SizedBox(width: tokens.space1),
+            ],
+          ],
         ),
-        for (final preset in MixSettings.crossfadePresets)
-          Padding(
-            padding: EdgeInsets.only(left: tokens.space1),
-            child: ChoiceChip(
-              label: Text('${preset.round()}'),
-              selected: seconds == preset,
-              onSelected: (_) => onChanged(preset),
-              tooltip: 'Fondu de ${preset.round()} secondes',
-            ),
-          ),
       ],
     );
   }
 }
 
-class _CurvePicker extends StatelessWidget {
-  const new({required this.curve, required this.onChanged});
+class _QueueList extends ConsumerWidget {
+  const new();
 
-  final CrossfadeCurveType curve;
-  final ValueChanged<CrossfadeCurveType> onChanged;
-
-  @override
-  Widget build(BuildContext context) {
-    return SegmentedButton<CrossfadeCurveType>(
-      segments: const [
-        ButtonSegment(
-          value: CrossfadeCurveType.equalPower,
-          label: Text('Equal-power'),
-        ),
-        ButtonSegment(
-          value: CrossfadeCurveType.linear,
-          label: Text('Linéaire'),
-        ),
-        ButtonSegment(value: CrossfadeCurveType.cut, label: Text('Cut')),
-      ],
-      selected: {curve},
-      showSelectedIcon: false,
-      onSelectionChanged: (selection) => onChanged(selection.first),
-    );
+  static String _titleOf(List<TrackInfo> library, int id) {
+    for (final track in library) {
+      if (track.id == id) return track.title;
+    }
+    return 'Titre $id';
   }
-}
-
-class _ToggleChip extends StatelessWidget {
-  const new({
-    required this.icon,
-    required this.label,
-    required this.selected,
-    required this.onChanged,
-  });
-
-  final IconData icon;
-  final String label;
-  final bool selected;
-  final ValueChanged<bool> onChanged;
 
   @override
-  Widget build(BuildContext context) {
-    return FilterChip(
-      avatar: Icon(icon, size: 18),
-      label: Text(label),
-      selected: selected,
-      onSelected: onChanged,
-      showCheckmark: false,
+  Widget build(BuildContext context, WidgetRef ref) {
+    final tokens = context.tokens;
+    final upcoming = ref.watch(sessionStoreProvider.select((s) => s.upcoming));
+    final library = ref.watch(sessionStoreProvider.select((s) => s.library));
+    if (upcoming.isEmpty) {
+      return Center(
+        child: Text(
+          'La file est vide.',
+          style: TextStyle(color: tokens.textMuted, fontSize: 12),
+        ),
+      );
+    }
+    return ReorderableListView.builder(
+      itemCount: upcoming.length,
+      buildDefaultDragHandles: false,
+      onReorderItem: (from, to) =>
+          unawaited(ref.read(engineGatewayProvider).moveInQueue(from, to)),
+      itemBuilder: (context, index) {
+        final id = upcoming[index];
+        final title = _titleOf(library, id);
+        return Container(
+          key: ValueKey(id),
+          height: 28,
+          margin: const EdgeInsets.only(bottom: 2),
+          padding: EdgeInsets.symmetric(horizontal: tokens.space2),
+          decoration: BoxDecoration(
+            color: tokens.inset,
+            borderRadius: BorderRadius.circular(tokens.radiusSmall),
+          ),
+          child: Row(
+            children: [
+              SizedBox(
+                width: 22,
+                child: Text(
+                  '${index + 1}',
+                  style: counterStyle(context, size: 11, color: tokens.textMuted),
+                ),
+              ),
+              Expanded(
+                child: Text(
+                  title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
+              ),
+              ReorderableDragStartListener(
+                index: index,
+                child: Semantics(
+                  label: 'Déplacer $title',
+                  child: Icon(
+                    Icons.drag_indicator_rounded,
+                    size: 16,
+                    color: tokens.textMuted,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }

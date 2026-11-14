@@ -1,15 +1,37 @@
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:platine/core/design_system/controls.dart';
 import 'package:platine/core/design_system/tokens.dart';
 import 'package:platine/core/design_system/widgets.dart';
 import 'package:platine/core/engine/application/engine_providers.dart';
 import 'package:platine/core/engine/application/session_state.dart';
 import 'package:platine/core/engine/domain/models.dart';
+import 'package:platine/features/decks/application/deck_controls.dart';
 import 'package:platine/features/mixer/application/mixer_controller.dart';
 import 'package:platine/features/settings/application/settings_controller.dart';
 
-/// Crossfader, master volume and master VU meter.
+/// Knob position (`0..1`, neutral in the middle) of an isolator level
+/// (`0..2`, neutral 1).
+double eqToKnob(double level) =>
+    level <= 1 ? level * 0.5 : 0.5 + (level - 1) / (DeckControls.maxLevel - 1) * 0.5;
+
+/// Inverse of [eqToKnob].
+double knobToEq(double position) => position <= 0.5
+    ? position * 2
+    : 1 + (position - 0.5) * 2 * (DeckControls.maxLevel - 1);
+
+/// Fader position of a deck gain: unity at 80 %, +6 dB at the top.
+double gainToFader(double gain) =>
+    gain <= 1 ? gain * 0.8 : 0.8 + (gain - 1) / (DeckControls.maxLevel - 1) * 0.2;
+
+/// Inverse of [gainToFader].
+double faderToGain(double position) => position <= 0.8
+    ? position / 0.8
+    : 1 + (position - 0.8) / 0.2 * (DeckControls.maxLevel - 1);
+
+/// Two-channel mixer: isolator EQ, channel faders with meters, master and
+/// crossfader.
 class MixerPanel extends ConsumerWidget {
   const new({super.key});
 
@@ -20,44 +42,52 @@ class MixerPanel extends ConsumerWidget {
     final level = ref.watch(
       sessionStoreProvider.select((s) => s.levels.master),
     );
-    return GlassPanel(
+    return PanelBox(
+      padding: EdgeInsets.symmetric(
+        horizontal: tokens.space2,
+        vertical: tokens.space3,
+      ),
       child: Column(
         children: [
-          Text('Mixer', style: Theme.of(context).textTheme.titleMedium),
-          SizedBox(height: tokens.space3),
           Expanded(
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Column(
-                  children: [
-                    Expanded(
-                      child: RotatedBox(
-                        quarterTurns: 3,
-                        child: Semantics(
-                          label: 'Volume master',
-                          child: Slider(
-                            value: master,
-                            max: MasterGain.max,
-                            onChanged: ref
-                                .read(masterGainProvider.notifier)
-                                .set,
-                          ),
+                const Expanded(child: _ChannelStrip(side: DeckSide.a)),
+                Container(width: 1, color: tokens.panelBorder),
+                SizedBox(
+                  width: 64,
+                  child: Column(
+                    children: [
+                      const ControlLabel('Master'),
+                      SizedBox(height: tokens.space1),
+                      Knob(
+                        position: master / MasterGain.max,
+                        defaultPosition: 1 / MasterGain.max,
+                        bipolar: false,
+                        color: tokens.textPrimary,
+                        label: 'Volume master',
+                        onChanged: (p) => ref
+                            .read(masterGainProvider.notifier)
+                            .set(p * MasterGain.max),
+                      ),
+                      SizedBox(height: tokens.space3),
+                      Expanded(
+                        child: VuMeter(
+                          level: level,
+                          label: 'Niveau master',
+                          width: 14,
                         ),
                       ),
-                    ),
-                    Text(
-                      'Master',
-                      style: TextStyle(color: tokens.textSecondary),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-                SizedBox(width: tokens.space3),
-                VuMeter(level: level, label: 'Niveau master', width: 14),
+                Container(width: 1, color: tokens.panelBorder),
+                const Expanded(child: _ChannelStrip(side: DeckSide.b)),
               ],
             ),
           ),
-          SizedBox(height: tokens.space4),
+          SizedBox(height: tokens.space3),
           const Crossfader(),
         ],
       ),
@@ -65,7 +95,116 @@ class MixerPanel extends ConsumerWidget {
   }
 }
 
-/// Large crossfader. It glides on its own during automatic transitions.
+/// EQ knobs (double-click kills a band), meter and volume fader of a deck.
+class _ChannelStrip extends ConsumerWidget {
+  const new({required this.side});
+
+  final DeckSide side;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final tokens = context.tokens;
+    final controls = ref.watch(deckControlsControllerProvider(side));
+    final controller = ref.read(deckControlsControllerProvider(side).notifier);
+    final level = ref.watch(
+      sessionStoreProvider.select((s) => s.levels.of(side)),
+    );
+    final accent = tokens.deckColor(isDeckA: side == DeckSide.a);
+    final meter = VuMeter(level: level, label: 'Niveau platine ${side.label}');
+    final fader = VerticalFader(
+      position: gainToFader(controls.gain),
+      label: 'Volume platine ${side.label}',
+      color: accent,
+      onChanged: (p) => controller.setGain(faderToGain(p)),
+    );
+    return Column(
+      children: [
+        for (final band in EqBandType.values.reversed) ...[
+          _EqKnob(
+            side: side,
+            band: band,
+            level: controls.band(band),
+            onChanged: (p) => controller.setBand(band, knobToEq(p)),
+            onKill: () => controller.toggleKill(band),
+          ),
+          SizedBox(height: tokens.space1),
+        ],
+        SizedBox(height: tokens.space2),
+        Expanded(
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: side == DeckSide.a
+                ? [meter, SizedBox(width: tokens.space2), fader]
+                : [fader, SizedBox(width: tokens.space2), meter],
+          ),
+        ),
+        SizedBox(height: tokens.space1),
+        ControlLabel(side.label, color: accent),
+      ],
+    );
+  }
+}
+
+class _EqKnob extends StatelessWidget {
+  const new({
+    required this.side,
+    required this.band,
+    required this.level,
+    required this.onChanged,
+    required this.onKill,
+  });
+
+  final DeckSide side;
+  final EqBandType band;
+  final double level;
+  final ValueChanged<double> onChanged;
+  final VoidCallback onKill;
+
+  String get _name => switch (band) {
+    EqBandType.low => 'Low',
+    EqBandType.mid => 'Mid',
+    EqBandType.high => 'High',
+  };
+
+  @override
+  Widget build(BuildContext context) {
+    final tokens = context.tokens;
+    final killed = level == 0;
+    final color = switch (band) {
+      EqBandType.low => tokens.waveLow,
+      EqBandType.mid => tokens.waveMid,
+      EqBandType.high => tokens.waveHigh,
+    };
+    return Column(
+      children: [
+        Tooltip(
+          message: killed ? 'Rétablir $_name' : 'Couper $_name',
+          child: InkWell(
+            onTap: onKill,
+            borderRadius: BorderRadius.circular(tokens.radiusSmall),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+              child: ControlLabel(
+                killed ? '$_name kill' : _name,
+                color: killed ? tokens.danger : null,
+              ),
+            ),
+          ),
+        ),
+        Knob(
+          position: eqToKnob(level),
+          label: 'Égaliseur $_name platine ${side.label}',
+          color: killed ? tokens.danger : color,
+          size: 38,
+          onChanged: onChanged,
+          onDoubleTap: onKill,
+        ),
+      ],
+    );
+  }
+}
+
+/// Crossfader. It glides on its own during automatic transitions.
 class Crossfader extends ConsumerStatefulWidget {
   const new({super.key});
 
@@ -120,25 +259,20 @@ class _CrossfaderState extends ConsumerState<Crossfader>
           children: [
             _SideLabel(side: DeckSide.a, onTap: controller.toDeck),
             Expanded(
-              child: SliderTheme(
-                data: SliderTheme.of(context).copyWith(
-                  trackHeight: 8,
-                  thumbShape: const RoundSliderThumbShape(
-                    enabledThumbRadius: 14,
-                  ),
-                ),
-                child: Semantics(
-                  label: 'Crossfader',
-                  child: Slider(value: value, onChanged: controller.move),
-                ),
+              child: HorizontalFader(
+                position: value,
+                label: 'Crossfader',
+                leftColor: tokens.deckA,
+                rightColor: tokens.deckB,
+                onChanged: controller.move,
               ),
             ),
             _SideLabel(side: DeckSide.b, onTap: controller.toDeck),
           ],
         ),
-        Text(
+        ControlLabel(
           session.transition != null ? 'Fondu automatique…' : 'Crossfader',
-          style: TextStyle(color: tokens.textSecondary),
+          color: session.transition != null ? tokens.textPrimary : null,
         ),
       ],
     );
@@ -161,8 +295,8 @@ class _SideLabel extends StatelessWidget {
         onTap: () => onTap(side),
         borderRadius: BorderRadius.circular(tokens.radiusSmall),
         child: SizedBox(
-          width: tokens.minTouchTarget,
-          height: tokens.minTouchTarget,
+          width: 26,
+          height: 32,
           child: Center(
             child: Text(
               side.label,

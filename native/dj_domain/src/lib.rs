@@ -17,6 +17,7 @@ pub mod queue;
 pub mod shuffle;
 pub mod track;
 pub mod values;
+pub mod waveform;
 
 pub use automix::{
     AutoMixAction, AutoMixInput, AutoMixScheduler, AutoMixSettings, AutoMixState, AutoMixStatus,
@@ -31,6 +32,7 @@ pub use track::{Playlist, Track, TrackId, TrackTiming};
 pub use values::{
     Bpm, CrossfadeDuration, CrossfaderPosition, DeckId, Gain, PitchPercent, PitchRange, Seconds,
 };
+pub use waveform::Waveform;
 
 /// Semantic version of the domain crate, exposed for diagnostics.
 pub const VERSION: &str = env!("CARGO_PKG_VERSION");

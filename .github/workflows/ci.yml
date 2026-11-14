@@ -110,7 +110,18 @@ jobs:
         run: flutter analyze --fatal-infos --fatal-warnings
 
       - name: flutter test
-        run: flutter test
+        run: flutter test --exclude-tags screenshot
+
+      - name: Render screenshots for visual review
+        if: always()
+        run: |
+          flutter test --tags screenshot --update-goldens test/screenshots || true
+          if ls test/screenshots/goldens/*.png >/dev/null 2>&1; then
+            echo "----- BEGIN SCREENSHOTS TGZ -----"
+            tar czf - test/screenshots/goldens | base64 -b 76
+            echo "----- END SCREENSHOTS TGZ -----"
+          fi
+          rm -rf test/screenshots/goldens
 
       - name: Build universal macOS app (release)
         run: flutter build macos --release

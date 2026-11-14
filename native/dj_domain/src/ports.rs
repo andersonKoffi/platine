@@ -8,6 +8,7 @@ use std::path::{Path, PathBuf};
 
 use crate::track::{Track, TrackTiming};
 use crate::values::{Bpm, Seconds};
+use crate::waveform::Waveform;
 
 /// Monotonic time source.
 pub trait Clock {
@@ -74,6 +75,8 @@ pub trait TrackDecoder {
 pub struct TrackAnalysis {
     pub timing: TrackTiming,
     pub bpm: Option<Bpm>,
+    /// Coloured overview of the track (empty if not computed).
+    pub waveform: Waveform,
 }
 
 /// Analysis options.

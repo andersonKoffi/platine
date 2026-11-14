@@ -5,19 +5,22 @@ import 'package:platine/core/design_system/tokens.dart';
 ThemeData buildPlatineTheme([PlatineTokens tokens = PlatineTokens.neon]) {
   final scheme =
       ColorScheme.fromSeed(
-        seedColor: tokens.neonViolet,
+        seedColor: tokens.deckA,
         brightness: Brightness.dark,
       ).copyWith(
-        primary: tokens.neonCyan,
-        secondary: tokens.neonMagenta,
+        primary: tokens.deckA,
+        secondary: tokens.deckB,
         tertiary: tokens.neonViolet,
-        surface: tokens.surface,
+        surface: tokens.panel,
         onSurface: tokens.textPrimary,
         error: tokens.danger,
+        outline: tokens.panelBorder,
       );
   final base = ThemeData(
     colorScheme: scheme,
     scaffoldBackgroundColor: tokens.background,
+    fontFamily: tokens.displayFamily,
+    visualDensity: VisualDensity.compact,
     useMaterial3: true,
   );
   final display = TextStyle(
@@ -25,36 +28,101 @@ ThemeData buildPlatineTheme([PlatineTokens tokens = PlatineTokens.neon]) {
     color: tokens.textPrimary,
     fontWeight: FontWeight.w700,
   );
+  final label = TextStyle(
+    fontFamily: tokens.displayFamily,
+    color: tokens.textMuted,
+    fontWeight: FontWeight.w700,
+    fontSize: 10,
+    letterSpacing: 1.2,
+  );
   return base.copyWith(
     extensions: [tokens],
     textTheme: base.textTheme
-        .apply(bodyColor: tokens.textPrimary, displayColor: tokens.textPrimary)
+        .apply(
+          bodyColor: tokens.textPrimary,
+          displayColor: tokens.textPrimary,
+          fontFamily: tokens.displayFamily,
+        )
         .copyWith(
-          displaySmall: display.copyWith(fontSize: 34, letterSpacing: -0.5),
-          headlineSmall: display.copyWith(fontSize: 22),
-          titleMedium: display.copyWith(fontSize: 16),
+          displaySmall: display.copyWith(fontSize: 30, letterSpacing: -0.5),
+          headlineSmall: display.copyWith(fontSize: 20),
+          titleMedium: display.copyWith(fontSize: 15),
+          titleSmall: display.copyWith(fontSize: 13),
+          labelSmall: label,
+          bodyMedium: TextStyle(
+            fontFamily: tokens.displayFamily,
+            fontSize: 13,
+            color: tokens.textPrimary,
+          ),
+          bodySmall: TextStyle(
+            fontFamily: tokens.displayFamily,
+            fontSize: 12,
+            color: tokens.textSecondary,
+          ),
         ),
+    dividerTheme: DividerThemeData(
+      color: tokens.panelBorder,
+      thickness: 1,
+      space: 1,
+    ),
     sliderTheme: SliderThemeData(
-      trackHeight: 4,
-      activeTrackColor: tokens.neonCyan,
-      inactiveTrackColor: tokens.glassBorder,
+      trackHeight: 3,
+      activeTrackColor: tokens.deckA,
+      inactiveTrackColor: tokens.panelBorder,
       thumbColor: tokens.textPrimary,
-      overlayColor: tokens.neonCyan.withValues(alpha: 0.16),
+      overlayColor: tokens.deckA.withValues(alpha: 0.16),
+      thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 7),
+    ),
+    inputDecorationTheme: InputDecorationTheme(
+      isDense: true,
+      filled: true,
+      fillColor: tokens.inset,
+      contentPadding: EdgeInsets.symmetric(
+        horizontal: tokens.space3,
+        vertical: tokens.space2,
+      ),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(tokens.radiusSmall),
+        borderSide: BorderSide(color: tokens.panelBorder),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(tokens.radiusSmall),
+        borderSide: BorderSide(color: tokens.panelBorder),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(tokens.radiusSmall),
+        borderSide: BorderSide(color: tokens.deckA),
+      ),
+      hintStyle: TextStyle(color: tokens.textMuted, fontSize: 13),
     ),
     tooltipTheme: TooltipThemeData(
       waitDuration: tokens.durationSlow,
       decoration: BoxDecoration(
-        color: tokens.surface,
+        color: tokens.panelRaised,
         borderRadius: BorderRadius.circular(tokens.radiusSmall),
-        border: Border.all(color: tokens.glassBorder),
+        border: Border.all(color: tokens.panelBorder),
       ),
-      textStyle: TextStyle(color: tokens.textPrimary),
+      textStyle: TextStyle(
+        color: tokens.textPrimary,
+        fontFamily: tokens.displayFamily,
+        fontSize: 12,
+      ),
     ),
     snackBarTheme: SnackBarThemeData(
       behavior: SnackBarBehavior.floating,
-      backgroundColor: tokens.surface,
-      contentTextStyle: TextStyle(color: tokens.textPrimary),
-      actionTextColor: tokens.neonCyan,
+      backgroundColor: tokens.panelRaised,
+      contentTextStyle: TextStyle(
+        color: tokens.textPrimary,
+        fontFamily: tokens.displayFamily,
+      ),
+      actionTextColor: tokens.deckA,
+    ),
+    dialogTheme: DialogThemeData(
+      backgroundColor: tokens.panel,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(tokens.radiusMedium),
+        side: BorderSide(color: tokens.panelBorder),
+      ),
     ),
   );
 }

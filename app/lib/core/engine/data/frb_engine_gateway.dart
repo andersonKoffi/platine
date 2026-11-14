@@ -133,6 +133,24 @@ EngineEvent mapUpdate(rust.EngineUpdate update) {
         start: startSeconds,
         end: endSeconds,
       ),
+    rust.EngineUpdate_Waveform(
+      :final deck,
+      :final trackId,
+      :final pointsPerSecond,
+      :final low,
+      :final mid,
+      :final high,
+    ) =>
+      WaveformReady(
+        deck: _side(deck),
+        trackId: trackId.toInt(),
+        waveform: WaveformData(
+          pointsPerSecond: pointsPerSecond,
+          low: low,
+          mid: mid,
+          high: high,
+        ),
+      ),
     rust.EngineUpdate_DeckPosition(
       :final deck,
       :final positionSeconds,

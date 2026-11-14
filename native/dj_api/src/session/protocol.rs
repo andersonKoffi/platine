@@ -6,7 +6,7 @@ use crossbeam_channel::Sender;
 use dj_domain::ports::SkippedFile;
 use dj_domain::{
     AutoMixState, AutoMixStatus, CrossfadeCurve, CrossfaderPosition, DeckId, Gain, Seconds, Track,
-    TrackId, TrackTiming,
+    TrackId, TrackTiming, Waveform,
 };
 use dj_engine::{EqBand, Levels};
 
@@ -82,6 +82,12 @@ pub enum SessionEvent {
         deck: DeckId,
         track: TrackId,
         timing: TrackTiming,
+    },
+    /// Coloured overview of the track being loaded on `deck`.
+    Waveform {
+        deck: DeckId,
+        track: TrackId,
+        waveform: Waveform,
     },
     DeckPosition {
         deck: DeckId,

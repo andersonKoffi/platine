@@ -15,6 +15,7 @@ class DeckState {
     this.playing = false,
     this.level = 0,
     this.positionUpdatedAt,
+    this.waveform,
   });
 
   static const DeckState empty = DeckState();
@@ -33,6 +34,9 @@ class DeckState {
   /// When [position] was reported (to extrapolate between reports).
   final DateTime? positionUpdatedAt;
 
+  /// Coloured overview of the track, once analysed.
+  final WaveformData? waveform;
+
   bool get hasTrack => trackId != null && !loading;
 
   /// Seconds left before the end of the audible part.
@@ -48,6 +52,7 @@ class DeckState {
     bool? playing,
     double? level,
     DateTime? positionUpdatedAt,
+    WaveformData? waveform,
   }) {
     return DeckState(
       trackId: trackId ?? this.trackId,
@@ -59,6 +64,7 @@ class DeckState {
       playing: playing ?? this.playing,
       level: level ?? this.level,
       positionUpdatedAt: positionUpdatedAt ?? this.positionUpdatedAt,
+      waveform: waveform ?? this.waveform,
     );
   }
 }
@@ -207,8 +213,16 @@ SessionState reduceSession(
           end: end,
           position: start,
           positionUpdatedAt: now,
+          // The waveform comes from the analysis, just before loading.
+          waveform: state.deck(deck).trackId == trackId
+              ? state.deck(deck).waveform
+              : null,
         ),
       ),
+    WaveformReady(:final deck, :final trackId, :final waveform) =>
+      state.deck(deck).trackId == trackId
+          ? state.withDeck(deck, state.deck(deck).copyWith(waveform: waveform))
+          : state,
     DeckPositionChanged(:final deck, :final position, :final playing) =>
       state.withDeck(
         deck,

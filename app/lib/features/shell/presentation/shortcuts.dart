@@ -110,7 +110,7 @@ Future<void> showShortcutHelp(BuildContext context) {
                           shortcut.keys,
                           style: TextStyle(
                             fontFamily: tokens.displayFamily,
-                            color: tokens.neonCyan,
+                            color: tokens.deckA,
                           ),
                         ),
                       ),

@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:platine/core/engine/application/session_state.dart';
 import 'package:platine/core/engine/domain/engine_event.dart';
@@ -41,6 +43,35 @@ void main() {
     expect(loaded.track(2)?.title, 'B');
     expect(loaded.track(9), isNull);
     expect(loaded.track(null), isNull);
+  });
+
+  test('the waveform of the loading track survives the load', () {
+    final waveform = WaveformData(
+      pointsPerSecond: 100,
+      low: Uint8List(3),
+      mid: Uint8List(3),
+      high: Uint8List(3),
+    );
+    final state = apply([
+      const DeckLoading(deck: DeckSide.a, trackId: 1),
+      WaveformReady(deck: DeckSide.a, trackId: 1, waveform: waveform),
+      // A stale waveform for another track is ignored.
+      WaveformReady(deck: DeckSide.a, trackId: 9, waveform: waveform),
+      const DeckLoaded(
+        deck: DeckSide.a,
+        trackId: 1,
+        duration: 3,
+        start: 0,
+        end: 3,
+      ),
+    ]);
+    expect(state.deckA.waveform, same(waveform));
+    final reloaded = reduceSession(
+      state,
+      const DeckLoaded(deck: DeckSide.a, trackId: 2, duration: 1, start: 0, end: 1),
+      now,
+    );
+    expect(reloaded.deckA.waveform, isNull);
   });
 
   test('positions and levels update the decks', () {

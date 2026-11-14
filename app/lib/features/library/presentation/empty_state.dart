@@ -45,15 +45,15 @@ class _EmptyLibraryState extends ConsumerState<EmptyLibrary>
   Widget build(BuildContext context) {
     final tokens = context.tokens;
     final textTheme = Theme.of(context).textTheme;
-    return GlassPanel(
-      glow: widget.dragging ? tokens.neonCyan : tokens.neonViolet,
+    return PanelBox(
+      accent: widget.dragging ? tokens.deckA : null,
       child: Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             SizedBox(
-              width: 200,
-              height: 200,
+              width: 120,
+              height: 120,
               child: AnimatedBuilder(
                 animation: _pulse,
                 builder: (context, _) => CustomPaint(
@@ -67,29 +67,29 @@ class _EmptyLibraryState extends ConsumerState<EmptyLibrary>
                       widget.dragging
                           ? Icons.download_rounded
                           : Icons.album_rounded,
-                      size: 72,
+                      size: 44,
                       color: tokens.textPrimary,
                     ),
                   ),
                 ),
               ),
             ),
-            SizedBox(height: tokens.space5),
+            SizedBox(height: tokens.space3),
             Text(
               widget.dragging
                   ? 'Lâche, on s’occupe du reste !'
                   : 'Dépose un dossier de musique ici',
-              style: textTheme.displaySmall,
+              style: textTheme.headlineSmall,
               textAlign: TextAlign.center,
             ),
-            SizedBox(height: tokens.space3),
+            SizedBox(height: tokens.space2),
             Text(
               'Platine charge le titre 1 sur la platine A, le titre 2 sur la '
               'platine B, et enchaîne tout seul.',
               style: TextStyle(color: tokens.textSecondary),
               textAlign: TextAlign.center,
             ),
-            SizedBox(height: tokens.space5),
+            SizedBox(height: tokens.space4),
             FilledButton.icon(
               style: FilledButton.styleFrom(
                 minimumSize: Size(0, tokens.minTouchTarget + tokens.space2),

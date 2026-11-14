@@ -1,0 +1,3 @@
+tags:
+  # Renders full screens to PNG for visual review (run with --update-goldens).
+  screenshot:

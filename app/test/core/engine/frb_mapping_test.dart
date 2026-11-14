@@ -1,4 +1,4 @@
-import 'dart:typed_data' show Float32List;
+import 'dart:typed_data' show Float32List, Uint8List;
 
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart'
     show Uint64List;
@@ -49,6 +49,25 @@ void main() {
       ),
       isA<DeckPositionChanged>(),
     );
+  });
+
+  test('waveforms map to domain events', () {
+    final event = mapUpdate(
+      rust.EngineUpdate.waveform(
+        deck: rust.Deck.a,
+        trackId: BigInt.from(7),
+        pointsPerSecond: 100,
+        low: Uint8List.fromList([1, 2]),
+        mid: Uint8List.fromList([3, 4]),
+        high: Uint8List.fromList([5, 6]),
+      ),
+    );
+    expect(event, isA<WaveformReady>());
+    event as WaveformReady;
+    expect(event.trackId, 7);
+    expect(event.waveform.length, 2);
+    expect(event.waveform.duration, 0.02);
+    expect(event.waveform.high, [5, 6]);
   });
 
   test('levels keep the louder channel', () {

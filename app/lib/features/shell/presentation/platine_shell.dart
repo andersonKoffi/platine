@@ -17,9 +17,6 @@ import 'package:platine/features/settings/application/settings_controller.dart';
 import 'package:platine/features/shell/application/drop_zone_provider.dart';
 import 'package:platine/features/shell/presentation/shortcuts.dart';
 
-/// Width under which the library moves below the decks.
-const double wideLayoutMinWidth = 1280;
-
 /// Main screen: drop target, shortcuts, layout, notices.
 class PlatineShell extends ConsumerStatefulWidget {
   const new({super.key});
@@ -147,38 +144,24 @@ class _PlatineShellState extends ConsumerState<PlatineShell>
           child: Focus(
             autofocus: true,
             child: DecoratedBox(
-              decoration: BoxDecoration(
-                gradient: RadialGradient(
-                  center: const Alignment(0, -1.2),
-                  radius: 1.4,
-                  colors: [tokens.backgroundGlow, tokens.background],
-                ),
-              ),
+              decoration: BoxDecoration(color: tokens.background),
               child: Stack(
                 children: [
                   Padding(
-                    padding: EdgeInsets.all(tokens.space4),
+                    padding: EdgeInsets.all(tokens.space2),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        const _Header(),
+                        const _TopBar(),
                         if (startup.hasError)
                           _EngineError(error: startup.error),
-                        SizedBox(height: tokens.space3),
+                        SizedBox(height: tokens.space2),
                         Expanded(
-                          child: hasLibrary
-                              ? const _MixLayout()
-                              : Column(
-                                  crossAxisAlignment:
-                                      CrossAxisAlignment.stretch,
-                                  children: [
-                                    const AutoMixPanel(),
-                                    SizedBox(height: tokens.space3),
-                                    Expanded(
-                                      child: EmptyLibrary(dragging: _dragging),
-                                    ),
-                                  ],
-                                ),
+                          child: _MixLayout(
+                            browser: hasLibrary
+                                ? const LibraryPanel()
+                                : EmptyLibrary(dragging: _dragging),
+                          ),
                         ),
                       ],
                     ),
@@ -203,37 +186,81 @@ class _PlatineShellState extends ConsumerState<PlatineShell>
   }
 }
 
-class _Header extends StatelessWidget {
+class _TopBar extends ConsumerWidget {
   const new();
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final tokens = context.tokens;
-    return Row(
-      children: [
-        ShaderMask(
-          shaderCallback: tokens.neonGradient.createShader,
-          child: Text(
-            'Platine',
-            style: Theme.of(context).textTheme.displaySmall
-                ?.copyWith(color: Colors.white),
+    final textTheme = Theme.of(context).textTheme;
+    final mode = ref.watch(sessionStoreProvider.select((s) => s.mode));
+    final transition = ref.watch(
+      sessionStoreProvider.select((s) => s.transition != null),
+    );
+    final (status, color) = switch (mode) {
+      AutoMixMode.running => (
+        transition ? 'AUTOMIX · FONDU EN COURS' : 'AUTOMIX · EN MARCHE',
+        tokens.success,
+      ),
+      AutoMixMode.suspended => ('AUTOMIX · SUSPENDU', tokens.warning),
+      AutoMixMode.off => ('AUTOMIX · ARRÊTÉ', tokens.textMuted),
+    };
+    return SizedBox(
+      height: 34,
+      child: Row(
+        children: [
+          SizedBox(width: tokens.space2),
+          ShaderMask(
+            shaderCallback: tokens.neonGradient.createShader,
+            child: Text(
+              'Platine',
+              style: textTheme.headlineSmall?.copyWith(
+                color: Colors.white,
+                letterSpacing: 1,
+              ),
+            ),
           ),
-        ),
-        const Spacer(),
-        Consumer(
-          builder: (context, ref, _) => IconButton(
+          SizedBox(width: tokens.space5),
+          Container(
+            padding: EdgeInsets.symmetric(
+              horizontal: tokens.space2,
+              vertical: 3,
+            ),
+            decoration: BoxDecoration(
+              color: tokens.inset,
+              borderRadius: BorderRadius.circular(tokens.radiusSmall),
+              border: Border.all(color: tokens.panelBorder),
+            ),
+            child: Row(
+              children: [
+                Icon(Icons.circle, size: 8, color: color),
+                SizedBox(width: tokens.space2),
+                Text(status, style: textTheme.labelSmall?.copyWith(color: color)),
+              ],
+            ),
+          ),
+          const Spacer(),
+          IconButton(
             tooltip: 'Choisir un dossier (⌘O)',
             onPressed: () =>
                 unawaited(ref.read(libraryLoaderProvider).pickAndLoad()),
-            icon: const Icon(Icons.folder_open_rounded),
+            icon: Icon(
+              Icons.folder_open_rounded,
+              size: 20,
+              color: tokens.textSecondary,
+            ),
           ),
-        ),
-        IconButton(
-          tooltip: 'Raccourcis clavier (?)',
-          onPressed: () => unawaited(showShortcutHelp(context)),
-          icon: const Icon(Icons.keyboard_rounded),
-        ),
-      ],
+          IconButton(
+            tooltip: 'Raccourcis clavier (?)',
+            onPressed: () => unawaited(showShortcutHelp(context)),
+            icon: Icon(
+              Icons.keyboard_rounded,
+              size: 20,
+              color: tokens.textSecondary,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -248,8 +275,8 @@ class _EngineError extends ConsumerWidget {
     final tokens = context.tokens;
     return Padding(
       padding: EdgeInsets.only(top: tokens.space3),
-      child: GlassPanel(
-        glow: tokens.danger,
+      child: PanelBox(
+        accent: tokens.danger,
         child: Row(
           children: [
             Icon(Icons.volume_off_rounded, color: tokens.danger),
@@ -272,54 +299,67 @@ class _EngineError extends ConsumerWidget {
   }
 }
 
-/// Decks and mixer, auto-mix bar, library (beside or below).
+/// Waveforms on top, decks around the mixer, browser and auto-mix below.
 class _MixLayout extends StatelessWidget {
-  const new();
+  const new({required this.browser});
+
+  final Widget browser;
+
+  /// Width of the mixer and of the auto-mix panel.
+  static const double centerWidth = 300;
 
   @override
   Widget build(BuildContext context) {
     final tokens = context.tokens;
-    final gap = SizedBox(width: tokens.space3, height: tokens.space3);
-    final decks = Row(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        const Expanded(flex: 5, child: DeckView(side: DeckSide.a)),
-        gap,
-        const Expanded(flex: 3, child: MixerPanel()),
-        gap,
-        const Expanded(flex: 5, child: DeckView(side: DeckSide.b)),
-      ],
-    );
+    final gap = SizedBox(width: tokens.space2, height: tokens.space2);
     return LayoutBuilder(
       builder: (context, constraints) {
-        if (constraints.maxWidth >= wideLayoutMinWidth) {
-          return Row(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Expanded(
-                flex: 3,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Expanded(child: decks),
-                    gap,
-                    const AutoMixPanel(),
-                  ],
-                ),
-              ),
-              gap,
-              const Expanded(flex: 2, child: LibraryPanel()),
-            ],
-          );
-        }
+        final waveHeight = (constraints.maxHeight * 0.085).clamp(44.0, 84.0);
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Expanded(flex: 3, child: decks),
+            PanelBox(
+              padding: EdgeInsets.all(tokens.space1),
+              child: Column(
+                children: [
+                  SizedBox(
+                    height: waveHeight,
+                    child: const DeckWaveform(side: DeckSide.a),
+                  ),
+                  SizedBox(height: tokens.space1),
+                  SizedBox(
+                    height: waveHeight,
+                    child: const DeckWaveform(side: DeckSide.b),
+                  ),
+                ],
+              ),
+            ),
             gap,
-            const AutoMixPanel(),
+            Expanded(
+              flex: 11,
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  const Expanded(child: DeckView(side: DeckSide.a)),
+                  gap,
+                  const SizedBox(width: centerWidth, child: MixerPanel()),
+                  gap,
+                  const Expanded(child: DeckView(side: DeckSide.b)),
+                ],
+              ),
+            ),
             gap,
-            const Expanded(flex: 2, child: LibraryPanel()),
+            Expanded(
+              flex: 8,
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Expanded(child: browser),
+                  gap,
+                  const SizedBox(width: centerWidth, child: AutoMixPanel()),
+                ],
+              ),
+            ),
           ],
         );
       },
@@ -341,7 +381,7 @@ class _DropOverlay extends StatelessWidget {
           child: Center(
             child: Text(
               'Dépose pour ajouter ou remplacer la file',
-              style: Theme.of(context).textTheme.displaySmall,
+              style: Theme.of(context).textTheme.headlineSmall,
             ),
           ),
         ),
@@ -365,8 +405,8 @@ class _Celebration extends StatelessWidget {
         gradient: RadialGradient(
           radius: 0.2 + 1.2 * t,
           colors: [
-            tokens.neonMagenta.withValues(alpha: 0.35 * fade),
-            tokens.neonCyan.withValues(alpha: 0.2 * fade),
+            tokens.deckB.withValues(alpha: 0.3 * fade),
+            tokens.deckA.withValues(alpha: 0.2 * fade),
             Colors.transparent,
           ],
         ),

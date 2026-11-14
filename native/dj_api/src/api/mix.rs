@@ -131,6 +131,15 @@ pub enum EngineUpdate {
         start_seconds: f64,
         end_seconds: f64,
     },
+    /// Coloured overview: one value per band and window, `0..=255`.
+    Waveform {
+        deck: Deck,
+        track_id: u64,
+        points_per_second: u16,
+        low: Vec<u8>,
+        mid: Vec<u8>,
+        high: Vec<u8>,
+    },
     DeckPosition {
         deck: Deck,
         position_seconds: f64,
@@ -494,6 +503,18 @@ impl From<SessionEvent> for EngineUpdate {
                 duration_seconds: timing.duration().as_f64(),
                 start_seconds: timing.effective_start().as_f64(),
                 end_seconds: timing.effective_end().as_f64(),
+            },
+            SessionEvent::Waveform {
+                deck,
+                track,
+                waveform,
+            } => Self::Waveform {
+                deck: deck.into(),
+                track_id: track.0,
+                points_per_second: waveform.points_per_second(),
+                low: waveform.low().to_vec(),
+                mid: waveform.mid().to_vec(),
+                high: waveform.high().to_vec(),
             },
             SessionEvent::DeckPosition {
                 deck,

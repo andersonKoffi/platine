@@ -40,6 +40,18 @@ final class DeckLoaded extends EngineEvent {
   final double end;
 }
 
+final class WaveformReady extends EngineEvent {
+  const new({
+    required this.deck,
+    required this.trackId,
+    required this.waveform,
+  });
+
+  final DeckSide deck;
+  final int trackId;
+  final WaveformData waveform;
+}
+
 final class DeckPositionChanged extends EngineEvent {
   const new({
     required this.deck,

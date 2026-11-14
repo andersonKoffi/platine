@@ -428,6 +428,11 @@ impl<R: RandomSource> Controller<R> {
         }
         match outcome.result {
             Ok(analysis) => {
+                self.emit(SessionEvent::Waveform {
+                    deck: job.deck,
+                    track: job.track,
+                    waveform: analysis.waveform,
+                });
                 let start = analysis.timing.effective_start();
                 let slot = &mut self.decks[job.deck.index()];
                 slot.timing = Some(analysis.timing);

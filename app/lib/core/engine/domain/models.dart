@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:flutter/foundation.dart';
 
 /// One of the two decks.
@@ -145,4 +147,26 @@ class MixSettings {
     repeat,
     silenceThresholdDb,
   );
+}
+
+/// Coloured overview of a track: peaks of the low, mid and high bands per
+/// window, `0..=255`.
+@immutable
+class WaveformData {
+  const new({
+    required this.pointsPerSecond,
+    required this.low,
+    required this.mid,
+    required this.high,
+  });
+
+  final int pointsPerSecond;
+  final Uint8List low;
+  final Uint8List mid;
+  final Uint8List high;
+
+  int get length => low.length;
+
+  /// Seconds covered by the waveform.
+  double get duration => pointsPerSecond == 0 ? 0 : length / pointsPerSecond;
 }
