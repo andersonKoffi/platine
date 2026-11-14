@@ -5,1155 +5,1779 @@
 
 import 'api/diagnostics.dart';
 import 'api/mix.dart';
+
 import 'dart:async';
 import 'dart:convert';
+
 import 'frb_generated.dart';
-import 'frb_generated.io.dart' if (dart.library.js_interop) 'frb_generated.web.dart';
+import 'frb_generated.io.dart'
+    if (dart.library.js_interop) 'frb_generated.web.dart';
 import 'lib.dart';
+
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
+/// Main entrypoint of the Rust API
+class RustLib extends BaseEntrypoint<RustLibApi, RustLibApiImpl, RustLibWire> {
+  @internal
+  static final instance = RustLib._();
 
-                /// Main entrypoint of the Rust API
-                class RustLib extends BaseEntrypoint<RustLibApi, RustLibApiImpl, RustLibWire> {
-                  @internal
-                  static final instance = RustLib._();
+  RustLib._();
 
-                  RustLib._();
+  /// Initialize flutter_rust_bridge
+  static Future<void> init({
+    RustLibApi? api,
+    BaseHandler? handler,
+    ExternalLibrary? externalLibrary,
+    bool forceSameCodegenVersion = true,
+  }) async {
+    await instance.initImpl(
+      api: api,
+      handler: handler,
+      externalLibrary: externalLibrary,
+      forceSameCodegenVersion: forceSameCodegenVersion,
+    );
+  }
 
-                  /// Initialize flutter_rust_bridge
-                  static Future<void> init({
-                    RustLibApi? api,
-                    BaseHandler? handler,
-                    ExternalLibrary? externalLibrary,
-                    bool forceSameCodegenVersion = true,
-                  }) async {
-                    await instance.initImpl(
-                      api: api,
-                      handler: handler,
-                      externalLibrary: externalLibrary,
-                      forceSameCodegenVersion: forceSameCodegenVersion,
-                    );
-                  }
+  /// Initialize flutter_rust_bridge in mock mode.
+  /// No libraries for FFI are loaded.
+  static void initMock({required RustLibApi api}) {
+    instance.initMockImpl(api: api);
+  }
 
-                  /// Initialize flutter_rust_bridge in mock mode.
-                  /// No libraries for FFI are loaded.
-                  static void initMock({
-                    required RustLibApi api,
-                  }) {
-                    instance.initMockImpl(
-                      api: api,
-                    );
-                  }
+  /// Dispose flutter_rust_bridge
+  ///
+  /// The call to this function is optional, since flutter_rust_bridge (and everything else)
+  /// is automatically disposed when the app stops.
+  static void dispose() => instance.disposeImpl();
 
-                  /// Dispose flutter_rust_bridge
-                  ///
-                  /// The call to this function is optional, since flutter_rust_bridge (and everything else)
-                  /// is automatically disposed when the app stops.
-                  static void dispose() => instance.disposeImpl();
+  @override
+  ApiImplConstructor<RustLibApiImpl, RustLibWire> get apiImplConstructor =>
+      RustLibApiImpl.new;
 
-                  @override
-                  ApiImplConstructor<RustLibApiImpl, RustLibWire> get apiImplConstructor => RustLibApiImpl.new;
+  @override
+  WireConstructor<RustLibWire> get wireConstructor =>
+      RustLibWire.fromExternalLibrary;
 
-                  @override
-                  WireConstructor<RustLibWire> get wireConstructor => RustLibWire.fromExternalLibrary;
+  @override
+  Future<void> executeRustInitializers() async {
+    await api.crateApiDiagnosticsInitApp();
+  }
 
-                  @override
-                  Future<void> executeRustInitializers() async {
-                    await api.crateApiDiagnosticsInitApp();
+  @override
+  ExternalLibraryLoaderConfig get defaultExternalLibraryLoaderConfig =>
+      kDefaultExternalLibraryLoaderConfig;
 
-                    
-                  }
+  @override
+  String get codegenVersion => '2.13.0';
 
-                  @override
-                  ExternalLibraryLoaderConfig get defaultExternalLibraryLoaderConfig => kDefaultExternalLibraryLoaderConfig;
+  @override
+  int get rustContentHash => -492394854;
 
-                  @override
-                  String get codegenVersion => '2.13.0';
+  static const kDefaultExternalLibraryLoaderConfig =
+      ExternalLibraryLoaderConfig(
+        stem: 'dj_api',
+        ioDirectory: '../native/dj_api/target/release/',
+        webPrefix: 'pkg/',
+        wasmBindgenName: 'wasm_bindgen',
+      );
+}
 
-                  @override
-                  int get rustContentHash => -492394854;
+abstract class RustLibApi extends BaseApi {
+  Stream<EngineUpdate> crateApiMixEngineUpdates();
 
-                  static const kDefaultExternalLibraryLoaderConfig = ExternalLibraryLoaderConfig(
-                    stem: 'dj_api',
-                    ioDirectory: '../native/dj_api/target/release/',
-                    webPrefix: 'pkg/',
-                    wasmBindgenName: 'wasm_bindgen',
-                  );
-                }
-                
+  Future<void> crateApiDiagnosticsInitApp();
 
-                abstract class RustLibApi extends BaseApi {
-                  Stream<EngineUpdate> crateApiMixEngineUpdates();
+  Future<ScanResultDto> crateApiMixLoadFolder({
+    required String path,
+    required FolderMode mode,
+  });
 
-Future<void> crateApiDiagnosticsInitApp();
+  Future<void> crateApiMixLoadTrack({
+    required Deck deck,
+    required BigInt trackId,
+  });
 
-Future<ScanResultDto> crateApiMixLoadFolder({required String path , required FolderMode mode });
+  NativeVersions crateApiDiagnosticsNativeVersions();
 
-Future<void> crateApiMixLoadTrack({required Deck deck , required BigInt trackId });
+  String crateApiDiagnosticsPing();
 
-NativeVersions crateApiDiagnosticsNativeVersions();
+  Future<void> crateApiMixResumeAutomix();
 
-String crateApiDiagnosticsPing();
+  Future<void> crateApiMixSeek({required Deck deck, required double seconds});
 
-Future<void> crateApiMixResumeAutomix();
+  Future<void> crateApiMixSetAutomixEnabled({required bool enabled});
 
-Future<void> crateApiMixSeek({required Deck deck , required double seconds });
+  Future<void> crateApiMixSetCrossfadeCurve({required CurveKind curve});
 
-Future<void> crateApiMixSetAutomixEnabled({required bool enabled });
+  Future<void> crateApiMixSetCrossfadeDuration({required double seconds});
 
-Future<void> crateApiMixSetCrossfadeCurve({required CurveKind curve });
+  Future<void> crateApiMixSetCrossfader({required double position});
 
-Future<void> crateApiMixSetCrossfadeDuration({required double seconds });
+  Future<void> crateApiMixSetDeckGain({
+    required Deck deck,
+    required double linear,
+  });
 
-Future<void> crateApiMixSetCrossfader({required double position });
+  Future<void> crateApiMixSetEq({
+    required Deck deck,
+    required Band band,
+    required double linear,
+  });
 
-Future<void> crateApiMixSetDeckGain({required Deck deck , required double linear });
+  Future<void> crateApiMixSetMasterGain({required double linear});
 
-Future<void> crateApiMixSetEq({required Deck deck , required Band band , required double linear });
+  Future<void> crateApiMixSetRepeat({required bool enabled});
 
-Future<void> crateApiMixSetMasterGain({required double linear });
+  Future<void> crateApiMixSetShuffle({required bool enabled});
 
-Future<void> crateApiMixSetRepeat({required bool enabled });
+  Future<void> crateApiMixSetSilenceThreshold({required double db});
 
-Future<void> crateApiMixSetShuffle({required bool enabled });
+  Future<void> crateApiMixStartSession({required SessionConfig config});
 
-Future<void> crateApiMixSetSilenceThreshold({required double db });
+  Future<void> crateApiMixStopSession();
 
-Future<void> crateApiMixStartSession({required SessionConfig config });
+  Future<void> crateApiMixTogglePlay({required Deck deck});
+}
 
-Future<void> crateApiMixStopSession();
+class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
+  RustLibApiImpl({
+    required super.handler,
+    required super.wire,
+    required super.generalizedFrbRustBinding,
+    required super.portManager,
+  });
 
-Future<void> crateApiMixTogglePlay({required Deck deck });
-
-
-                }
-                
-
-                class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
-                  RustLibApiImpl({
-                    required super.handler,
-                    required super.wire,
-                    required super.generalizedFrbRustBinding,
-                    required super.portManager,
-                  });
-
-                  @override Stream<EngineUpdate> crateApiMixEngineUpdates()  { 
-            final sink = RustStreamSink<EngineUpdate>();
-            unawaited(handler.executeNormal(NormalTask(
-            callFfi: (port_) {
-              
-            final serializer = SseSerializer(generalizedFrbRustBinding);sse_encode_StreamSink_engine_update_Sse(sink, serializer);
-            pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 1, port: port_);
-            
-            },
-            codec: 
-        SseCodec(
-          decodeSuccessData: sse_decode_unit,
-          decodeErrorData: sse_decode_AnyhowException,
-        )
-        ,
-            constMeta: kCrateApiMixEngineUpdatesConstMeta,
-            argValues: [sink],
-            apiImpl: this,
-        )));
-            return sink.stream;
-             }
-
-
-        TaskConstMeta get kCrateApiMixEngineUpdatesConstMeta => const TaskConstMeta(
-            debugName: "engine_updates",
-            argNames: ["sink"],
-        );
-        
-
-@override Future<void> crateApiDiagnosticsInitApp()  { return handler.executeNormal(NormalTask(
-            callFfi: (port_) {
-              
+  @override
+  Stream<EngineUpdate> crateApiMixEngineUpdates() {
+    final sink = RustStreamSink<EngineUpdate>();
+    unawaited(
+      handler.executeNormal(
+        NormalTask(
+          callFfi: (port_) {
             final serializer = SseSerializer(generalizedFrbRustBinding);
-            pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 2, port: port_);
-            
-            },
-            codec: 
-        SseCodec(
+            sse_encode_StreamSink_engine_update_Sse(sink, serializer);
+            pdeCallFfi(
+              generalizedFrbRustBinding,
+              serializer,
+              funcId: 1,
+              port: port_,
+            );
+          },
+          codec: SseCodec(
+            decodeSuccessData: sse_decode_unit,
+            decodeErrorData: sse_decode_AnyhowException,
+          ),
+          constMeta: kCrateApiMixEngineUpdatesConstMeta,
+          argValues: [sink],
+          apiImpl: this,
+        ),
+      ),
+    );
+    return sink.stream;
+  }
+
+  TaskConstMeta get kCrateApiMixEngineUpdatesConstMeta =>
+      const TaskConstMeta(debugName: "engine_updates", argNames: ["sink"]);
+
+  @override
+  Future<void> crateApiDiagnosticsInitApp() {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 2,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
           decodeSuccessData: sse_decode_unit,
           decodeErrorData: null,
-        )
-        ,
-            constMeta: kCrateApiDiagnosticsInitAppConstMeta,
-            argValues: [],
-            apiImpl: this,
-        )); }
+        ),
+        constMeta: kCrateApiDiagnosticsInitAppConstMeta,
+        argValues: [],
+        apiImpl: this,
+      ),
+    );
+  }
 
+  TaskConstMeta get kCrateApiDiagnosticsInitAppConstMeta =>
+      const TaskConstMeta(debugName: "init_app", argNames: []);
 
-        TaskConstMeta get kCrateApiDiagnosticsInitAppConstMeta => const TaskConstMeta(
-            debugName: "init_app",
-            argNames: [],
-        );
-        
-
-@override Future<ScanResultDto> crateApiMixLoadFolder({required String path , required FolderMode mode })  { return handler.executeNormal(NormalTask(
-            callFfi: (port_) {
-              
-            final serializer = SseSerializer(generalizedFrbRustBinding);sse_encode_String(path, serializer);
-sse_encode_folder_mode(mode, serializer);
-            pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 3, port: port_);
-            
-            },
-            codec: 
-        SseCodec(
+  @override
+  Future<ScanResultDto> crateApiMixLoadFolder({
+    required String path,
+    required FolderMode mode,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_String(path, serializer);
+          sse_encode_folder_mode(mode, serializer);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 3,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
           decodeSuccessData: sse_decode_scan_result_dto,
           decodeErrorData: sse_decode_AnyhowException,
-        )
-        ,
-            constMeta: kCrateApiMixLoadFolderConstMeta,
-            argValues: [path, mode],
-            apiImpl: this,
-        )); }
+        ),
+        constMeta: kCrateApiMixLoadFolderConstMeta,
+        argValues: [path, mode],
+        apiImpl: this,
+      ),
+    );
+  }
 
+  TaskConstMeta get kCrateApiMixLoadFolderConstMeta =>
+      const TaskConstMeta(debugName: "load_folder", argNames: ["path", "mode"]);
 
-        TaskConstMeta get kCrateApiMixLoadFolderConstMeta => const TaskConstMeta(
-            debugName: "load_folder",
-            argNames: ["path", "mode"],
-        );
-        
-
-@override Future<void> crateApiMixLoadTrack({required Deck deck , required BigInt trackId })  { return handler.executeNormal(NormalTask(
-            callFfi: (port_) {
-              
-            final serializer = SseSerializer(generalizedFrbRustBinding);sse_encode_deck(deck, serializer);
-sse_encode_u_64(trackId, serializer);
-            pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 4, port: port_);
-            
-            },
-            codec: 
-        SseCodec(
+  @override
+  Future<void> crateApiMixLoadTrack({
+    required Deck deck,
+    required BigInt trackId,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_deck(deck, serializer);
+          sse_encode_u_64(trackId, serializer);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 4,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
           decodeSuccessData: sse_decode_unit,
           decodeErrorData: sse_decode_AnyhowException,
-        )
-        ,
-            constMeta: kCrateApiMixLoadTrackConstMeta,
-            argValues: [deck, trackId],
-            apiImpl: this,
-        )); }
+        ),
+        constMeta: kCrateApiMixLoadTrackConstMeta,
+        argValues: [deck, trackId],
+        apiImpl: this,
+      ),
+    );
+  }
 
+  TaskConstMeta get kCrateApiMixLoadTrackConstMeta => const TaskConstMeta(
+    debugName: "load_track",
+    argNames: ["deck", "trackId"],
+  );
 
-        TaskConstMeta get kCrateApiMixLoadTrackConstMeta => const TaskConstMeta(
-            debugName: "load_track",
-            argNames: ["deck", "trackId"],
-        );
-        
-
-@override NativeVersions crateApiDiagnosticsNativeVersions()  { return handler.executeSync(SyncTask(
-            callFfi: () {
-              
-            final serializer = SseSerializer(generalizedFrbRustBinding);
-            return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 5)!;
-            
-            },
-            codec: 
-        SseCodec(
+  @override
+  NativeVersions crateApiDiagnosticsNativeVersions() {
+    return handler.executeSync(
+      SyncTask(
+        callFfi: () {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 5)!;
+        },
+        codec: SseCodec(
           decodeSuccessData: sse_decode_native_versions,
           decodeErrorData: null,
-        )
-        ,
-            constMeta: kCrateApiDiagnosticsNativeVersionsConstMeta,
-            argValues: [],
-            apiImpl: this,
-        )); }
+        ),
+        constMeta: kCrateApiDiagnosticsNativeVersionsConstMeta,
+        argValues: [],
+        apiImpl: this,
+      ),
+    );
+  }
 
+  TaskConstMeta get kCrateApiDiagnosticsNativeVersionsConstMeta =>
+      const TaskConstMeta(debugName: "native_versions", argNames: []);
 
-        TaskConstMeta get kCrateApiDiagnosticsNativeVersionsConstMeta => const TaskConstMeta(
-            debugName: "native_versions",
-            argNames: [],
-        );
-        
-
-@override String crateApiDiagnosticsPing()  { return handler.executeSync(SyncTask(
-            callFfi: () {
-              
-            final serializer = SseSerializer(generalizedFrbRustBinding);
-            return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 6)!;
-            
-            },
-            codec: 
-        SseCodec(
+  @override
+  String crateApiDiagnosticsPing() {
+    return handler.executeSync(
+      SyncTask(
+        callFfi: () {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 6)!;
+        },
+        codec: SseCodec(
           decodeSuccessData: sse_decode_String,
           decodeErrorData: null,
-        )
-        ,
-            constMeta: kCrateApiDiagnosticsPingConstMeta,
-            argValues: [],
-            apiImpl: this,
-        )); }
+        ),
+        constMeta: kCrateApiDiagnosticsPingConstMeta,
+        argValues: [],
+        apiImpl: this,
+      ),
+    );
+  }
 
+  TaskConstMeta get kCrateApiDiagnosticsPingConstMeta =>
+      const TaskConstMeta(debugName: "ping", argNames: []);
 
-        TaskConstMeta get kCrateApiDiagnosticsPingConstMeta => const TaskConstMeta(
-            debugName: "ping",
-            argNames: [],
-        );
-        
-
-@override Future<void> crateApiMixResumeAutomix()  { return handler.executeNormal(NormalTask(
-            callFfi: (port_) {
-              
-            final serializer = SseSerializer(generalizedFrbRustBinding);
-            pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 7, port: port_);
-            
-            },
-            codec: 
-        SseCodec(
+  @override
+  Future<void> crateApiMixResumeAutomix() {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 7,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
           decodeSuccessData: sse_decode_unit,
           decodeErrorData: sse_decode_AnyhowException,
-        )
-        ,
-            constMeta: kCrateApiMixResumeAutomixConstMeta,
-            argValues: [],
-            apiImpl: this,
-        )); }
+        ),
+        constMeta: kCrateApiMixResumeAutomixConstMeta,
+        argValues: [],
+        apiImpl: this,
+      ),
+    );
+  }
 
+  TaskConstMeta get kCrateApiMixResumeAutomixConstMeta =>
+      const TaskConstMeta(debugName: "resume_automix", argNames: []);
 
-        TaskConstMeta get kCrateApiMixResumeAutomixConstMeta => const TaskConstMeta(
-            debugName: "resume_automix",
-            argNames: [],
-        );
-        
-
-@override Future<void> crateApiMixSeek({required Deck deck , required double seconds })  { return handler.executeNormal(NormalTask(
-            callFfi: (port_) {
-              
-            final serializer = SseSerializer(generalizedFrbRustBinding);sse_encode_deck(deck, serializer);
-sse_encode_f_64(seconds, serializer);
-            pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 8, port: port_);
-            
-            },
-            codec: 
-        SseCodec(
+  @override
+  Future<void> crateApiMixSeek({required Deck deck, required double seconds}) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_deck(deck, serializer);
+          sse_encode_f_64(seconds, serializer);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 8,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
           decodeSuccessData: sse_decode_unit,
           decodeErrorData: sse_decode_AnyhowException,
-        )
-        ,
-            constMeta: kCrateApiMixSeekConstMeta,
-            argValues: [deck, seconds],
-            apiImpl: this,
-        )); }
+        ),
+        constMeta: kCrateApiMixSeekConstMeta,
+        argValues: [deck, seconds],
+        apiImpl: this,
+      ),
+    );
+  }
 
+  TaskConstMeta get kCrateApiMixSeekConstMeta =>
+      const TaskConstMeta(debugName: "seek", argNames: ["deck", "seconds"]);
 
-        TaskConstMeta get kCrateApiMixSeekConstMeta => const TaskConstMeta(
-            debugName: "seek",
-            argNames: ["deck", "seconds"],
-        );
-        
-
-@override Future<void> crateApiMixSetAutomixEnabled({required bool enabled })  { return handler.executeNormal(NormalTask(
-            callFfi: (port_) {
-              
-            final serializer = SseSerializer(generalizedFrbRustBinding);sse_encode_bool(enabled, serializer);
-            pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 9, port: port_);
-            
-            },
-            codec: 
-        SseCodec(
+  @override
+  Future<void> crateApiMixSetAutomixEnabled({required bool enabled}) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_bool(enabled, serializer);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 9,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
           decodeSuccessData: sse_decode_unit,
           decodeErrorData: sse_decode_AnyhowException,
-        )
-        ,
-            constMeta: kCrateApiMixSetAutomixEnabledConstMeta,
-            argValues: [enabled],
-            apiImpl: this,
-        )); }
+        ),
+        constMeta: kCrateApiMixSetAutomixEnabledConstMeta,
+        argValues: [enabled],
+        apiImpl: this,
+      ),
+    );
+  }
 
+  TaskConstMeta get kCrateApiMixSetAutomixEnabledConstMeta =>
+      const TaskConstMeta(
+        debugName: "set_automix_enabled",
+        argNames: ["enabled"],
+      );
 
-        TaskConstMeta get kCrateApiMixSetAutomixEnabledConstMeta => const TaskConstMeta(
-            debugName: "set_automix_enabled",
-            argNames: ["enabled"],
-        );
-        
-
-@override Future<void> crateApiMixSetCrossfadeCurve({required CurveKind curve })  { return handler.executeNormal(NormalTask(
-            callFfi: (port_) {
-              
-            final serializer = SseSerializer(generalizedFrbRustBinding);sse_encode_curve_kind(curve, serializer);
-            pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 10, port: port_);
-            
-            },
-            codec: 
-        SseCodec(
+  @override
+  Future<void> crateApiMixSetCrossfadeCurve({required CurveKind curve}) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_curve_kind(curve, serializer);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 10,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
           decodeSuccessData: sse_decode_unit,
           decodeErrorData: sse_decode_AnyhowException,
-        )
-        ,
-            constMeta: kCrateApiMixSetCrossfadeCurveConstMeta,
-            argValues: [curve],
-            apiImpl: this,
-        )); }
+        ),
+        constMeta: kCrateApiMixSetCrossfadeCurveConstMeta,
+        argValues: [curve],
+        apiImpl: this,
+      ),
+    );
+  }
 
+  TaskConstMeta get kCrateApiMixSetCrossfadeCurveConstMeta =>
+      const TaskConstMeta(
+        debugName: "set_crossfade_curve",
+        argNames: ["curve"],
+      );
 
-        TaskConstMeta get kCrateApiMixSetCrossfadeCurveConstMeta => const TaskConstMeta(
-            debugName: "set_crossfade_curve",
-            argNames: ["curve"],
-        );
-        
-
-@override Future<void> crateApiMixSetCrossfadeDuration({required double seconds })  { return handler.executeNormal(NormalTask(
-            callFfi: (port_) {
-              
-            final serializer = SseSerializer(generalizedFrbRustBinding);sse_encode_f_64(seconds, serializer);
-            pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 11, port: port_);
-            
-            },
-            codec: 
-        SseCodec(
+  @override
+  Future<void> crateApiMixSetCrossfadeDuration({required double seconds}) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_f_64(seconds, serializer);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 11,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
           decodeSuccessData: sse_decode_unit,
           decodeErrorData: sse_decode_AnyhowException,
-        )
-        ,
-            constMeta: kCrateApiMixSetCrossfadeDurationConstMeta,
-            argValues: [seconds],
-            apiImpl: this,
-        )); }
+        ),
+        constMeta: kCrateApiMixSetCrossfadeDurationConstMeta,
+        argValues: [seconds],
+        apiImpl: this,
+      ),
+    );
+  }
 
+  TaskConstMeta get kCrateApiMixSetCrossfadeDurationConstMeta =>
+      const TaskConstMeta(
+        debugName: "set_crossfade_duration",
+        argNames: ["seconds"],
+      );
 
-        TaskConstMeta get kCrateApiMixSetCrossfadeDurationConstMeta => const TaskConstMeta(
-            debugName: "set_crossfade_duration",
-            argNames: ["seconds"],
-        );
-        
-
-@override Future<void> crateApiMixSetCrossfader({required double position })  { return handler.executeNormal(NormalTask(
-            callFfi: (port_) {
-              
-            final serializer = SseSerializer(generalizedFrbRustBinding);sse_encode_f_32(position, serializer);
-            pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 12, port: port_);
-            
-            },
-            codec: 
-        SseCodec(
+  @override
+  Future<void> crateApiMixSetCrossfader({required double position}) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_f_32(position, serializer);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 12,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
           decodeSuccessData: sse_decode_unit,
           decodeErrorData: sse_decode_AnyhowException,
-        )
-        ,
-            constMeta: kCrateApiMixSetCrossfaderConstMeta,
-            argValues: [position],
-            apiImpl: this,
-        )); }
+        ),
+        constMeta: kCrateApiMixSetCrossfaderConstMeta,
+        argValues: [position],
+        apiImpl: this,
+      ),
+    );
+  }
 
+  TaskConstMeta get kCrateApiMixSetCrossfaderConstMeta =>
+      const TaskConstMeta(debugName: "set_crossfader", argNames: ["position"]);
 
-        TaskConstMeta get kCrateApiMixSetCrossfaderConstMeta => const TaskConstMeta(
-            debugName: "set_crossfader",
-            argNames: ["position"],
-        );
-        
-
-@override Future<void> crateApiMixSetDeckGain({required Deck deck , required double linear })  { return handler.executeNormal(NormalTask(
-            callFfi: (port_) {
-              
-            final serializer = SseSerializer(generalizedFrbRustBinding);sse_encode_deck(deck, serializer);
-sse_encode_f_32(linear, serializer);
-            pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 13, port: port_);
-            
-            },
-            codec: 
-        SseCodec(
+  @override
+  Future<void> crateApiMixSetDeckGain({
+    required Deck deck,
+    required double linear,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_deck(deck, serializer);
+          sse_encode_f_32(linear, serializer);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 13,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
           decodeSuccessData: sse_decode_unit,
           decodeErrorData: sse_decode_AnyhowException,
-        )
-        ,
-            constMeta: kCrateApiMixSetDeckGainConstMeta,
-            argValues: [deck, linear],
-            apiImpl: this,
-        )); }
+        ),
+        constMeta: kCrateApiMixSetDeckGainConstMeta,
+        argValues: [deck, linear],
+        apiImpl: this,
+      ),
+    );
+  }
 
+  TaskConstMeta get kCrateApiMixSetDeckGainConstMeta => const TaskConstMeta(
+    debugName: "set_deck_gain",
+    argNames: ["deck", "linear"],
+  );
 
-        TaskConstMeta get kCrateApiMixSetDeckGainConstMeta => const TaskConstMeta(
-            debugName: "set_deck_gain",
-            argNames: ["deck", "linear"],
-        );
-        
-
-@override Future<void> crateApiMixSetEq({required Deck deck , required Band band , required double linear })  { return handler.executeNormal(NormalTask(
-            callFfi: (port_) {
-              
-            final serializer = SseSerializer(generalizedFrbRustBinding);sse_encode_deck(deck, serializer);
-sse_encode_band(band, serializer);
-sse_encode_f_32(linear, serializer);
-            pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 14, port: port_);
-            
-            },
-            codec: 
-        SseCodec(
+  @override
+  Future<void> crateApiMixSetEq({
+    required Deck deck,
+    required Band band,
+    required double linear,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_deck(deck, serializer);
+          sse_encode_band(band, serializer);
+          sse_encode_f_32(linear, serializer);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 14,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
           decodeSuccessData: sse_decode_unit,
           decodeErrorData: sse_decode_AnyhowException,
-        )
-        ,
-            constMeta: kCrateApiMixSetEqConstMeta,
-            argValues: [deck, band, linear],
-            apiImpl: this,
-        )); }
+        ),
+        constMeta: kCrateApiMixSetEqConstMeta,
+        argValues: [deck, band, linear],
+        apiImpl: this,
+      ),
+    );
+  }
 
+  TaskConstMeta get kCrateApiMixSetEqConstMeta => const TaskConstMeta(
+    debugName: "set_eq",
+    argNames: ["deck", "band", "linear"],
+  );
 
-        TaskConstMeta get kCrateApiMixSetEqConstMeta => const TaskConstMeta(
-            debugName: "set_eq",
-            argNames: ["deck", "band", "linear"],
-        );
-        
-
-@override Future<void> crateApiMixSetMasterGain({required double linear })  { return handler.executeNormal(NormalTask(
-            callFfi: (port_) {
-              
-            final serializer = SseSerializer(generalizedFrbRustBinding);sse_encode_f_32(linear, serializer);
-            pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 15, port: port_);
-            
-            },
-            codec: 
-        SseCodec(
+  @override
+  Future<void> crateApiMixSetMasterGain({required double linear}) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_f_32(linear, serializer);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 15,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
           decodeSuccessData: sse_decode_unit,
           decodeErrorData: sse_decode_AnyhowException,
-        )
-        ,
-            constMeta: kCrateApiMixSetMasterGainConstMeta,
-            argValues: [linear],
-            apiImpl: this,
-        )); }
+        ),
+        constMeta: kCrateApiMixSetMasterGainConstMeta,
+        argValues: [linear],
+        apiImpl: this,
+      ),
+    );
+  }
 
+  TaskConstMeta get kCrateApiMixSetMasterGainConstMeta =>
+      const TaskConstMeta(debugName: "set_master_gain", argNames: ["linear"]);
 
-        TaskConstMeta get kCrateApiMixSetMasterGainConstMeta => const TaskConstMeta(
-            debugName: "set_master_gain",
-            argNames: ["linear"],
-        );
-        
-
-@override Future<void> crateApiMixSetRepeat({required bool enabled })  { return handler.executeNormal(NormalTask(
-            callFfi: (port_) {
-              
-            final serializer = SseSerializer(generalizedFrbRustBinding);sse_encode_bool(enabled, serializer);
-            pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 16, port: port_);
-            
-            },
-            codec: 
-        SseCodec(
+  @override
+  Future<void> crateApiMixSetRepeat({required bool enabled}) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_bool(enabled, serializer);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 16,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
           decodeSuccessData: sse_decode_unit,
           decodeErrorData: sse_decode_AnyhowException,
-        )
-        ,
-            constMeta: kCrateApiMixSetRepeatConstMeta,
-            argValues: [enabled],
-            apiImpl: this,
-        )); }
+        ),
+        constMeta: kCrateApiMixSetRepeatConstMeta,
+        argValues: [enabled],
+        apiImpl: this,
+      ),
+    );
+  }
 
+  TaskConstMeta get kCrateApiMixSetRepeatConstMeta =>
+      const TaskConstMeta(debugName: "set_repeat", argNames: ["enabled"]);
 
-        TaskConstMeta get kCrateApiMixSetRepeatConstMeta => const TaskConstMeta(
-            debugName: "set_repeat",
-            argNames: ["enabled"],
-        );
-        
-
-@override Future<void> crateApiMixSetShuffle({required bool enabled })  { return handler.executeNormal(NormalTask(
-            callFfi: (port_) {
-              
-            final serializer = SseSerializer(generalizedFrbRustBinding);sse_encode_bool(enabled, serializer);
-            pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 17, port: port_);
-            
-            },
-            codec: 
-        SseCodec(
+  @override
+  Future<void> crateApiMixSetShuffle({required bool enabled}) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_bool(enabled, serializer);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 17,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
           decodeSuccessData: sse_decode_unit,
           decodeErrorData: sse_decode_AnyhowException,
-        )
-        ,
-            constMeta: kCrateApiMixSetShuffleConstMeta,
-            argValues: [enabled],
-            apiImpl: this,
-        )); }
+        ),
+        constMeta: kCrateApiMixSetShuffleConstMeta,
+        argValues: [enabled],
+        apiImpl: this,
+      ),
+    );
+  }
 
+  TaskConstMeta get kCrateApiMixSetShuffleConstMeta =>
+      const TaskConstMeta(debugName: "set_shuffle", argNames: ["enabled"]);
 
-        TaskConstMeta get kCrateApiMixSetShuffleConstMeta => const TaskConstMeta(
-            debugName: "set_shuffle",
-            argNames: ["enabled"],
-        );
-        
-
-@override Future<void> crateApiMixSetSilenceThreshold({required double db })  { return handler.executeNormal(NormalTask(
-            callFfi: (port_) {
-              
-            final serializer = SseSerializer(generalizedFrbRustBinding);sse_encode_f_32(db, serializer);
-            pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 18, port: port_);
-            
-            },
-            codec: 
-        SseCodec(
+  @override
+  Future<void> crateApiMixSetSilenceThreshold({required double db}) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_f_32(db, serializer);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 18,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
           decodeSuccessData: sse_decode_unit,
           decodeErrorData: sse_decode_AnyhowException,
-        )
-        ,
-            constMeta: kCrateApiMixSetSilenceThresholdConstMeta,
-            argValues: [db],
-            apiImpl: this,
-        )); }
+        ),
+        constMeta: kCrateApiMixSetSilenceThresholdConstMeta,
+        argValues: [db],
+        apiImpl: this,
+      ),
+    );
+  }
 
+  TaskConstMeta get kCrateApiMixSetSilenceThresholdConstMeta =>
+      const TaskConstMeta(debugName: "set_silence_threshold", argNames: ["db"]);
 
-        TaskConstMeta get kCrateApiMixSetSilenceThresholdConstMeta => const TaskConstMeta(
-            debugName: "set_silence_threshold",
-            argNames: ["db"],
-        );
-        
-
-@override Future<void> crateApiMixStartSession({required SessionConfig config })  { return handler.executeNormal(NormalTask(
-            callFfi: (port_) {
-              
-            final serializer = SseSerializer(generalizedFrbRustBinding);sse_encode_box_autoadd_session_config(config, serializer);
-            pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 19, port: port_);
-            
-            },
-            codec: 
-        SseCodec(
+  @override
+  Future<void> crateApiMixStartSession({required SessionConfig config}) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_box_autoadd_session_config(config, serializer);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 19,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
           decodeSuccessData: sse_decode_unit,
           decodeErrorData: sse_decode_AnyhowException,
-        )
-        ,
-            constMeta: kCrateApiMixStartSessionConstMeta,
-            argValues: [config],
-            apiImpl: this,
-        )); }
+        ),
+        constMeta: kCrateApiMixStartSessionConstMeta,
+        argValues: [config],
+        apiImpl: this,
+      ),
+    );
+  }
 
+  TaskConstMeta get kCrateApiMixStartSessionConstMeta =>
+      const TaskConstMeta(debugName: "start_session", argNames: ["config"]);
 
-        TaskConstMeta get kCrateApiMixStartSessionConstMeta => const TaskConstMeta(
-            debugName: "start_session",
-            argNames: ["config"],
-        );
-        
-
-@override Future<void> crateApiMixStopSession()  { return handler.executeNormal(NormalTask(
-            callFfi: (port_) {
-              
-            final serializer = SseSerializer(generalizedFrbRustBinding);
-            pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 20, port: port_);
-            
-            },
-            codec: 
-        SseCodec(
+  @override
+  Future<void> crateApiMixStopSession() {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 20,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
           decodeSuccessData: sse_decode_unit,
           decodeErrorData: null,
-        )
-        ,
-            constMeta: kCrateApiMixStopSessionConstMeta,
-            argValues: [],
-            apiImpl: this,
-        )); }
+        ),
+        constMeta: kCrateApiMixStopSessionConstMeta,
+        argValues: [],
+        apiImpl: this,
+      ),
+    );
+  }
 
+  TaskConstMeta get kCrateApiMixStopSessionConstMeta =>
+      const TaskConstMeta(debugName: "stop_session", argNames: []);
 
-        TaskConstMeta get kCrateApiMixStopSessionConstMeta => const TaskConstMeta(
-            debugName: "stop_session",
-            argNames: [],
-        );
-        
-
-@override Future<void> crateApiMixTogglePlay({required Deck deck })  { return handler.executeNormal(NormalTask(
-            callFfi: (port_) {
-              
-            final serializer = SseSerializer(generalizedFrbRustBinding);sse_encode_deck(deck, serializer);
-            pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 21, port: port_);
-            
-            },
-            codec: 
-        SseCodec(
+  @override
+  Future<void> crateApiMixTogglePlay({required Deck deck}) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_deck(deck, serializer);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 21,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
           decodeSuccessData: sse_decode_unit,
           decodeErrorData: sse_decode_AnyhowException,
-        )
-        ,
-            constMeta: kCrateApiMixTogglePlayConstMeta,
-            argValues: [deck],
-            apiImpl: this,
-        )); }
+        ),
+        constMeta: kCrateApiMixTogglePlayConstMeta,
+        argValues: [deck],
+        apiImpl: this,
+      ),
+    );
+  }
 
+  TaskConstMeta get kCrateApiMixTogglePlayConstMeta =>
+      const TaskConstMeta(debugName: "toggle_play", argNames: ["deck"]);
 
-        TaskConstMeta get kCrateApiMixTogglePlayConstMeta => const TaskConstMeta(
-            debugName: "toggle_play",
-            argNames: ["deck"],
+  @protected
+  AnyhowException dco_decode_AnyhowException(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return AnyhowException(raw as String);
+  }
+
+  @protected
+  RustStreamSink<EngineUpdate> dco_decode_StreamSink_engine_update_Sse(
+    dynamic raw,
+  ) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    throw UnimplementedError();
+  }
+
+  @protected
+  String dco_decode_String(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return raw as String;
+  }
+
+  @protected
+  AutoMixStateDto dco_decode_auto_mix_state_dto(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    switch (raw[0]) {
+      case 0:
+        return AutoMixStateDto_Idle();
+      case 1:
+        return AutoMixStateDto_Playing(active: dco_decode_deck(raw[1]));
+      case 2:
+        return AutoMixStateDto_Crossfading(
+          from: dco_decode_deck(raw[1]),
+          to: dco_decode_deck(raw[2]),
         );
-        
-
-
-
-                  @protected AnyhowException dco_decode_AnyhowException(dynamic raw){ // Codec=Dco (DartCObject based), see doc to use other codecs
-return AnyhowException(raw as String); }
-
-@protected RustStreamSink<EngineUpdate> dco_decode_StreamSink_engine_update_Sse(dynamic raw){ // Codec=Dco (DartCObject based), see doc to use other codecs
-throw UnimplementedError(); }
-
-@protected String dco_decode_String(dynamic raw){ // Codec=Dco (DartCObject based), see doc to use other codecs
-return raw as String; }
-
-@protected AutoMixStateDto dco_decode_auto_mix_state_dto(dynamic raw){ // Codec=Dco (DartCObject based), see doc to use other codecs
-switch (raw[0]) {
-                case 0: return AutoMixStateDto_Idle();
-case 1: return AutoMixStateDto_Playing(active: dco_decode_deck(raw[1]),);
-case 2: return AutoMixStateDto_Crossfading(from: dco_decode_deck(raw[1]),to: dco_decode_deck(raw[2]),);
-case 3: return AutoMixStateDto_WaitingForNext(deck: dco_decode_deck(raw[1]),);
-case 4: return AutoMixStateDto_Finished();
-                default: throw Exception("unreachable");
-            } }
-
-@protected AutoMixStatusDto dco_decode_auto_mix_status_dto(dynamic raw){ // Codec=Dco (DartCObject based), see doc to use other codecs
-return AutoMixStatusDto.values[raw as int]; }
-
-@protected Band dco_decode_band(dynamic raw){ // Codec=Dco (DartCObject based), see doc to use other codecs
-return Band.values[raw as int]; }
-
-@protected bool dco_decode_bool(dynamic raw){ // Codec=Dco (DartCObject based), see doc to use other codecs
-return raw as bool; }
-
-@protected AutoMixStateDto dco_decode_box_autoadd_auto_mix_state_dto(dynamic raw){ // Codec=Dco (DartCObject based), see doc to use other codecs
-return dco_decode_auto_mix_state_dto(raw); }
-
-@protected LevelsDto dco_decode_box_autoadd_levels_dto(dynamic raw){ // Codec=Dco (DartCObject based), see doc to use other codecs
-return dco_decode_levels_dto(raw); }
-
-@protected SessionConfig dco_decode_box_autoadd_session_config(dynamic raw){ // Codec=Dco (DartCObject based), see doc to use other codecs
-return dco_decode_session_config(raw); }
-
-@protected CurveKind dco_decode_curve_kind(dynamic raw){ // Codec=Dco (DartCObject based), see doc to use other codecs
-return CurveKind.values[raw as int]; }
-
-@protected Deck dco_decode_deck(dynamic raw){ // Codec=Dco (DartCObject based), see doc to use other codecs
-return Deck.values[raw as int]; }
-
-@protected EngineUpdate dco_decode_engine_update(dynamic raw){ // Codec=Dco (DartCObject based), see doc to use other codecs
-switch (raw[0]) {
-                case 0: return EngineUpdate_LibraryChanged(tracks: dco_decode_list_track_dto(raw[1]),);
-case 1: return EngineUpdate_DeckLoading(deck: dco_decode_deck(raw[1]),trackId: dco_decode_u_64(raw[2]),);
-case 2: return EngineUpdate_DeckLoaded(deck: dco_decode_deck(raw[1]),trackId: dco_decode_u_64(raw[2]),durationSeconds: dco_decode_f_64(raw[3]),startSeconds: dco_decode_f_64(raw[4]),endSeconds: dco_decode_f_64(raw[5]),);
-case 3: return EngineUpdate_DeckPosition(deck: dco_decode_deck(raw[1]),positionSeconds: dco_decode_f_64(raw[2]),playing: dco_decode_bool(raw[3]),);
-case 4: return EngineUpdate_Levels(dco_decode_box_autoadd_levels_dto(raw[1]),);
-case 5: return EngineUpdate_AutoMixChanged(state: dco_decode_box_autoadd_auto_mix_state_dto(raw[1]),status: dco_decode_auto_mix_status_dto(raw[2]),);
-case 6: return EngineUpdate_QueueChanged(upcoming: dco_decode_list_prim_u_64_strict(raw[1]),);
-case 7: return EngineUpdate_TransitionStarted(from: dco_decode_deck(raw[1]),to: dco_decode_deck(raw[2]),);
-case 8: return EngineUpdate_TransitionCompleted(from: dco_decode_deck(raw[1]),to: dco_decode_deck(raw[2]),);
-case 9: return EngineUpdate_TrackSkipped(trackId: dco_decode_u_64(raw[1]),reason: dco_decode_String(raw[2]),);
-case 10: return EngineUpdate_QueueExhausted();
-case 11: return EngineUpdate_Underrun(deck: dco_decode_deck(raw[1]),);
-                default: throw Exception("unreachable");
-            } }
-
-@protected double dco_decode_f_32(dynamic raw){ // Codec=Dco (DartCObject based), see doc to use other codecs
-return raw as double; }
-
-@protected F32Array2 dco_decode_f_32_array_2(dynamic raw){ // Codec=Dco (DartCObject based), see doc to use other codecs
-return F32Array2(dco_decode_list_prim_f_32_strict(raw)); }
-
-@protected double dco_decode_f_64(dynamic raw){ // Codec=Dco (DartCObject based), see doc to use other codecs
-return raw as double; }
-
-@protected FolderMode dco_decode_folder_mode(dynamic raw){ // Codec=Dco (DartCObject based), see doc to use other codecs
-return FolderMode.values[raw as int]; }
-
-@protected int dco_decode_i_32(dynamic raw){ // Codec=Dco (DartCObject based), see doc to use other codecs
-return raw as int; }
-
-@protected LevelsDto dco_decode_levels_dto(dynamic raw){ // Codec=Dco (DartCObject based), see doc to use other codecs
-final arr = raw as List<dynamic>;
-                if (arr.length != 3) throw Exception('unexpected arr length: expect 3 but see ${arr.length}');
-                return LevelsDto(deckA: dco_decode_f_32_array_2(arr[0]),
-deckB: dco_decode_f_32_array_2(arr[1]),
-master: dco_decode_f_32_array_2(arr[2]),); }
-
-@protected Float32List dco_decode_list_prim_f_32_strict(dynamic raw){ // Codec=Dco (DartCObject based), see doc to use other codecs
-return raw as Float32List; }
-
-@protected Uint64List dco_decode_list_prim_u_64_strict(dynamic raw){ // Codec=Dco (DartCObject based), see doc to use other codecs
-return dcoDecodeUint64List(raw); }
-
-@protected Uint8List dco_decode_list_prim_u_8_strict(dynamic raw){ // Codec=Dco (DartCObject based), see doc to use other codecs
-return raw as Uint8List; }
-
-@protected List<SkippedDto> dco_decode_list_skipped_dto(dynamic raw){ // Codec=Dco (DartCObject based), see doc to use other codecs
-return (raw as List<dynamic>).map(dco_decode_skipped_dto).toList(); }
-
-@protected List<TrackDto> dco_decode_list_track_dto(dynamic raw){ // Codec=Dco (DartCObject based), see doc to use other codecs
-return (raw as List<dynamic>).map(dco_decode_track_dto).toList(); }
-
-@protected NativeVersions dco_decode_native_versions(dynamic raw){ // Codec=Dco (DartCObject based), see doc to use other codecs
-final arr = raw as List<dynamic>;
-                if (arr.length != 3) throw Exception('unexpected arr length: expect 3 but see ${arr.length}');
-                return NativeVersions(domain: dco_decode_String(arr[0]),
-engine: dco_decode_String(arr[1]),
-infra: dco_decode_String(arr[2]),); }
-
-@protected String? dco_decode_opt_String(dynamic raw){ // Codec=Dco (DartCObject based), see doc to use other codecs
-return raw == null ? null : dco_decode_String(raw); }
-
-@protected ScanResultDto dco_decode_scan_result_dto(dynamic raw){ // Codec=Dco (DartCObject based), see doc to use other codecs
-final arr = raw as List<dynamic>;
-                if (arr.length != 2) throw Exception('unexpected arr length: expect 2 but see ${arr.length}');
-                return ScanResultDto(tracks: dco_decode_list_track_dto(arr[0]),
-skipped: dco_decode_list_skipped_dto(arr[1]),); }
-
-@protected SessionConfig dco_decode_session_config(dynamic raw){ // Codec=Dco (DartCObject based), see doc to use other codecs
-final arr = raw as List<dynamic>;
-                if (arr.length != 6) throw Exception('unexpected arr length: expect 6 but see ${arr.length}');
-                return SessionConfig(automix: dco_decode_bool(arr[0]),
-crossfadeSeconds: dco_decode_f_64(arr[1]),
-curve: dco_decode_curve_kind(arr[2]),
-shuffle: dco_decode_bool(arr[3]),
-repeat: dco_decode_bool(arr[4]),
-silenceThresholdDb: dco_decode_f_32(arr[5]),); }
-
-@protected SkippedDto dco_decode_skipped_dto(dynamic raw){ // Codec=Dco (DartCObject based), see doc to use other codecs
-final arr = raw as List<dynamic>;
-                if (arr.length != 2) throw Exception('unexpected arr length: expect 2 but see ${arr.length}');
-                return SkippedDto(path: dco_decode_String(arr[0]),
-reason: dco_decode_String(arr[1]),); }
-
-@protected TrackDto dco_decode_track_dto(dynamic raw){ // Codec=Dco (DartCObject based), see doc to use other codecs
-final arr = raw as List<dynamic>;
-                if (arr.length != 4) throw Exception('unexpected arr length: expect 4 but see ${arr.length}');
-                return TrackDto(id: dco_decode_u_64(arr[0]),
-path: dco_decode_String(arr[1]),
-title: dco_decode_String(arr[2]),
-artist: dco_decode_opt_String(arr[3]),); }
-
-@protected BigInt dco_decode_u_64(dynamic raw){ // Codec=Dco (DartCObject based), see doc to use other codecs
-return dcoDecodeU64(raw); }
-
-@protected int dco_decode_u_8(dynamic raw){ // Codec=Dco (DartCObject based), see doc to use other codecs
-return raw as int; }
-
-@protected void dco_decode_unit(dynamic raw){ // Codec=Dco (DartCObject based), see doc to use other codecs
-return; }
-
-@protected AnyhowException sse_decode_AnyhowException(SseDeserializer deserializer){ // Codec=Sse (Serialization based), see doc to use other codecs
-var inner = sse_decode_String(deserializer);
-        return AnyhowException(inner); }
-
-@protected RustStreamSink<EngineUpdate> sse_decode_StreamSink_engine_update_Sse(SseDeserializer deserializer){ // Codec=Sse (Serialization based), see doc to use other codecs
-throw UnimplementedError('Unreachable ()'); }
-
-@protected String sse_decode_String(SseDeserializer deserializer){ // Codec=Sse (Serialization based), see doc to use other codecs
-var inner = sse_decode_list_prim_u_8_strict(deserializer);
-        return utf8.decoder.convert(inner); }
-
-@protected AutoMixStateDto sse_decode_auto_mix_state_dto(SseDeserializer deserializer){ // Codec=Sse (Serialization based), see doc to use other codecs
-
-            var tag_ = sse_decode_i_32(deserializer);
-            switch (tag_) { case 0: return AutoMixStateDto_Idle();case 1: var var_active = sse_decode_deck(deserializer);
-return AutoMixStateDto_Playing(active: var_active);case 2: var var_from = sse_decode_deck(deserializer);
-var var_to = sse_decode_deck(deserializer);
-return AutoMixStateDto_Crossfading(from: var_from, to: var_to);case 3: var var_deck = sse_decode_deck(deserializer);
-return AutoMixStateDto_WaitingForNext(deck: var_deck);case 4: return AutoMixStateDto_Finished(); default: throw UnimplementedError(''); }
-             }
-
-@protected AutoMixStatusDto sse_decode_auto_mix_status_dto(SseDeserializer deserializer){ // Codec=Sse (Serialization based), see doc to use other codecs
-var inner = sse_decode_i_32(deserializer);
-        return AutoMixStatusDto.values[inner]; }
-
-@protected Band sse_decode_band(SseDeserializer deserializer){ // Codec=Sse (Serialization based), see doc to use other codecs
-var inner = sse_decode_i_32(deserializer);
-        return Band.values[inner]; }
-
-@protected bool sse_decode_bool(SseDeserializer deserializer){ // Codec=Sse (Serialization based), see doc to use other codecs
-return deserializer.buffer.getUint8() != 0; }
-
-@protected AutoMixStateDto sse_decode_box_autoadd_auto_mix_state_dto(SseDeserializer deserializer){ // Codec=Sse (Serialization based), see doc to use other codecs
-return (sse_decode_auto_mix_state_dto(deserializer)); }
-
-@protected LevelsDto sse_decode_box_autoadd_levels_dto(SseDeserializer deserializer){ // Codec=Sse (Serialization based), see doc to use other codecs
-return (sse_decode_levels_dto(deserializer)); }
-
-@protected SessionConfig sse_decode_box_autoadd_session_config(SseDeserializer deserializer){ // Codec=Sse (Serialization based), see doc to use other codecs
-return (sse_decode_session_config(deserializer)); }
-
-@protected CurveKind sse_decode_curve_kind(SseDeserializer deserializer){ // Codec=Sse (Serialization based), see doc to use other codecs
-var inner = sse_decode_i_32(deserializer);
-        return CurveKind.values[inner]; }
-
-@protected Deck sse_decode_deck(SseDeserializer deserializer){ // Codec=Sse (Serialization based), see doc to use other codecs
-var inner = sse_decode_i_32(deserializer);
-        return Deck.values[inner]; }
-
-@protected EngineUpdate sse_decode_engine_update(SseDeserializer deserializer){ // Codec=Sse (Serialization based), see doc to use other codecs
-
-            var tag_ = sse_decode_i_32(deserializer);
-            switch (tag_) { case 0: var var_tracks = sse_decode_list_track_dto(deserializer);
-return EngineUpdate_LibraryChanged(tracks: var_tracks);case 1: var var_deck = sse_decode_deck(deserializer);
-var var_trackId = sse_decode_u_64(deserializer);
-return EngineUpdate_DeckLoading(deck: var_deck, trackId: var_trackId);case 2: var var_deck = sse_decode_deck(deserializer);
-var var_trackId = sse_decode_u_64(deserializer);
-var var_durationSeconds = sse_decode_f_64(deserializer);
-var var_startSeconds = sse_decode_f_64(deserializer);
-var var_endSeconds = sse_decode_f_64(deserializer);
-return EngineUpdate_DeckLoaded(deck: var_deck, trackId: var_trackId, durationSeconds: var_durationSeconds, startSeconds: var_startSeconds, endSeconds: var_endSeconds);case 3: var var_deck = sse_decode_deck(deserializer);
-var var_positionSeconds = sse_decode_f_64(deserializer);
-var var_playing = sse_decode_bool(deserializer);
-return EngineUpdate_DeckPosition(deck: var_deck, positionSeconds: var_positionSeconds, playing: var_playing);case 4: var var_field0 = sse_decode_box_autoadd_levels_dto(deserializer);
-return EngineUpdate_Levels(var_field0);case 5: var var_state = sse_decode_box_autoadd_auto_mix_state_dto(deserializer);
-var var_status = sse_decode_auto_mix_status_dto(deserializer);
-return EngineUpdate_AutoMixChanged(state: var_state, status: var_status);case 6: var var_upcoming = sse_decode_list_prim_u_64_strict(deserializer);
-return EngineUpdate_QueueChanged(upcoming: var_upcoming);case 7: var var_from = sse_decode_deck(deserializer);
-var var_to = sse_decode_deck(deserializer);
-return EngineUpdate_TransitionStarted(from: var_from, to: var_to);case 8: var var_from = sse_decode_deck(deserializer);
-var var_to = sse_decode_deck(deserializer);
-return EngineUpdate_TransitionCompleted(from: var_from, to: var_to);case 9: var var_trackId = sse_decode_u_64(deserializer);
-var var_reason = sse_decode_String(deserializer);
-return EngineUpdate_TrackSkipped(trackId: var_trackId, reason: var_reason);case 10: return EngineUpdate_QueueExhausted();case 11: var var_deck = sse_decode_deck(deserializer);
-return EngineUpdate_Underrun(deck: var_deck); default: throw UnimplementedError(''); }
-             }
-
-@protected double sse_decode_f_32(SseDeserializer deserializer){ // Codec=Sse (Serialization based), see doc to use other codecs
-return deserializer.buffer.getFloat32(); }
-
-@protected F32Array2 sse_decode_f_32_array_2(SseDeserializer deserializer){ // Codec=Sse (Serialization based), see doc to use other codecs
-var inner = sse_decode_list_prim_f_32_strict(deserializer);
-        return F32Array2(inner); }
-
-@protected double sse_decode_f_64(SseDeserializer deserializer){ // Codec=Sse (Serialization based), see doc to use other codecs
-return deserializer.buffer.getFloat64(); }
-
-@protected FolderMode sse_decode_folder_mode(SseDeserializer deserializer){ // Codec=Sse (Serialization based), see doc to use other codecs
-var inner = sse_decode_i_32(deserializer);
-        return FolderMode.values[inner]; }
-
-@protected int sse_decode_i_32(SseDeserializer deserializer){ // Codec=Sse (Serialization based), see doc to use other codecs
-return deserializer.buffer.getInt32(); }
-
-@protected LevelsDto sse_decode_levels_dto(SseDeserializer deserializer){ // Codec=Sse (Serialization based), see doc to use other codecs
-var var_deckA = sse_decode_f_32_array_2(deserializer);
-var var_deckB = sse_decode_f_32_array_2(deserializer);
-var var_master = sse_decode_f_32_array_2(deserializer);
-return LevelsDto(deckA: var_deckA, deckB: var_deckB, master: var_master); }
-
-@protected Float32List sse_decode_list_prim_f_32_strict(SseDeserializer deserializer){ // Codec=Sse (Serialization based), see doc to use other codecs
-var len_ = sse_decode_i_32(deserializer);
-                return deserializer.buffer.getFloat32List(len_); }
-
-@protected Uint64List sse_decode_list_prim_u_64_strict(SseDeserializer deserializer){ // Codec=Sse (Serialization based), see doc to use other codecs
-var len_ = sse_decode_i_32(deserializer);
-                return deserializer.buffer.getUint64List(len_); }
-
-@protected Uint8List sse_decode_list_prim_u_8_strict(SseDeserializer deserializer){ // Codec=Sse (Serialization based), see doc to use other codecs
-var len_ = sse_decode_i_32(deserializer);
-                return deserializer.buffer.getUint8List(len_); }
-
-@protected List<SkippedDto> sse_decode_list_skipped_dto(SseDeserializer deserializer){ // Codec=Sse (Serialization based), see doc to use other codecs
-
-        var len_ = sse_decode_i_32(deserializer);
-        var ans_ = <SkippedDto>[];
-        for (var idx_ = 0; idx_ < len_; ++idx_) { ans_.add(sse_decode_skipped_dto(deserializer)); }
-        return ans_;
-         }
-
-@protected List<TrackDto> sse_decode_list_track_dto(SseDeserializer deserializer){ // Codec=Sse (Serialization based), see doc to use other codecs
-
-        var len_ = sse_decode_i_32(deserializer);
-        var ans_ = <TrackDto>[];
-        for (var idx_ = 0; idx_ < len_; ++idx_) { ans_.add(sse_decode_track_dto(deserializer)); }
-        return ans_;
-         }
-
-@protected NativeVersions sse_decode_native_versions(SseDeserializer deserializer){ // Codec=Sse (Serialization based), see doc to use other codecs
-var var_domain = sse_decode_String(deserializer);
-var var_engine = sse_decode_String(deserializer);
-var var_infra = sse_decode_String(deserializer);
-return NativeVersions(domain: var_domain, engine: var_engine, infra: var_infra); }
-
-@protected String? sse_decode_opt_String(SseDeserializer deserializer){ // Codec=Sse (Serialization based), see doc to use other codecs
-
-            if (sse_decode_bool(deserializer)) {
-                return (sse_decode_String(deserializer));
-            } else {
-                return null;
-            }
-             }
-
-@protected ScanResultDto sse_decode_scan_result_dto(SseDeserializer deserializer){ // Codec=Sse (Serialization based), see doc to use other codecs
-var var_tracks = sse_decode_list_track_dto(deserializer);
-var var_skipped = sse_decode_list_skipped_dto(deserializer);
-return ScanResultDto(tracks: var_tracks, skipped: var_skipped); }
-
-@protected SessionConfig sse_decode_session_config(SseDeserializer deserializer){ // Codec=Sse (Serialization based), see doc to use other codecs
-var var_automix = sse_decode_bool(deserializer);
-var var_crossfadeSeconds = sse_decode_f_64(deserializer);
-var var_curve = sse_decode_curve_kind(deserializer);
-var var_shuffle = sse_decode_bool(deserializer);
-var var_repeat = sse_decode_bool(deserializer);
-var var_silenceThresholdDb = sse_decode_f_32(deserializer);
-return SessionConfig(automix: var_automix, crossfadeSeconds: var_crossfadeSeconds, curve: var_curve, shuffle: var_shuffle, repeat: var_repeat, silenceThresholdDb: var_silenceThresholdDb); }
-
-@protected SkippedDto sse_decode_skipped_dto(SseDeserializer deserializer){ // Codec=Sse (Serialization based), see doc to use other codecs
-var var_path = sse_decode_String(deserializer);
-var var_reason = sse_decode_String(deserializer);
-return SkippedDto(path: var_path, reason: var_reason); }
-
-@protected TrackDto sse_decode_track_dto(SseDeserializer deserializer){ // Codec=Sse (Serialization based), see doc to use other codecs
-var var_id = sse_decode_u_64(deserializer);
-var var_path = sse_decode_String(deserializer);
-var var_title = sse_decode_String(deserializer);
-var var_artist = sse_decode_opt_String(deserializer);
-return TrackDto(id: var_id, path: var_path, title: var_title, artist: var_artist); }
-
-@protected BigInt sse_decode_u_64(SseDeserializer deserializer){ // Codec=Sse (Serialization based), see doc to use other codecs
-return deserializer.buffer.getBigUint64(); }
-
-@protected int sse_decode_u_8(SseDeserializer deserializer){ // Codec=Sse (Serialization based), see doc to use other codecs
-return deserializer.buffer.getUint8(); }
-
-@protected void sse_decode_unit(SseDeserializer deserializer){ // Codec=Sse (Serialization based), see doc to use other codecs
- }
-
-@protected void sse_encode_AnyhowException(AnyhowException self, SseSerializer serializer){ // Codec=Sse (Serialization based), see doc to use other codecs
-sse_encode_String(self.message, serializer); }
-
-@protected void sse_encode_StreamSink_engine_update_Sse(RustStreamSink<EngineUpdate> self, SseSerializer serializer){ // Codec=Sse (Serialization based), see doc to use other codecs
-sse_encode_String(self.setupAndSerialize(codec: SseCodec(
-            decodeSuccessData: sse_decode_engine_update,
-            decodeErrorData: sse_decode_AnyhowException,
-        )), serializer); }
-
-@protected void sse_encode_String(String self, SseSerializer serializer){ // Codec=Sse (Serialization based), see doc to use other codecs
-sse_encode_list_prim_u_8_strict(utf8.encoder.convert(self), serializer); }
-
-@protected void sse_encode_auto_mix_state_dto(AutoMixStateDto self, SseSerializer serializer){ // Codec=Sse (Serialization based), see doc to use other codecs
-switch (self) { case AutoMixStateDto_Idle(): sse_encode_i_32(0, serializer); case AutoMixStateDto_Playing(active: final active): sse_encode_i_32(1, serializer); sse_encode_deck(active, serializer);
-case AutoMixStateDto_Crossfading(from: final from,to: final to): sse_encode_i_32(2, serializer); sse_encode_deck(from, serializer);
-sse_encode_deck(to, serializer);
-case AutoMixStateDto_WaitingForNext(deck: final deck): sse_encode_i_32(3, serializer); sse_encode_deck(deck, serializer);
-case AutoMixStateDto_Finished(): sse_encode_i_32(4, serializer);   } }
-
-@protected void sse_encode_auto_mix_status_dto(AutoMixStatusDto self, SseSerializer serializer){ // Codec=Sse (Serialization based), see doc to use other codecs
-sse_encode_i_32(self.index, serializer); }
-
-@protected void sse_encode_band(Band self, SseSerializer serializer){ // Codec=Sse (Serialization based), see doc to use other codecs
-sse_encode_i_32(self.index, serializer); }
-
-@protected void sse_encode_bool(bool self, SseSerializer serializer){ // Codec=Sse (Serialization based), see doc to use other codecs
-serializer.buffer.putUint8(self ? 1 : 0); }
-
-@protected void sse_encode_box_autoadd_auto_mix_state_dto(AutoMixStateDto self, SseSerializer serializer){ // Codec=Sse (Serialization based), see doc to use other codecs
-sse_encode_auto_mix_state_dto(self, serializer); }
-
-@protected void sse_encode_box_autoadd_levels_dto(LevelsDto self, SseSerializer serializer){ // Codec=Sse (Serialization based), see doc to use other codecs
-sse_encode_levels_dto(self, serializer); }
-
-@protected void sse_encode_box_autoadd_session_config(SessionConfig self, SseSerializer serializer){ // Codec=Sse (Serialization based), see doc to use other codecs
-sse_encode_session_config(self, serializer); }
-
-@protected void sse_encode_curve_kind(CurveKind self, SseSerializer serializer){ // Codec=Sse (Serialization based), see doc to use other codecs
-sse_encode_i_32(self.index, serializer); }
-
-@protected void sse_encode_deck(Deck self, SseSerializer serializer){ // Codec=Sse (Serialization based), see doc to use other codecs
-sse_encode_i_32(self.index, serializer); }
-
-@protected void sse_encode_engine_update(EngineUpdate self, SseSerializer serializer){ // Codec=Sse (Serialization based), see doc to use other codecs
-switch (self) { case EngineUpdate_LibraryChanged(tracks: final tracks): sse_encode_i_32(0, serializer); sse_encode_list_track_dto(tracks, serializer);
-case EngineUpdate_DeckLoading(deck: final deck,trackId: final trackId): sse_encode_i_32(1, serializer); sse_encode_deck(deck, serializer);
-sse_encode_u_64(trackId, serializer);
-case EngineUpdate_DeckLoaded(deck: final deck,trackId: final trackId,durationSeconds: final durationSeconds,startSeconds: final startSeconds,endSeconds: final endSeconds): sse_encode_i_32(2, serializer); sse_encode_deck(deck, serializer);
-sse_encode_u_64(trackId, serializer);
-sse_encode_f_64(durationSeconds, serializer);
-sse_encode_f_64(startSeconds, serializer);
-sse_encode_f_64(endSeconds, serializer);
-case EngineUpdate_DeckPosition(deck: final deck,positionSeconds: final positionSeconds,playing: final playing): sse_encode_i_32(3, serializer); sse_encode_deck(deck, serializer);
-sse_encode_f_64(positionSeconds, serializer);
-sse_encode_bool(playing, serializer);
-case EngineUpdate_Levels(field0: final field0): sse_encode_i_32(4, serializer); sse_encode_box_autoadd_levels_dto(field0, serializer);
-case EngineUpdate_AutoMixChanged(state: final state,status: final status): sse_encode_i_32(5, serializer); sse_encode_box_autoadd_auto_mix_state_dto(state, serializer);
-sse_encode_auto_mix_status_dto(status, serializer);
-case EngineUpdate_QueueChanged(upcoming: final upcoming): sse_encode_i_32(6, serializer); sse_encode_list_prim_u_64_strict(upcoming, serializer);
-case EngineUpdate_TransitionStarted(from: final from,to: final to): sse_encode_i_32(7, serializer); sse_encode_deck(from, serializer);
-sse_encode_deck(to, serializer);
-case EngineUpdate_TransitionCompleted(from: final from,to: final to): sse_encode_i_32(8, serializer); sse_encode_deck(from, serializer);
-sse_encode_deck(to, serializer);
-case EngineUpdate_TrackSkipped(trackId: final trackId,reason: final reason): sse_encode_i_32(9, serializer); sse_encode_u_64(trackId, serializer);
-sse_encode_String(reason, serializer);
-case EngineUpdate_QueueExhausted(): sse_encode_i_32(10, serializer); case EngineUpdate_Underrun(deck: final deck): sse_encode_i_32(11, serializer); sse_encode_deck(deck, serializer);
-  } }
-
-@protected void sse_encode_f_32(double self, SseSerializer serializer){ // Codec=Sse (Serialization based), see doc to use other codecs
-serializer.buffer.putFloat32(self); }
-
-@protected void sse_encode_f_32_array_2(F32Array2 self, SseSerializer serializer){ // Codec=Sse (Serialization based), see doc to use other codecs
-sse_encode_list_prim_f_32_strict(self.inner, serializer); }
-
-@protected void sse_encode_f_64(double self, SseSerializer serializer){ // Codec=Sse (Serialization based), see doc to use other codecs
-serializer.buffer.putFloat64(self); }
-
-@protected void sse_encode_folder_mode(FolderMode self, SseSerializer serializer){ // Codec=Sse (Serialization based), see doc to use other codecs
-sse_encode_i_32(self.index, serializer); }
-
-@protected void sse_encode_i_32(int self, SseSerializer serializer){ // Codec=Sse (Serialization based), see doc to use other codecs
-serializer.buffer.putInt32(self); }
-
-@protected void sse_encode_levels_dto(LevelsDto self, SseSerializer serializer){ // Codec=Sse (Serialization based), see doc to use other codecs
-sse_encode_f_32_array_2(self.deckA, serializer);
-sse_encode_f_32_array_2(self.deckB, serializer);
-sse_encode_f_32_array_2(self.master, serializer);
- }
-
-@protected void sse_encode_list_prim_f_32_strict(Float32List self, SseSerializer serializer){ // Codec=Sse (Serialization based), see doc to use other codecs
-sse_encode_i_32(self.length, serializer);
-                    serializer.buffer.putFloat32List(self); }
-
-@protected void sse_encode_list_prim_u_64_strict(Uint64List self, SseSerializer serializer){ // Codec=Sse (Serialization based), see doc to use other codecs
-sse_encode_i_32(self.length, serializer);
-                    serializer.buffer.putUint64List(self); }
-
-@protected void sse_encode_list_prim_u_8_strict(Uint8List self, SseSerializer serializer){ // Codec=Sse (Serialization based), see doc to use other codecs
-sse_encode_i_32(self.length, serializer);
-                    serializer.buffer.putUint8List(self); }
-
-@protected void sse_encode_list_skipped_dto(List<SkippedDto> self, SseSerializer serializer){ // Codec=Sse (Serialization based), see doc to use other codecs
-sse_encode_i_32(self.length, serializer);
-        for (final item in self) { sse_encode_skipped_dto(item, serializer); } }
-
-@protected void sse_encode_list_track_dto(List<TrackDto> self, SseSerializer serializer){ // Codec=Sse (Serialization based), see doc to use other codecs
-sse_encode_i_32(self.length, serializer);
-        for (final item in self) { sse_encode_track_dto(item, serializer); } }
-
-@protected void sse_encode_native_versions(NativeVersions self, SseSerializer serializer){ // Codec=Sse (Serialization based), see doc to use other codecs
-sse_encode_String(self.domain, serializer);
-sse_encode_String(self.engine, serializer);
-sse_encode_String(self.infra, serializer);
- }
-
-@protected void sse_encode_opt_String(String? self, SseSerializer serializer){ // Codec=Sse (Serialization based), see doc to use other codecs
-
-                sse_encode_bool(self != null, serializer);
-                if (self != null) {
-                    sse_encode_String(self, serializer);
-                }
-                 }
-
-@protected void sse_encode_scan_result_dto(ScanResultDto self, SseSerializer serializer){ // Codec=Sse (Serialization based), see doc to use other codecs
-sse_encode_list_track_dto(self.tracks, serializer);
-sse_encode_list_skipped_dto(self.skipped, serializer);
- }
-
-@protected void sse_encode_session_config(SessionConfig self, SseSerializer serializer){ // Codec=Sse (Serialization based), see doc to use other codecs
-sse_encode_bool(self.automix, serializer);
-sse_encode_f_64(self.crossfadeSeconds, serializer);
-sse_encode_curve_kind(self.curve, serializer);
-sse_encode_bool(self.shuffle, serializer);
-sse_encode_bool(self.repeat, serializer);
-sse_encode_f_32(self.silenceThresholdDb, serializer);
- }
-
-@protected void sse_encode_skipped_dto(SkippedDto self, SseSerializer serializer){ // Codec=Sse (Serialization based), see doc to use other codecs
-sse_encode_String(self.path, serializer);
-sse_encode_String(self.reason, serializer);
- }
-
-@protected void sse_encode_track_dto(TrackDto self, SseSerializer serializer){ // Codec=Sse (Serialization based), see doc to use other codecs
-sse_encode_u_64(self.id, serializer);
-sse_encode_String(self.path, serializer);
-sse_encode_String(self.title, serializer);
-sse_encode_opt_String(self.artist, serializer);
- }
-
-@protected void sse_encode_u_64(BigInt self, SseSerializer serializer){ // Codec=Sse (Serialization based), see doc to use other codecs
-serializer.buffer.putBigUint64(self); }
-
-@protected void sse_encode_u_8(int self, SseSerializer serializer){ // Codec=Sse (Serialization based), see doc to use other codecs
-serializer.buffer.putUint8(self); }
-
-@protected void sse_encode_unit(void self, SseSerializer serializer){ // Codec=Sse (Serialization based), see doc to use other codecs
- }
-                }
-                
+      case 3:
+        return AutoMixStateDto_WaitingForNext(deck: dco_decode_deck(raw[1]));
+      case 4:
+        return AutoMixStateDto_Finished();
+      default:
+        throw Exception("unreachable");
+    }
+  }
+
+  @protected
+  AutoMixStatusDto dco_decode_auto_mix_status_dto(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return AutoMixStatusDto.values[raw as int];
+  }
+
+  @protected
+  Band dco_decode_band(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return Band.values[raw as int];
+  }
+
+  @protected
+  bool dco_decode_bool(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return raw as bool;
+  }
+
+  @protected
+  AutoMixStateDto dco_decode_box_autoadd_auto_mix_state_dto(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return dco_decode_auto_mix_state_dto(raw);
+  }
+
+  @protected
+  LevelsDto dco_decode_box_autoadd_levels_dto(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return dco_decode_levels_dto(raw);
+  }
+
+  @protected
+  SessionConfig dco_decode_box_autoadd_session_config(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return dco_decode_session_config(raw);
+  }
+
+  @protected
+  CurveKind dco_decode_curve_kind(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return CurveKind.values[raw as int];
+  }
+
+  @protected
+  Deck dco_decode_deck(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return Deck.values[raw as int];
+  }
+
+  @protected
+  EngineUpdate dco_decode_engine_update(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    switch (raw[0]) {
+      case 0:
+        return EngineUpdate_LibraryChanged(
+          tracks: dco_decode_list_track_dto(raw[1]),
+        );
+      case 1:
+        return EngineUpdate_DeckLoading(
+          deck: dco_decode_deck(raw[1]),
+          trackId: dco_decode_u_64(raw[2]),
+        );
+      case 2:
+        return EngineUpdate_DeckLoaded(
+          deck: dco_decode_deck(raw[1]),
+          trackId: dco_decode_u_64(raw[2]),
+          durationSeconds: dco_decode_f_64(raw[3]),
+          startSeconds: dco_decode_f_64(raw[4]),
+          endSeconds: dco_decode_f_64(raw[5]),
+        );
+      case 3:
+        return EngineUpdate_DeckPosition(
+          deck: dco_decode_deck(raw[1]),
+          positionSeconds: dco_decode_f_64(raw[2]),
+          playing: dco_decode_bool(raw[3]),
+        );
+      case 4:
+        return EngineUpdate_Levels(dco_decode_box_autoadd_levels_dto(raw[1]));
+      case 5:
+        return EngineUpdate_AutoMixChanged(
+          state: dco_decode_box_autoadd_auto_mix_state_dto(raw[1]),
+          status: dco_decode_auto_mix_status_dto(raw[2]),
+        );
+      case 6:
+        return EngineUpdate_QueueChanged(
+          upcoming: dco_decode_list_prim_u_64_strict(raw[1]),
+        );
+      case 7:
+        return EngineUpdate_TransitionStarted(
+          from: dco_decode_deck(raw[1]),
+          to: dco_decode_deck(raw[2]),
+        );
+      case 8:
+        return EngineUpdate_TransitionCompleted(
+          from: dco_decode_deck(raw[1]),
+          to: dco_decode_deck(raw[2]),
+        );
+      case 9:
+        return EngineUpdate_TrackSkipped(
+          trackId: dco_decode_u_64(raw[1]),
+          reason: dco_decode_String(raw[2]),
+        );
+      case 10:
+        return EngineUpdate_QueueExhausted();
+      case 11:
+        return EngineUpdate_Underrun(deck: dco_decode_deck(raw[1]));
+      default:
+        throw Exception("unreachable");
+    }
+  }
+
+  @protected
+  double dco_decode_f_32(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return raw as double;
+  }
+
+  @protected
+  F32Array2 dco_decode_f_32_array_2(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return F32Array2(dco_decode_list_prim_f_32_strict(raw));
+  }
+
+  @protected
+  double dco_decode_f_64(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return raw as double;
+  }
+
+  @protected
+  FolderMode dco_decode_folder_mode(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return FolderMode.values[raw as int];
+  }
+
+  @protected
+  int dco_decode_i_32(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return raw as int;
+  }
+
+  @protected
+  LevelsDto dco_decode_levels_dto(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 3)
+      throw Exception('unexpected arr length: expect 3 but see ${arr.length}');
+    return LevelsDto(
+      deckA: dco_decode_f_32_array_2(arr[0]),
+      deckB: dco_decode_f_32_array_2(arr[1]),
+      master: dco_decode_f_32_array_2(arr[2]),
+    );
+  }
+
+  @protected
+  Float32List dco_decode_list_prim_f_32_strict(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return raw as Float32List;
+  }
+
+  @protected
+  Uint64List dco_decode_list_prim_u_64_strict(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return dcoDecodeUint64List(raw);
+  }
+
+  @protected
+  Uint8List dco_decode_list_prim_u_8_strict(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return raw as Uint8List;
+  }
+
+  @protected
+  List<SkippedDto> dco_decode_list_skipped_dto(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return (raw as List<dynamic>).map(dco_decode_skipped_dto).toList();
+  }
+
+  @protected
+  List<TrackDto> dco_decode_list_track_dto(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return (raw as List<dynamic>).map(dco_decode_track_dto).toList();
+  }
+
+  @protected
+  NativeVersions dco_decode_native_versions(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 3)
+      throw Exception('unexpected arr length: expect 3 but see ${arr.length}');
+    return NativeVersions(
+      domain: dco_decode_String(arr[0]),
+      engine: dco_decode_String(arr[1]),
+      infra: dco_decode_String(arr[2]),
+    );
+  }
+
+  @protected
+  String? dco_decode_opt_String(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return raw == null ? null : dco_decode_String(raw);
+  }
+
+  @protected
+  ScanResultDto dco_decode_scan_result_dto(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 2)
+      throw Exception('unexpected arr length: expect 2 but see ${arr.length}');
+    return ScanResultDto(
+      tracks: dco_decode_list_track_dto(arr[0]),
+      skipped: dco_decode_list_skipped_dto(arr[1]),
+    );
+  }
+
+  @protected
+  SessionConfig dco_decode_session_config(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 6)
+      throw Exception('unexpected arr length: expect 6 but see ${arr.length}');
+    return SessionConfig(
+      automix: dco_decode_bool(arr[0]),
+      crossfadeSeconds: dco_decode_f_64(arr[1]),
+      curve: dco_decode_curve_kind(arr[2]),
+      shuffle: dco_decode_bool(arr[3]),
+      repeat: dco_decode_bool(arr[4]),
+      silenceThresholdDb: dco_decode_f_32(arr[5]),
+    );
+  }
+
+  @protected
+  SkippedDto dco_decode_skipped_dto(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 2)
+      throw Exception('unexpected arr length: expect 2 but see ${arr.length}');
+    return SkippedDto(
+      path: dco_decode_String(arr[0]),
+      reason: dco_decode_String(arr[1]),
+    );
+  }
+
+  @protected
+  TrackDto dco_decode_track_dto(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 4)
+      throw Exception('unexpected arr length: expect 4 but see ${arr.length}');
+    return TrackDto(
+      id: dco_decode_u_64(arr[0]),
+      path: dco_decode_String(arr[1]),
+      title: dco_decode_String(arr[2]),
+      artist: dco_decode_opt_String(arr[3]),
+    );
+  }
+
+  @protected
+  BigInt dco_decode_u_64(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return dcoDecodeU64(raw);
+  }
+
+  @protected
+  int dco_decode_u_8(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return raw as int;
+  }
+
+  @protected
+  void dco_decode_unit(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return;
+  }
+
+  @protected
+  AnyhowException sse_decode_AnyhowException(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var inner = sse_decode_String(deserializer);
+    return AnyhowException(inner);
+  }
+
+  @protected
+  RustStreamSink<EngineUpdate> sse_decode_StreamSink_engine_update_Sse(
+    SseDeserializer deserializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    throw UnimplementedError('Unreachable ()');
+  }
+
+  @protected
+  String sse_decode_String(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var inner = sse_decode_list_prim_u_8_strict(deserializer);
+    return utf8.decoder.convert(inner);
+  }
+
+  @protected
+  AutoMixStateDto sse_decode_auto_mix_state_dto(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    var tag_ = sse_decode_i_32(deserializer);
+    switch (tag_) {
+      case 0:
+        return AutoMixStateDto_Idle();
+      case 1:
+        var var_active = sse_decode_deck(deserializer);
+        return AutoMixStateDto_Playing(active: var_active);
+      case 2:
+        var var_from = sse_decode_deck(deserializer);
+        var var_to = sse_decode_deck(deserializer);
+        return AutoMixStateDto_Crossfading(from: var_from, to: var_to);
+      case 3:
+        var var_deck = sse_decode_deck(deserializer);
+        return AutoMixStateDto_WaitingForNext(deck: var_deck);
+      case 4:
+        return AutoMixStateDto_Finished();
+      default:
+        throw UnimplementedError('');
+    }
+  }
+
+  @protected
+  AutoMixStatusDto sse_decode_auto_mix_status_dto(
+    SseDeserializer deserializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var inner = sse_decode_i_32(deserializer);
+    return AutoMixStatusDto.values[inner];
+  }
+
+  @protected
+  Band sse_decode_band(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var inner = sse_decode_i_32(deserializer);
+    return Band.values[inner];
+  }
+
+  @protected
+  bool sse_decode_bool(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    return deserializer.buffer.getUint8() != 0;
+  }
+
+  @protected
+  AutoMixStateDto sse_decode_box_autoadd_auto_mix_state_dto(
+    SseDeserializer deserializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    return (sse_decode_auto_mix_state_dto(deserializer));
+  }
+
+  @protected
+  LevelsDto sse_decode_box_autoadd_levels_dto(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    return (sse_decode_levels_dto(deserializer));
+  }
+
+  @protected
+  SessionConfig sse_decode_box_autoadd_session_config(
+    SseDeserializer deserializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    return (sse_decode_session_config(deserializer));
+  }
+
+  @protected
+  CurveKind sse_decode_curve_kind(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var inner = sse_decode_i_32(deserializer);
+    return CurveKind.values[inner];
+  }
+
+  @protected
+  Deck sse_decode_deck(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var inner = sse_decode_i_32(deserializer);
+    return Deck.values[inner];
+  }
+
+  @protected
+  EngineUpdate sse_decode_engine_update(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    var tag_ = sse_decode_i_32(deserializer);
+    switch (tag_) {
+      case 0:
+        var var_tracks = sse_decode_list_track_dto(deserializer);
+        return EngineUpdate_LibraryChanged(tracks: var_tracks);
+      case 1:
+        var var_deck = sse_decode_deck(deserializer);
+        var var_trackId = sse_decode_u_64(deserializer);
+        return EngineUpdate_DeckLoading(deck: var_deck, trackId: var_trackId);
+      case 2:
+        var var_deck = sse_decode_deck(deserializer);
+        var var_trackId = sse_decode_u_64(deserializer);
+        var var_durationSeconds = sse_decode_f_64(deserializer);
+        var var_startSeconds = sse_decode_f_64(deserializer);
+        var var_endSeconds = sse_decode_f_64(deserializer);
+        return EngineUpdate_DeckLoaded(
+          deck: var_deck,
+          trackId: var_trackId,
+          durationSeconds: var_durationSeconds,
+          startSeconds: var_startSeconds,
+          endSeconds: var_endSeconds,
+        );
+      case 3:
+        var var_deck = sse_decode_deck(deserializer);
+        var var_positionSeconds = sse_decode_f_64(deserializer);
+        var var_playing = sse_decode_bool(deserializer);
+        return EngineUpdate_DeckPosition(
+          deck: var_deck,
+          positionSeconds: var_positionSeconds,
+          playing: var_playing,
+        );
+      case 4:
+        var var_field0 = sse_decode_box_autoadd_levels_dto(deserializer);
+        return EngineUpdate_Levels(var_field0);
+      case 5:
+        var var_state = sse_decode_box_autoadd_auto_mix_state_dto(deserializer);
+        var var_status = sse_decode_auto_mix_status_dto(deserializer);
+        return EngineUpdate_AutoMixChanged(
+          state: var_state,
+          status: var_status,
+        );
+      case 6:
+        var var_upcoming = sse_decode_list_prim_u_64_strict(deserializer);
+        return EngineUpdate_QueueChanged(upcoming: var_upcoming);
+      case 7:
+        var var_from = sse_decode_deck(deserializer);
+        var var_to = sse_decode_deck(deserializer);
+        return EngineUpdate_TransitionStarted(from: var_from, to: var_to);
+      case 8:
+        var var_from = sse_decode_deck(deserializer);
+        var var_to = sse_decode_deck(deserializer);
+        return EngineUpdate_TransitionCompleted(from: var_from, to: var_to);
+      case 9:
+        var var_trackId = sse_decode_u_64(deserializer);
+        var var_reason = sse_decode_String(deserializer);
+        return EngineUpdate_TrackSkipped(
+          trackId: var_trackId,
+          reason: var_reason,
+        );
+      case 10:
+        return EngineUpdate_QueueExhausted();
+      case 11:
+        var var_deck = sse_decode_deck(deserializer);
+        return EngineUpdate_Underrun(deck: var_deck);
+      default:
+        throw UnimplementedError('');
+    }
+  }
+
+  @protected
+  double sse_decode_f_32(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    return deserializer.buffer.getFloat32();
+  }
+
+  @protected
+  F32Array2 sse_decode_f_32_array_2(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var inner = sse_decode_list_prim_f_32_strict(deserializer);
+    return F32Array2(inner);
+  }
+
+  @protected
+  double sse_decode_f_64(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    return deserializer.buffer.getFloat64();
+  }
+
+  @protected
+  FolderMode sse_decode_folder_mode(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var inner = sse_decode_i_32(deserializer);
+    return FolderMode.values[inner];
+  }
+
+  @protected
+  int sse_decode_i_32(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    return deserializer.buffer.getInt32();
+  }
+
+  @protected
+  LevelsDto sse_decode_levels_dto(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var var_deckA = sse_decode_f_32_array_2(deserializer);
+    var var_deckB = sse_decode_f_32_array_2(deserializer);
+    var var_master = sse_decode_f_32_array_2(deserializer);
+    return LevelsDto(deckA: var_deckA, deckB: var_deckB, master: var_master);
+  }
+
+  @protected
+  Float32List sse_decode_list_prim_f_32_strict(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var len_ = sse_decode_i_32(deserializer);
+    return deserializer.buffer.getFloat32List(len_);
+  }
+
+  @protected
+  Uint64List sse_decode_list_prim_u_64_strict(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var len_ = sse_decode_i_32(deserializer);
+    return deserializer.buffer.getUint64List(len_);
+  }
+
+  @protected
+  Uint8List sse_decode_list_prim_u_8_strict(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var len_ = sse_decode_i_32(deserializer);
+    return deserializer.buffer.getUint8List(len_);
+  }
+
+  @protected
+  List<SkippedDto> sse_decode_list_skipped_dto(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    var len_ = sse_decode_i_32(deserializer);
+    var ans_ = <SkippedDto>[];
+    for (var idx_ = 0; idx_ < len_; ++idx_) {
+      ans_.add(sse_decode_skipped_dto(deserializer));
+    }
+    return ans_;
+  }
+
+  @protected
+  List<TrackDto> sse_decode_list_track_dto(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    var len_ = sse_decode_i_32(deserializer);
+    var ans_ = <TrackDto>[];
+    for (var idx_ = 0; idx_ < len_; ++idx_) {
+      ans_.add(sse_decode_track_dto(deserializer));
+    }
+    return ans_;
+  }
+
+  @protected
+  NativeVersions sse_decode_native_versions(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var var_domain = sse_decode_String(deserializer);
+    var var_engine = sse_decode_String(deserializer);
+    var var_infra = sse_decode_String(deserializer);
+    return NativeVersions(
+      domain: var_domain,
+      engine: var_engine,
+      infra: var_infra,
+    );
+  }
+
+  @protected
+  String? sse_decode_opt_String(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    if (sse_decode_bool(deserializer)) {
+      return (sse_decode_String(deserializer));
+    } else {
+      return null;
+    }
+  }
+
+  @protected
+  ScanResultDto sse_decode_scan_result_dto(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var var_tracks = sse_decode_list_track_dto(deserializer);
+    var var_skipped = sse_decode_list_skipped_dto(deserializer);
+    return ScanResultDto(tracks: var_tracks, skipped: var_skipped);
+  }
+
+  @protected
+  SessionConfig sse_decode_session_config(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var var_automix = sse_decode_bool(deserializer);
+    var var_crossfadeSeconds = sse_decode_f_64(deserializer);
+    var var_curve = sse_decode_curve_kind(deserializer);
+    var var_shuffle = sse_decode_bool(deserializer);
+    var var_repeat = sse_decode_bool(deserializer);
+    var var_silenceThresholdDb = sse_decode_f_32(deserializer);
+    return SessionConfig(
+      automix: var_automix,
+      crossfadeSeconds: var_crossfadeSeconds,
+      curve: var_curve,
+      shuffle: var_shuffle,
+      repeat: var_repeat,
+      silenceThresholdDb: var_silenceThresholdDb,
+    );
+  }
+
+  @protected
+  SkippedDto sse_decode_skipped_dto(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var var_path = sse_decode_String(deserializer);
+    var var_reason = sse_decode_String(deserializer);
+    return SkippedDto(path: var_path, reason: var_reason);
+  }
+
+  @protected
+  TrackDto sse_decode_track_dto(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var var_id = sse_decode_u_64(deserializer);
+    var var_path = sse_decode_String(deserializer);
+    var var_title = sse_decode_String(deserializer);
+    var var_artist = sse_decode_opt_String(deserializer);
+    return TrackDto(
+      id: var_id,
+      path: var_path,
+      title: var_title,
+      artist: var_artist,
+    );
+  }
+
+  @protected
+  BigInt sse_decode_u_64(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    return deserializer.buffer.getBigUint64();
+  }
+
+  @protected
+  int sse_decode_u_8(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    return deserializer.buffer.getUint8();
+  }
+
+  @protected
+  void sse_decode_unit(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+  }
+
+  @protected
+  void sse_encode_AnyhowException(
+    AnyhowException self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_String(self.message, serializer);
+  }
+
+  @protected
+  void sse_encode_StreamSink_engine_update_Sse(
+    RustStreamSink<EngineUpdate> self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_String(
+      self.setupAndSerialize(
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_engine_update,
+          decodeErrorData: sse_decode_AnyhowException,
+        ),
+      ),
+      serializer,
+    );
+  }
+
+  @protected
+  void sse_encode_String(String self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_list_prim_u_8_strict(utf8.encoder.convert(self), serializer);
+  }
+
+  @protected
+  void sse_encode_auto_mix_state_dto(
+    AutoMixStateDto self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    switch (self) {
+      case AutoMixStateDto_Idle():
+        sse_encode_i_32(0, serializer);
+      case AutoMixStateDto_Playing(active: final active):
+        sse_encode_i_32(1, serializer);
+        sse_encode_deck(active, serializer);
+      case AutoMixStateDto_Crossfading(from: final from, to: final to):
+        sse_encode_i_32(2, serializer);
+        sse_encode_deck(from, serializer);
+        sse_encode_deck(to, serializer);
+      case AutoMixStateDto_WaitingForNext(deck: final deck):
+        sse_encode_i_32(3, serializer);
+        sse_encode_deck(deck, serializer);
+      case AutoMixStateDto_Finished():
+        sse_encode_i_32(4, serializer);
+    }
+  }
+
+  @protected
+  void sse_encode_auto_mix_status_dto(
+    AutoMixStatusDto self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.index, serializer);
+  }
+
+  @protected
+  void sse_encode_band(Band self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.index, serializer);
+  }
+
+  @protected
+  void sse_encode_bool(bool self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    serializer.buffer.putUint8(self ? 1 : 0);
+  }
+
+  @protected
+  void sse_encode_box_autoadd_auto_mix_state_dto(
+    AutoMixStateDto self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_auto_mix_state_dto(self, serializer);
+  }
+
+  @protected
+  void sse_encode_box_autoadd_levels_dto(
+    LevelsDto self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_levels_dto(self, serializer);
+  }
+
+  @protected
+  void sse_encode_box_autoadd_session_config(
+    SessionConfig self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_session_config(self, serializer);
+  }
+
+  @protected
+  void sse_encode_curve_kind(CurveKind self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.index, serializer);
+  }
+
+  @protected
+  void sse_encode_deck(Deck self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.index, serializer);
+  }
+
+  @protected
+  void sse_encode_engine_update(EngineUpdate self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    switch (self) {
+      case EngineUpdate_LibraryChanged(tracks: final tracks):
+        sse_encode_i_32(0, serializer);
+        sse_encode_list_track_dto(tracks, serializer);
+      case EngineUpdate_DeckLoading(deck: final deck, trackId: final trackId):
+        sse_encode_i_32(1, serializer);
+        sse_encode_deck(deck, serializer);
+        sse_encode_u_64(trackId, serializer);
+      case EngineUpdate_DeckLoaded(
+        deck: final deck,
+        trackId: final trackId,
+        durationSeconds: final durationSeconds,
+        startSeconds: final startSeconds,
+        endSeconds: final endSeconds,
+      ):
+        sse_encode_i_32(2, serializer);
+        sse_encode_deck(deck, serializer);
+        sse_encode_u_64(trackId, serializer);
+        sse_encode_f_64(durationSeconds, serializer);
+        sse_encode_f_64(startSeconds, serializer);
+        sse_encode_f_64(endSeconds, serializer);
+      case EngineUpdate_DeckPosition(
+        deck: final deck,
+        positionSeconds: final positionSeconds,
+        playing: final playing,
+      ):
+        sse_encode_i_32(3, serializer);
+        sse_encode_deck(deck, serializer);
+        sse_encode_f_64(positionSeconds, serializer);
+        sse_encode_bool(playing, serializer);
+      case EngineUpdate_Levels(field0: final field0):
+        sse_encode_i_32(4, serializer);
+        sse_encode_box_autoadd_levels_dto(field0, serializer);
+      case EngineUpdate_AutoMixChanged(
+        state: final state,
+        status: final status,
+      ):
+        sse_encode_i_32(5, serializer);
+        sse_encode_box_autoadd_auto_mix_state_dto(state, serializer);
+        sse_encode_auto_mix_status_dto(status, serializer);
+      case EngineUpdate_QueueChanged(upcoming: final upcoming):
+        sse_encode_i_32(6, serializer);
+        sse_encode_list_prim_u_64_strict(upcoming, serializer);
+      case EngineUpdate_TransitionStarted(from: final from, to: final to):
+        sse_encode_i_32(7, serializer);
+        sse_encode_deck(from, serializer);
+        sse_encode_deck(to, serializer);
+      case EngineUpdate_TransitionCompleted(from: final from, to: final to):
+        sse_encode_i_32(8, serializer);
+        sse_encode_deck(from, serializer);
+        sse_encode_deck(to, serializer);
+      case EngineUpdate_TrackSkipped(
+        trackId: final trackId,
+        reason: final reason,
+      ):
+        sse_encode_i_32(9, serializer);
+        sse_encode_u_64(trackId, serializer);
+        sse_encode_String(reason, serializer);
+      case EngineUpdate_QueueExhausted():
+        sse_encode_i_32(10, serializer);
+      case EngineUpdate_Underrun(deck: final deck):
+        sse_encode_i_32(11, serializer);
+        sse_encode_deck(deck, serializer);
+    }
+  }
+
+  @protected
+  void sse_encode_f_32(double self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    serializer.buffer.putFloat32(self);
+  }
+
+  @protected
+  void sse_encode_f_32_array_2(F32Array2 self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_list_prim_f_32_strict(self.inner, serializer);
+  }
+
+  @protected
+  void sse_encode_f_64(double self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    serializer.buffer.putFloat64(self);
+  }
+
+  @protected
+  void sse_encode_folder_mode(FolderMode self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.index, serializer);
+  }
+
+  @protected
+  void sse_encode_i_32(int self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    serializer.buffer.putInt32(self);
+  }
+
+  @protected
+  void sse_encode_levels_dto(LevelsDto self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_f_32_array_2(self.deckA, serializer);
+    sse_encode_f_32_array_2(self.deckB, serializer);
+    sse_encode_f_32_array_2(self.master, serializer);
+  }
+
+  @protected
+  void sse_encode_list_prim_f_32_strict(
+    Float32List self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.length, serializer);
+    serializer.buffer.putFloat32List(self);
+  }
+
+  @protected
+  void sse_encode_list_prim_u_64_strict(
+    Uint64List self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.length, serializer);
+    serializer.buffer.putUint64List(self);
+  }
+
+  @protected
+  void sse_encode_list_prim_u_8_strict(
+    Uint8List self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.length, serializer);
+    serializer.buffer.putUint8List(self);
+  }
+
+  @protected
+  void sse_encode_list_skipped_dto(
+    List<SkippedDto> self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.length, serializer);
+    for (final item in self) {
+      sse_encode_skipped_dto(item, serializer);
+    }
+  }
+
+  @protected
+  void sse_encode_list_track_dto(
+    List<TrackDto> self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.length, serializer);
+    for (final item in self) {
+      sse_encode_track_dto(item, serializer);
+    }
+  }
+
+  @protected
+  void sse_encode_native_versions(
+    NativeVersions self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_String(self.domain, serializer);
+    sse_encode_String(self.engine, serializer);
+    sse_encode_String(self.infra, serializer);
+  }
+
+  @protected
+  void sse_encode_opt_String(String? self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    sse_encode_bool(self != null, serializer);
+    if (self != null) {
+      sse_encode_String(self, serializer);
+    }
+  }
+
+  @protected
+  void sse_encode_scan_result_dto(
+    ScanResultDto self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_list_track_dto(self.tracks, serializer);
+    sse_encode_list_skipped_dto(self.skipped, serializer);
+  }
+
+  @protected
+  void sse_encode_session_config(SessionConfig self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_bool(self.automix, serializer);
+    sse_encode_f_64(self.crossfadeSeconds, serializer);
+    sse_encode_curve_kind(self.curve, serializer);
+    sse_encode_bool(self.shuffle, serializer);
+    sse_encode_bool(self.repeat, serializer);
+    sse_encode_f_32(self.silenceThresholdDb, serializer);
+  }
+
+  @protected
+  void sse_encode_skipped_dto(SkippedDto self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_String(self.path, serializer);
+    sse_encode_String(self.reason, serializer);
+  }
+
+  @protected
+  void sse_encode_track_dto(TrackDto self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_u_64(self.id, serializer);
+    sse_encode_String(self.path, serializer);
+    sse_encode_String(self.title, serializer);
+    sse_encode_opt_String(self.artist, serializer);
+  }
+
+  @protected
+  void sse_encode_u_64(BigInt self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    serializer.buffer.putBigUint64(self);
+  }
+
+  @protected
+  void sse_encode_u_8(int self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    serializer.buffer.putUint8(self);
+  }
+
+  @protected
+  void sse_encode_unit(void self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+  }
+}
