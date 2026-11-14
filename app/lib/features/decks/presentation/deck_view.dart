@@ -83,30 +83,30 @@ class DeckView extends ConsumerWidget {
     return DeckDropTarget(
       side: side,
       child: PanelBox(
-      accent: deck.playing ? accent : null,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          _DeckHeader(
-            side: side,
-            track: track,
-            deck: deck,
-            accent: accent,
-            role: role,
-          ),
-          SizedBox(height: tokens.space2),
-          DeckOverview(side: side, deck: deck, accent: accent),
-          SizedBox(height: tokens.space3),
-          Expanded(
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: mirrored
-                  ? [jog, SizedBox(width: tokens.space3), transport]
-                  : [transport, SizedBox(width: tokens.space3), jog],
+        accent: deck.playing ? accent : null,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            _DeckHeader(
+              side: side,
+              track: track,
+              deck: deck,
+              accent: accent,
+              role: role,
             ),
-          ),
-        ],
-      ),
+            SizedBox(height: tokens.space2),
+            DeckOverview(side: side, deck: deck, accent: accent),
+            SizedBox(height: tokens.space3),
+            Expanded(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: mirrored
+                    ? [jog, SizedBox(width: tokens.space3), transport]
+                    : [transport, SizedBox(width: tokens.space3), jog],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -52,9 +52,8 @@ class DeckDropTarget extends ConsumerWidget {
                                 'mets-la en pause pour la remplacer'
                           : 'Charger sur la platine ${side.label}',
                       textAlign: TextAlign.center,
-                      style: Theme.of(
-                        context,
-                      ).textTheme.titleMedium?.copyWith(color: color),
+                      style: Theme.of(context).textTheme.titleMedium
+                          ?.copyWith(color: color),
                     ),
                   ),
                 ),
