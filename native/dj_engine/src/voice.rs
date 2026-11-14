@@ -1,4 +1,5 @@
-//! One deck inside the audio thread: reads chunks, applies transport, gain and EQ.
+//! One deck inside the audio thread: reads chunks, applies speed (pitch),
+//! transport, gain and EQ.
 
 use dj_domain::DeckId;
 use rtrb::Consumer;
@@ -32,6 +33,29 @@ pub(crate) struct DeckVoice {
     starved: bool,
     starvation_reported: bool,
     peak: [f32; 2],
+    /// Playback speed (1.0 = original), smoothed.
+    rate: Smoother,
+    /// Last four source frames `[previous, a, b, next]`; output lies between
+    /// `a` and `b`, `fraction` of the way.
+    history: [[f32; 2]; 4],
+    fraction: f64,
+    /// `history` holds frames of the current position.
+    primed: bool,
+    /// Source position of the next frame heard (`a` in `history`).
+    heard: u64,
+}
+
+/// Slowest and fastest playback speeds (±50 %).
+pub(crate) const MIN_RATE: f32 = 0.5;
+pub(crate) const MAX_RATE: f32 = 1.5;
+
+/// Catmull-Rom interpolation between `a` and `b` at `t` in `0..1`.
+#[inline]
+fn hermite(previous: f32, a: f32, b: f32, next: f32, t: f32) -> f32 {
+    let c1 = 0.5 * (b - previous);
+    let c2 = previous - 2.5 * a + 2.0 * b - 0.5 * next;
+    let c3 = 0.5 * (next - previous) + 1.5 * (a - b);
+    ((c3 * t + c2) * t + c1) * t + a
 }
 
 impl DeckVoice {
@@ -61,6 +85,11 @@ impl DeckVoice {
             starved: false,
             starvation_reported: false,
             peak: [0.0; 2],
+            rate: Smoother::new(1.0, ramp_frames),
+            history: [[0.0; 2]; 4],
+            fraction: 0.0,
+            primed: false,
+            heard: 0,
         }
     }
 
@@ -72,8 +101,14 @@ impl DeckVoice {
         self.generation
     }
 
+    /// Next source frame to be heard. The interpolator reads three frames
+    /// ahead of the frame it outputs next; they are not counted.
     pub(crate) fn position(&self) -> u64 {
-        self.position
+        if self.primed {
+            self.heard.min(self.position)
+        } else {
+            self.position
+        }
     }
 
     pub(crate) fn is_playing(&self) -> bool {
@@ -104,6 +139,8 @@ impl DeckVoice {
         self.end_reported = false;
         self.starved = false;
         self.starvation_reported = false;
+        self.primed = false;
+        self.fraction = 0.0;
         self.eq.reset();
     }
 
@@ -124,7 +161,20 @@ impl DeckVoice {
         self.ended = true;
         self.end_reported = true;
         self.generation = self.generation.wrapping_add(1);
+        self.primed = false;
+        self.fraction = 0.0;
         self.eq.reset();
+    }
+
+    /// Playback speed, clamped to ±50 %.
+    pub(crate) fn set_rate(&mut self, rate: f32) {
+        let rate = if rate.is_finite() { rate } else { 1.0 };
+        self.rate.set_target(rate.clamp(MIN_RATE, MAX_RATE));
+    }
+
+    #[cfg(test)]
+    pub(crate) fn rate(&self) -> f32 {
+        self.rate.target()
     }
 
     pub(crate) fn set_gain(&mut self, gain: f32) {
@@ -148,7 +198,7 @@ impl DeckVoice {
             self.on_silent();
             return [0.0; 2];
         }
-        let raw = self.read_raw();
+        let raw = self.read_varispeed();
         let gains = [
             self.eq_gains[0].next_value(),
             self.eq_gains[1].next_value(),
@@ -170,6 +220,37 @@ impl DeckVoice {
         } else {
             self.playing = false;
         }
+    }
+
+    /// Reads the source at the current speed with cubic interpolation.
+    /// At speed 1.0 the fraction stays 0 and source frames pass unchanged.
+    fn read_varispeed(&mut self) -> [f32; 2] {
+        if !self.primed {
+            self.heard = self.position;
+            let first = self.read_raw();
+            let second = self.read_raw();
+            let third = self.read_raw();
+            self.history = [first, first, second, third];
+            self.fraction = 0.0;
+            self.primed = true;
+        }
+        let [previous, a, b, next] = self.history;
+        // The fraction is within 0..1.
+        #[allow(clippy::cast_possible_truncation)]
+        let t = self.fraction as f32;
+        let out = [
+            hermite(previous[0], a[0], b[0], next[0], t),
+            hermite(previous[1], a[1], b[1], next[1], t),
+        ];
+        self.fraction += f64::from(self.rate.next_value());
+        while self.fraction >= 1.0 {
+            self.fraction -= 1.0;
+            let frame = self.read_raw();
+            self.heard += 1;
+            let [_, a, b, next] = self.history;
+            self.history = [a, b, next, frame];
+        }
+        out
     }
 
     fn read_raw(&mut self) -> [f32; 2] {
@@ -292,6 +373,65 @@ mod tests {
         assert_eq!(v.take_end(), None);
         assert!(!v.take_starvation());
         assert_eq!(v.id(), DeckId::A);
+    }
+
+    /// A chunk whose left channel is a ramp (frame index) for interpolation tests.
+    fn ramp(generation: u32, start: u64) -> AudioChunk {
+        let mut chunk = AudioChunk {
+            generation,
+            start_frame: start,
+            frames: CHUNK_FRAMES as u16,
+            end_of_stream: false,
+            ..AudioChunk::EMPTY
+        };
+        for frame in 0..CHUNK_FRAMES {
+            chunk.samples[frame * 2] = (start + frame as u64) as f32 / 1000.0;
+        }
+        chunk
+    }
+
+    /// Reads raw interpolated output, bypassing EQ and envelopes.
+    fn raw_frames(v: &mut DeckVoice, count: usize) -> Vec<f32> {
+        (0..count).map(|_| v.read_varispeed()[0]).collect()
+    }
+
+    #[test]
+    fn unity_speed_passes_source_frames_unchanged() {
+        let (mut v, mut feed) = voice();
+        assert!(feed.try_push(&ramp(1, 0)));
+        v.cue(1, 0);
+        let out = raw_frames(&mut v, 5);
+        assert_eq!(out, vec![0.0, 0.001, 0.002, 0.003, 0.004]);
+        assert_eq!(v.position(), 5);
+    }
+
+    #[test]
+    fn half_speed_interpolates_between_frames() {
+        let (mut v, mut feed) = voice();
+        assert!(feed.try_push(&ramp(1, 0)));
+        v.cue(1, 0);
+        v.set_rate(0.5);
+        // Let the 4-frame ramp of the speed settle, then compare steps.
+        let out = raw_frames(&mut v, 40);
+        let step = out[39] - out[38];
+        assert!((step - 0.0005).abs() < 1e-6, "step {step}");
+    }
+
+    #[test]
+    fn speed_is_clamped_and_moves_the_position_faster() {
+        let (mut v, mut feed) = voice();
+        assert!(feed.try_push(&ramp(1, 0)));
+        assert!(feed.try_push(&ramp(1, CHUNK_FRAMES as u64)));
+        v.cue(1, 0);
+        v.set_rate(9.0);
+        assert_eq!(v.rate(), MAX_RATE);
+        v.set_rate(f32::NAN);
+        assert_eq!(v.rate(), 1.0);
+        v.set_rate(1.5);
+        raw_frames(&mut v, 4); // speed ramp
+        let before = v.position();
+        raw_frames(&mut v, 100);
+        assert_eq!(v.position() - before, 150);
     }
 
     #[test]

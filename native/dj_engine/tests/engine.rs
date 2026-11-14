@@ -437,3 +437,48 @@ fn render_callback_drives_the_engine() {
     let out = output.render(4_800, 256);
     assert!(out[9_000] > 0.4);
 }
+
+#[test]
+fn the_pitch_fader_changes_the_playback_speed() {
+    use dj_domain::PitchPercent;
+
+    let (mut engine, mut handle, [mut a, _]) = engine();
+    feed_tone(&mut a, 1, 440.0, 1.0, 0.8);
+    handle
+        .send(Cmd::SetCrossfader(CrossfaderPosition::fully(DeckId::A)))
+        .unwrap();
+    handle
+        .send(Cmd::SetPitch {
+            deck: DeckId::A,
+            pitch: PitchPercent::new(50.0).unwrap(),
+        })
+        .unwrap();
+    start_deck(&mut handle, DeckId::A);
+    let quarter = RATE as usize / 4;
+    let out = left(&render(&mut engine, 2 * quarter));
+    // Rising zero crossings over the last quarter second give the frequency.
+    let crossings = out[quarter..]
+        .windows(2)
+        .filter(|w| w[0] < 0.0 && w[1] >= 0.0)
+        .count();
+    let frequency = crossings as f64 * 4.0;
+    assert!((frequency - 660.0).abs() <= 8.0, "heard {frequency} Hz");
+    // Half a second of output consumed three quarters of a second of track.
+    let position = events(&mut handle)
+        .iter()
+        .rev()
+        .find_map(|e| match e {
+            EngineEvent::Position {
+                deck: DeckId::A,
+                frame,
+                ..
+            } => Some(*frame),
+            _ => None,
+        })
+        .unwrap();
+    let expected = (0.75 * f64::from(RATE)) as u64;
+    assert!(
+        position.abs_diff(expected) < u64::from(RATE / 50),
+        "{position}"
+    );
+}

@@ -14,7 +14,7 @@ use anyhow::{Context, anyhow};
 use crossbeam_channel::bounded;
 use dj_domain::{
     AutoMixSettings, AutoMixState, AutoMixStatus, Bpm, CrossfadeCurve, CrossfadeDuration,
-    CrossfaderPosition, DeckId, Gain, PlayOrder, RepeatMode, Seconds, Track, TrackId,
+    CrossfaderPosition, DeckId, Gain, PitchPercent, PlayOrder, RepeatMode, Seconds, Track, TrackId,
 };
 use dj_engine::EqBand;
 use dj_infra::{CpalOutput, SqliteAnalysisCache, XorShiftRandom};
@@ -371,6 +371,17 @@ pub fn set_crossfader(position: f32) -> anyhow::Result<()> {
     send(SessionCommand::SetCrossfader(CrossfaderPosition::new(
         position,
     )?))
+}
+
+/// Pitch fader: playback speed change in percent (`+4` plays 4 % faster).
+///
+/// # Errors
+/// Fails if `percent` is outside `[-50, +50]` or the session is not started.
+pub fn set_pitch(deck: Deck, percent: f32) -> anyhow::Result<()> {
+    send(SessionCommand::SetPitch {
+        deck: deck.into(),
+        pitch: PitchPercent::new(percent)?,
+    })
 }
 
 /// # Errors

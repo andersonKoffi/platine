@@ -359,6 +359,10 @@ fn manual_controls_reach_the_decks() {
         deck: DeckId::A,
         gain: dj_domain::Gain::UNITY,
     });
+    h.controller.handle(SessionCommand::SetPitch {
+        deck: DeckId::A,
+        pitch: dj_domain::PitchPercent::ZERO,
+    });
     h.controller.handle(SessionCommand::SetEq {
         deck: DeckId::A,
         band: dj_engine::EqBand::Low,

@@ -244,6 +244,7 @@ impl Engine {
             EngineCommand::SetEq { deck, band, gain } => {
                 self.voice(deck).set_eq(band, gain.linear());
             }
+            EngineCommand::SetPitch { deck, pitch } => self.voice(deck).set_rate(pitch.ratio()),
             EngineCommand::SetCrossfader(position) => {
                 self.freeze_automation();
                 self.crossfader.set_target(position.value());

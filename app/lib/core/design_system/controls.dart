@@ -184,7 +184,16 @@ class VerticalFader extends StatelessWidget {
     this.color,
     this.width = 34,
     this.defaultPosition = 0.8,
+    this.jumpOnTap = true,
+    this.semanticValue,
   });
+
+  /// A tap moves the cap there. Off for faders where a stray tap would hurt
+  /// (pitch): they only move by dragging.
+  final bool jumpOnTap;
+
+  /// Announced value; defaults to the position in percent.
+  final String? semanticValue;
 
   final double position;
   final ValueChanged<double> onChanged;
@@ -205,7 +214,7 @@ class VerticalFader extends StatelessWidget {
     return Semantics(
       slider: true,
       label: label,
-      value: '${(position * 100).round()} %',
+      value: semanticValue ?? '${(position * 100).round()} %',
       increasedValue: '${((position + _step).clamp(0, 1) * 100).round()} %',
       decreasedValue: '${((position - _step).clamp(0, 1) * 100).round()} %',
       onIncrease: () => _nudge(_step),
@@ -220,7 +229,9 @@ class VerticalFader extends StatelessWidget {
             child: GestureDetector(
               behavior: HitTestBehavior.opaque,
               onDoubleTap: () => onChanged(defaultPosition),
-              onTapDown: (details) => jump(details.localPosition.dy),
+              onTapDown: jumpOnTap
+                  ? (details) => jump(details.localPosition.dy)
+                  : null,
               onVerticalDragUpdate: (details) =>
                   _nudge(-details.delta.dy / travel),
               child: CustomPaint(

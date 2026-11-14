@@ -7,8 +7,10 @@ import 'package:platine/core/design_system/widgets.dart';
 import 'package:platine/core/engine/application/engine_providers.dart';
 import 'package:platine/core/engine/application/session_state.dart';
 import 'package:platine/core/engine/domain/models.dart';
+import 'package:platine/features/decks/application/deck_controls.dart';
 import 'package:platine/features/decks/presentation/deck_drop_target.dart';
 import 'package:platine/features/decks/presentation/jog_wheel.dart';
+import 'package:platine/features/decks/presentation/pitch_control.dart';
 import 'package:platine/features/decks/presentation/playback_position.dart';
 import 'package:platine/features/decks/presentation/waveform_view.dart';
 
@@ -31,6 +33,10 @@ class DeckView extends ConsumerWidget {
     );
     final accent = tokens.deckColor(isDeckA: side == DeckSide.a);
     final gateway = ref.read(engineGatewayProvider);
+    final speed = ref.watch(
+      deckControlsControllerProvider(side).select((c) => c.speed),
+    );
+    final pitch = PitchControl(side: side, accent: accent);
 
     final transport = Column(
       mainAxisAlignment: MainAxisAlignment.end,
@@ -93,6 +99,7 @@ class DeckView extends ConsumerWidget {
               deck: deck,
               accent: accent,
               role: role,
+              speed: speed,
             ),
             SizedBox(height: tokens.space2),
             DeckOverview(side: side, deck: deck, accent: accent),
@@ -101,8 +108,20 @@ class DeckView extends ConsumerWidget {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: mirrored
-                    ? [jog, SizedBox(width: tokens.space3), transport]
-                    : [transport, SizedBox(width: tokens.space3), jog],
+                    ? [
+                        pitch,
+                        SizedBox(width: tokens.space3),
+                        jog,
+                        SizedBox(width: tokens.space3),
+                        transport,
+                      ]
+                    : [
+                        transport,
+                        SizedBox(width: tokens.space3),
+                        jog,
+                        SizedBox(width: tokens.space3),
+                        pitch,
+                      ],
               ),
             ),
           ],
@@ -141,6 +160,7 @@ class _DeckHeader extends StatelessWidget {
     required this.deck,
     required this.accent,
     required this.role,
+    required this.speed,
   });
 
   final DeckSide side;
@@ -148,6 +168,9 @@ class _DeckHeader extends StatelessWidget {
   final DeckState deck;
   final Color accent;
   final _DeckRole role;
+
+  /// Speed ratio of the pitch fader: the tempo shown is the tempo heard.
+  final double speed;
 
   @override
   Widget build(BuildContext context) {
@@ -195,6 +218,8 @@ class _DeckHeader extends StatelessWidget {
         ],
       ),
     );
+    final original = track?.bpm;
+    final heardBpm = original == null ? null : original * speed;
     final bpm = Container(
       padding: EdgeInsets.symmetric(
         horizontal: tokens.space2,
@@ -208,11 +233,11 @@ class _DeckHeader extends StatelessWidget {
       child: Column(
         children: [
           Text(
-            formatBpm(track?.bpm),
+            formatBpm(heardBpm),
             style: counterStyle(context, size: 18, color: accent),
-            semanticsLabel: track?.bpm == null
+            semanticsLabel: heardBpm == null
                 ? 'BPM inconnu'
-                : 'Tempo ${formatBpm(track?.bpm)} BPM',
+                : 'Tempo ${formatBpm(heardBpm)} BPM',
           ),
           const ControlLabel('BPM'),
         ],

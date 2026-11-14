@@ -6,7 +6,7 @@ use crossbeam_channel::Sender;
 use dj_domain::ports::SkippedFile;
 use dj_domain::{
     AutoMixState, AutoMixStatus, BeatGrid, CrossfadeCurve, CrossfaderPosition, DeckId, Gain,
-    Seconds, Track, TrackId, TrackTiming, Waveform,
+    PitchPercent, Seconds, Track, TrackId, TrackTiming, Waveform,
 };
 use dj_engine::{EqBand, Levels};
 
@@ -50,6 +50,11 @@ pub enum SessionCommand {
     SetDeckGain {
         deck: DeckId,
         gain: Gain,
+    },
+    /// Playback speed of a deck (pitch fader).
+    SetPitch {
+        deck: DeckId,
+        pitch: PitchPercent,
     },
     SetEq {
         deck: DeckId,

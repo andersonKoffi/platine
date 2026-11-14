@@ -3,7 +3,7 @@
 //! Positions and durations are expressed in **engine frames** (at the engine
 //! sample rate); converting from seconds is the controller's job.
 
-use dj_domain::{CrossfadeCurve, CrossfaderPosition, DeckId, Gain};
+use dj_domain::{CrossfadeCurve, CrossfaderPosition, DeckId, Gain, PitchPercent};
 
 /// One of the three isolator bands.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -64,6 +64,11 @@ pub enum EngineCommand {
         deck: DeckId,
         band: EqBand,
         gain: Gain,
+    },
+    /// Playback speed of the deck (pitch fader).
+    SetPitch {
+        deck: DeckId,
+        pitch: PitchPercent,
     },
     SetCrossfader(CrossfaderPosition),
     SetCrossfaderCurve(CrossfadeCurve),

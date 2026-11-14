@@ -83,6 +83,10 @@ class FakeEngineGateway implements EngineGateway {
       calls.add('setCrossfader ${position.toStringAsFixed(2)}');
 
   @override
+  Future<void> setPitch(DeckSide deck, double percent) async =>
+      calls.add('setPitch ${deck.name} ${percent.toStringAsFixed(1)}');
+
+  @override
   Future<void> setDeckGain(DeckSide deck, double linear) async =>
       calls.add('setDeckGain ${deck.name}');
 

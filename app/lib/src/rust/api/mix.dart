@@ -86,6 +86,12 @@ Future<void>  seek({required Deck deck , required double seconds }) => RustLib.i
 /// Fails if `position` is outside `[0, 1]` or the session is not started.
 Future<void>  setCrossfader({required double position }) => RustLib.instance.api.crateApiMixSetCrossfader(position: position);
 
+/// Pitch fader: playback speed change in percent (`+4` plays 4 % faster).
+///
+/// # Errors
+/// Fails if `percent` is outside `[-50, +50]` or the session is not started.
+Future<void>  setPitch({required Deck deck , required double percent }) => RustLib.instance.api.crateApiMixSetPitch(deck: deck, percent: percent);
+
 /// # Errors
 /// Fails if `linear` is outside `[0, +12 dB]` or the session is not started.
 Future<void>  setDeckGain({required Deck deck , required double linear }) => RustLib.instance.api.crateApiMixSetDeckGain(deck: deck, linear: linear);

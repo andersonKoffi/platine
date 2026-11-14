@@ -38,6 +38,9 @@ abstract interface class EngineGateway {
 
   Future<void> setDeckGain(DeckSide deck, double linear);
 
+  /// Pitch fader: speed change in percent (`+4` = 4 % faster).
+  Future<void> setPitch(DeckSide deck, double percent);
+
   Future<void> setEq(DeckSide deck, EqBandType band, double linear);
 
   Future<void> setMasterGain(double linear);
