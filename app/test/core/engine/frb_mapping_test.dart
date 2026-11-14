@@ -156,4 +156,28 @@ void main() {
       isA<Underrun>(),
     );
   });
+
+  test('tempo updates map to TrackAnalyzed and library tempos', () {
+    final analyzed = mapUpdate(
+      rust.EngineUpdate.trackAnalyzed(
+        trackId: BigInt.two,
+        bpm: 124.5,
+        firstBeatSeconds: 0.25,
+      ),
+    );
+    expect(analyzed, isA<TrackAnalyzed>());
+    analyzed as TrackAnalyzed;
+    expect(analyzed.trackId, 2);
+    expect(analyzed.bpm, 124.5);
+    expect(analyzed.firstBeat, 0.25);
+
+    final library = mapUpdate(
+      rust.EngineUpdate.libraryChanged(
+        tracks: [
+          rust.TrackDto(id: BigInt.one, path: '/a.mp3', title: 'A', bpm: 100),
+        ],
+      ),
+    ) as LibraryChanged;
+    expect(library.tracks.single.bpm, 100);
+  });
 }

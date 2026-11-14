@@ -104,6 +104,62 @@ impl Tone {
     }
 }
 
+/// A drum loop (kick on every beat, hi-hat on the off-beats) for tempo tests.
+pub fn drum_loop(bpm: f64, seconds: f64, sample_rate: u32) -> Vec<f32> {
+    let rate = f64::from(sample_rate);
+    #[allow(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
+    let frames = (seconds * rate) as usize;
+    let beat = 60.0 / bpm;
+    let mut seed = 7u32;
+    let mut noise = move || {
+        seed = seed.wrapping_mul(1_664_525).wrapping_add(1_013_904_223);
+        f64::from(seed >> 8) / f64::from(1u32 << 24) * 2.0 - 1.0
+    };
+    (0..frames)
+        .map(|n| {
+            #[allow(clippy::cast_precision_loss)]
+            let t = n as f64 / rate;
+            let in_beat = t % beat;
+            let kick = (-in_beat * 30.0).exp() * (2.0 * PI * 60.0 * in_beat).sin();
+            let hat = if (in_beat - beat / 2.0).abs() < 0.02 {
+                0.3 * noise()
+            } else {
+                0.0
+            };
+            #[allow(clippy::cast_possible_truncation)]
+            let sample = (0.8 * kick + hat + 0.02 * noise()) as f32;
+            sample
+        })
+        .collect()
+}
+
+/// Writes mono samples (`-1..=1`) as a 16-bit PCM WAV file.
+///
+/// # Errors
+/// Returns any I/O error.
+pub fn write_mono(path: &Path, sample_rate: u32, samples: &[f32]) -> io::Result<()> {
+    let data_len = u32::try_from(samples.len() * 2).unwrap_or(u32::MAX);
+    let mut out = BufWriter::new(File::create(path)?);
+    out.write_all(b"RIFF")?;
+    out.write_all(&(36 + data_len).to_le_bytes())?;
+    out.write_all(b"WAVEfmt ")?;
+    out.write_all(&16u32.to_le_bytes())?;
+    out.write_all(&1u16.to_le_bytes())?;
+    out.write_all(&1u16.to_le_bytes())?;
+    out.write_all(&sample_rate.to_le_bytes())?;
+    out.write_all(&(sample_rate * 2).to_le_bytes())?;
+    out.write_all(&2u16.to_le_bytes())?;
+    out.write_all(&16u16.to_le_bytes())?;
+    out.write_all(b"data")?;
+    out.write_all(&data_len.to_le_bytes())?;
+    for sample in samples {
+        #[allow(clippy::cast_possible_truncation)]
+        let value = (f64::from(sample.clamp(-1.0, 1.0)) * f64::from(i16::MAX)).round() as i16;
+        out.write_all(&value.to_le_bytes())?;
+    }
+    out.flush()
+}
+
 /// Writes a file with a `.wav` name that is not audio at all.
 ///
 /// # Errors

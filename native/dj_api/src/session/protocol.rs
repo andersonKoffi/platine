@@ -5,8 +5,8 @@ use std::path::PathBuf;
 use crossbeam_channel::Sender;
 use dj_domain::ports::SkippedFile;
 use dj_domain::{
-    AutoMixState, AutoMixStatus, CrossfadeCurve, CrossfaderPosition, DeckId, Gain, Seconds, Track,
-    TrackId, TrackTiming, Waveform,
+    AutoMixState, AutoMixStatus, BeatGrid, CrossfadeCurve, CrossfaderPosition, DeckId, Gain,
+    Seconds, Track, TrackId, TrackTiming, Waveform,
 };
 use dj_engine::{EqBand, Levels};
 
@@ -88,6 +88,11 @@ pub enum SessionEvent {
         deck: DeckId,
         track: TrackId,
         waveform: Waveform,
+    },
+    /// Tempo of a track, once analysed (`None`: no steady beat found).
+    TrackAnalyzed {
+        track: TrackId,
+        beat_grid: Option<BeatGrid>,
     },
     DeckPosition {
         deck: DeckId,

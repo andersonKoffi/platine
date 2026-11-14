@@ -13,7 +13,7 @@ use std::sync::{Mutex, MutexGuard, OnceLock};
 use anyhow::{Context, anyhow};
 use crossbeam_channel::bounded;
 use dj_domain::{
-    AutoMixSettings, AutoMixState, AutoMixStatus, CrossfadeCurve, CrossfadeDuration,
+    AutoMixSettings, AutoMixState, AutoMixStatus, Bpm, CrossfadeCurve, CrossfadeDuration,
     CrossfaderPosition, DeckId, Gain, PlayOrder, RepeatMode, Seconds, Track, TrackId,
 };
 use dj_engine::EqBand;
@@ -72,6 +72,8 @@ pub struct TrackDto {
     pub path: String,
     pub title: String,
     pub artist: Option<String>,
+    /// Tempo, once the track has been analysed.
+    pub bpm: Option<f32>,
 }
 
 /// A file that could not be read during the scan.
@@ -139,6 +141,12 @@ pub enum EngineUpdate {
         low: Vec<u8>,
         mid: Vec<u8>,
         high: Vec<u8>,
+    },
+    /// Tempo of a track, once analysed; `bpm` is `None` without a steady beat.
+    TrackAnalyzed {
+        track_id: u64,
+        bpm: Option<f32>,
+        first_beat_seconds: Option<f64>,
     },
     DeckPosition {
         deck: Deck,
@@ -452,6 +460,7 @@ impl From<&Track> for TrackDto {
             path: track.path.to_string_lossy().into_owned(),
             title: track.title.clone(),
             artist: track.artist.clone(),
+            bpm: track.bpm.map(Bpm::value),
         }
     }
 }
@@ -515,6 +524,11 @@ impl From<SessionEvent> for EngineUpdate {
                 low: waveform.low().to_vec(),
                 mid: waveform.mid().to_vec(),
                 high: waveform.high().to_vec(),
+            },
+            SessionEvent::TrackAnalyzed { track, beat_grid } => Self::TrackAnalyzed {
+                track_id: track.0,
+                bpm: beat_grid.map(|grid| grid.bpm.value()),
+                first_beat_seconds: beat_grid.map(|grid| grid.first_beat.as_f64()),
             },
             SessionEvent::DeckPosition {
                 deck,

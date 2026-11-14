@@ -378,6 +378,10 @@ TextStyle counterStyle(BuildContext context, {double size = 16, Color? color}) {
   );
 }
 
+/// Tempo with one decimal (`124.0`), or `---.-` while unknown.
+String formatBpm(double? bpm) =>
+    bpm == null || !bpm.isFinite ? '---.-' : bpm.toStringAsFixed(1);
+
 /// `m:ss` clock.
 String formatClock(double seconds) {
   final total = seconds.isFinite && seconds > 0 ? seconds.floor() : 0;

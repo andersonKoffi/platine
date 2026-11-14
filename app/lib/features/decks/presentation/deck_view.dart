@@ -208,9 +208,11 @@ class _DeckHeader extends StatelessWidget {
       child: Column(
         children: [
           Text(
-            '---.-',
+            formatBpm(track?.bpm),
             style: counterStyle(context, size: 18, color: accent),
-            semanticsLabel: 'BPM inconnu',
+            semanticsLabel: track?.bpm == null
+                ? 'BPM inconnu'
+                : 'Tempo ${formatBpm(track?.bpm)} BPM',
           ),
           const ControlLabel('BPM'),
         ],

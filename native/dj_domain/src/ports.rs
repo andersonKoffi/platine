@@ -6,8 +6,9 @@
 
 use std::path::{Path, PathBuf};
 
+use crate::tempo::BeatGrid;
 use crate::track::{Track, TrackTiming};
-use crate::values::{Bpm, Seconds};
+use crate::values::Seconds;
 use crate::waveform::Waveform;
 
 /// Monotonic time source.
@@ -74,7 +75,8 @@ pub trait TrackDecoder {
 #[derive(Debug, Clone, PartialEq)]
 pub struct TrackAnalysis {
     pub timing: TrackTiming,
-    pub bpm: Option<Bpm>,
+    /// Tempo and first beat, when requested and found.
+    pub beat_grid: Option<BeatGrid>,
     /// Coloured overview of the track (empty if not computed).
     pub waveform: Waveform,
 }
@@ -91,7 +93,7 @@ impl Default for AnalysisRequest {
     fn default() -> Self {
         Self {
             silence_threshold_db: -50.0,
-            detect_bpm: false,
+            detect_bpm: true,
         }
     }
 }
@@ -186,7 +188,7 @@ mod tests {
     fn default_analysis_uses_minus_fifty_dbfs() {
         let request = AnalysisRequest::default();
         assert_eq!(request.silence_threshold_db, -50.0);
-        assert!(!request.detect_bpm);
+        assert!(request.detect_bpm);
     }
 
     #[test]

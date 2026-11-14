@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:platine/core/design_system/theme.dart';
 import 'package:platine/core/design_system/tokens.dart';
 import 'package:platine/core/design_system/widgets.dart';
 import 'package:platine/core/engine/application/engine_providers.dart';
@@ -171,6 +172,14 @@ class _LibraryToolbar extends ConsumerWidget {
             active: query.sort == LibrarySort.title,
             onPressed: () => controller.sortBy(LibrarySort.title),
           ),
+          SizedBox(width: tokens.space1),
+          PadButton(
+            label: 'BPM',
+            tooltip: 'Trier par tempo',
+            color: tokens.textSecondary,
+            active: query.sort == LibrarySort.bpm,
+            onPressed: () => controller.sortBy(LibrarySort.bpm),
+          ),
         ],
       ),
     );
@@ -180,6 +189,7 @@ class _LibraryToolbar extends ConsumerWidget {
 /// Column widths of the track table.
 const double _numberWidth = 44;
 const double _formatWidth = 56;
+const double _bpmWidth = 56;
 const double _loadWidth = 72;
 
 class _TableHeader extends StatelessWidget {
@@ -200,6 +210,7 @@ class _TableHeader extends StatelessWidget {
           Expanded(flex: 5, child: ControlLabel('Titre')),
           Expanded(flex: 3, child: ControlLabel('Artiste')),
           Expanded(flex: 3, child: ControlLabel('Dossier')),
+          SizedBox(width: _bpmWidth, child: ControlLabel('BPM')),
           SizedBox(width: _formatWidth, child: ControlLabel('Format')),
           SizedBox(
             width: _loadWidth,
@@ -361,6 +372,15 @@ class _TrackRow extends ConsumerWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: textTheme.bodySmall?.copyWith(color: tokens.textMuted),
+                ),
+              ),
+              SizedBox(
+                width: _bpmWidth,
+                child: Text(
+                  track.bpm == null ? '—' : formatBpm(track.bpm),
+                  style: textTheme.bodySmall?.copyWith(
+                    fontFeatures: tabularFigures,
+                  ),
                 ),
               ),
               SizedBox(

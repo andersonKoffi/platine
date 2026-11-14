@@ -15,6 +15,7 @@ pub mod error;
 pub mod ports;
 pub mod queue;
 pub mod shuffle;
+pub mod tempo;
 pub mod track;
 pub mod values;
 pub mod waveform;
@@ -28,6 +29,7 @@ pub use deck::{Deck, DeckLoad};
 pub use error::DomainError;
 pub use queue::{PlaybackQueue, RepeatMode};
 pub use shuffle::{FisherYates, PlayOrder, Sequential, ShuffleStrategy};
+pub use tempo::{BeatGrid, OnsetDetector, OnsetEnvelope, estimate_beat_grid};
 pub use track::{Playlist, Track, TrackId, TrackTiming};
 pub use values::{
     Bpm, CrossfadeDuration, CrossfaderPosition, DeckId, Gain, PitchPercent, PitchRange, Seconds,

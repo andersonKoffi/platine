@@ -151,6 +151,16 @@ EngineEvent mapUpdate(rust.EngineUpdate update) {
           high: high,
         ),
       ),
+    rust.EngineUpdate_TrackAnalyzed(
+      :final trackId,
+      :final bpm,
+      :final firstBeatSeconds,
+    ) =>
+      TrackAnalyzed(
+        trackId: trackId.toInt(),
+        bpm: bpm,
+        firstBeat: firstBeatSeconds,
+      ),
     rust.EngineUpdate_DeckPosition(
       :final deck,
       :final positionSeconds,
@@ -225,6 +235,7 @@ TrackInfo _track(rust.TrackDto track) => TrackInfo(
   path: track.path,
   title: track.title,
   artist: track.artist,
+  bpm: track.bpm,
 );
 
 double _peak(List<double> stereo) =>

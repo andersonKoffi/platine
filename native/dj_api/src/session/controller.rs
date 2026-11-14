@@ -118,7 +118,7 @@ impl<R: RandomSource> Controller<R> {
             decks: [DeckSlot::default(); 2],
             analysis_request: AnalysisRequest {
                 silence_threshold_db: settings.silence_threshold_db,
-                detect_bpm: false,
+                detect_bpm: true,
             },
             events: parts.events,
             ui_interval: settings.ui_interval,
@@ -432,6 +432,13 @@ impl<R: RandomSource> Controller<R> {
                     deck: job.deck,
                     track: job.track,
                     waveform: analysis.waveform,
+                });
+                if let Some(track) = self.library.get_mut(&job.track) {
+                    track.bpm = analysis.beat_grid.map(|grid| grid.bpm);
+                }
+                self.emit(SessionEvent::TrackAnalyzed {
+                    track: job.track,
+                    beat_grid: analysis.beat_grid,
                 });
                 let start = analysis.timing.effective_start();
                 let slot = &mut self.decks[job.deck.index()];

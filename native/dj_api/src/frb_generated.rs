@@ -981,6 +981,16 @@ impl SseDecode for crate::api::mix::EngineUpdate {
                 };
             }
             4 => {
+                let mut var_trackId = <u64>::sse_decode(deserializer);
+                let mut var_bpm = <Option<f32>>::sse_decode(deserializer);
+                let mut var_firstBeatSeconds = <Option<f64>>::sse_decode(deserializer);
+                return crate::api::mix::EngineUpdate::TrackAnalyzed {
+                    track_id: var_trackId,
+                    bpm: var_bpm,
+                    first_beat_seconds: var_firstBeatSeconds,
+                };
+            }
+            5 => {
                 let mut var_deck = <crate::api::mix::Deck>::sse_decode(deserializer);
                 let mut var_positionSeconds = <f64>::sse_decode(deserializer);
                 let mut var_playing = <bool>::sse_decode(deserializer);
@@ -990,11 +1000,11 @@ impl SseDecode for crate::api::mix::EngineUpdate {
                     playing: var_playing,
                 };
             }
-            5 => {
+            6 => {
                 let mut var_field0 = <crate::api::mix::LevelsDto>::sse_decode(deserializer);
                 return crate::api::mix::EngineUpdate::Levels(var_field0);
             }
-            6 => {
+            7 => {
                 let mut var_state = <crate::api::mix::AutoMixStateDto>::sse_decode(deserializer);
                 let mut var_status = <crate::api::mix::AutoMixStatusDto>::sse_decode(deserializer);
                 return crate::api::mix::EngineUpdate::AutoMixChanged {
@@ -1002,13 +1012,13 @@ impl SseDecode for crate::api::mix::EngineUpdate {
                     status: var_status,
                 };
             }
-            7 => {
+            8 => {
                 let mut var_upcoming = <Vec<u64>>::sse_decode(deserializer);
                 return crate::api::mix::EngineUpdate::QueueChanged {
                     upcoming: var_upcoming,
                 };
             }
-            8 => {
+            9 => {
                 let mut var_from = <crate::api::mix::Deck>::sse_decode(deserializer);
                 let mut var_to = <crate::api::mix::Deck>::sse_decode(deserializer);
                 return crate::api::mix::EngineUpdate::TransitionStarted {
@@ -1016,7 +1026,7 @@ impl SseDecode for crate::api::mix::EngineUpdate {
                     to: var_to,
                 };
             }
-            9 => {
+            10 => {
                 let mut var_from = <crate::api::mix::Deck>::sse_decode(deserializer);
                 let mut var_to = <crate::api::mix::Deck>::sse_decode(deserializer);
                 return crate::api::mix::EngineUpdate::TransitionCompleted {
@@ -1024,7 +1034,7 @@ impl SseDecode for crate::api::mix::EngineUpdate {
                     to: var_to,
                 };
             }
-            10 => {
+            11 => {
                 let mut var_trackId = <u64>::sse_decode(deserializer);
                 let mut var_reason = <String>::sse_decode(deserializer);
                 return crate::api::mix::EngineUpdate::TrackSkipped {
@@ -1032,10 +1042,10 @@ impl SseDecode for crate::api::mix::EngineUpdate {
                     reason: var_reason,
                 };
             }
-            11 => {
+            12 => {
                 return crate::api::mix::EngineUpdate::QueueExhausted;
             }
-            12 => {
+            13 => {
                 let mut var_deck = <crate::api::mix::Deck>::sse_decode(deserializer);
                 return crate::api::mix::EngineUpdate::Underrun { deck: var_deck };
             }
@@ -1186,6 +1196,28 @@ impl SseDecode for Option<String> {
     }
 }
 
+impl SseDecode for Option<f32> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        if (<bool>::sse_decode(deserializer)) {
+            return Some(<f32>::sse_decode(deserializer));
+        } else {
+            return None;
+        }
+    }
+}
+
+impl SseDecode for Option<f64> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        if (<bool>::sse_decode(deserializer)) {
+            return Some(<f64>::sse_decode(deserializer));
+        } else {
+            return None;
+        }
+    }
+}
+
 impl SseDecode for crate::api::mix::ScanResultDto {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
@@ -1237,11 +1269,13 @@ impl SseDecode for crate::api::mix::TrackDto {
         let mut var_path = <String>::sse_decode(deserializer);
         let mut var_title = <String>::sse_decode(deserializer);
         let mut var_artist = <Option<String>>::sse_decode(deserializer);
+        let mut var_bpm = <Option<f32>>::sse_decode(deserializer);
         return crate::api::mix::TrackDto {
             id: var_id,
             path: var_path,
             title: var_title,
             artist: var_artist,
+            bpm: var_bpm,
         };
     }
 }
@@ -1480,50 +1514,61 @@ impl flutter_rust_bridge::IntoDart for crate::api::mix::EngineUpdate {
                 high.into_into_dart().into_dart(),
             ]
             .into_dart(),
+            crate::api::mix::EngineUpdate::TrackAnalyzed {
+                track_id,
+                bpm,
+                first_beat_seconds,
+            } => [
+                4.into_dart(),
+                track_id.into_into_dart().into_dart(),
+                bpm.into_into_dart().into_dart(),
+                first_beat_seconds.into_into_dart().into_dart(),
+            ]
+            .into_dart(),
             crate::api::mix::EngineUpdate::DeckPosition {
                 deck,
                 position_seconds,
                 playing,
             } => [
-                4.into_dart(),
+                5.into_dart(),
                 deck.into_into_dart().into_dart(),
                 position_seconds.into_into_dart().into_dart(),
                 playing.into_into_dart().into_dart(),
             ]
             .into_dart(),
             crate::api::mix::EngineUpdate::Levels(field0) => {
-                [5.into_dart(), field0.into_into_dart().into_dart()].into_dart()
+                [6.into_dart(), field0.into_into_dart().into_dart()].into_dart()
             }
             crate::api::mix::EngineUpdate::AutoMixChanged { state, status } => [
-                6.into_dart(),
+                7.into_dart(),
                 state.into_into_dart().into_dart(),
                 status.into_into_dart().into_dart(),
             ]
             .into_dart(),
             crate::api::mix::EngineUpdate::QueueChanged { upcoming } => {
-                [7.into_dart(), upcoming.into_into_dart().into_dart()].into_dart()
+                [8.into_dart(), upcoming.into_into_dart().into_dart()].into_dart()
             }
             crate::api::mix::EngineUpdate::TransitionStarted { from, to } => [
-                8.into_dart(),
-                from.into_into_dart().into_dart(),
-                to.into_into_dart().into_dart(),
-            ]
-            .into_dart(),
-            crate::api::mix::EngineUpdate::TransitionCompleted { from, to } => [
                 9.into_dart(),
                 from.into_into_dart().into_dart(),
                 to.into_into_dart().into_dart(),
             ]
             .into_dart(),
-            crate::api::mix::EngineUpdate::TrackSkipped { track_id, reason } => [
+            crate::api::mix::EngineUpdate::TransitionCompleted { from, to } => [
                 10.into_dart(),
+                from.into_into_dart().into_dart(),
+                to.into_into_dart().into_dart(),
+            ]
+            .into_dart(),
+            crate::api::mix::EngineUpdate::TrackSkipped { track_id, reason } => [
+                11.into_dart(),
                 track_id.into_into_dart().into_dart(),
                 reason.into_into_dart().into_dart(),
             ]
             .into_dart(),
-            crate::api::mix::EngineUpdate::QueueExhausted => [11.into_dart()].into_dart(),
+            crate::api::mix::EngineUpdate::QueueExhausted => [12.into_dart()].into_dart(),
             crate::api::mix::EngineUpdate::Underrun { deck } => {
-                [12.into_dart(), deck.into_into_dart().into_dart()].into_dart()
+                [13.into_dart(), deck.into_into_dart().into_dart()].into_dart()
             }
             _ => {
                 unimplemented!("");
@@ -1668,6 +1713,7 @@ impl flutter_rust_bridge::IntoDart for crate::api::mix::TrackDto {
             self.path.into_into_dart().into_dart(),
             self.title.into_into_dart().into_dart(),
             self.artist.into_into_dart().into_dart(),
+            self.bpm.into_into_dart().into_dart(),
         ]
         .into_dart()
     }
@@ -1849,49 +1895,59 @@ impl SseEncode for crate::api::mix::EngineUpdate {
                 <Vec<u8>>::sse_encode(mid, serializer);
                 <Vec<u8>>::sse_encode(high, serializer);
             }
+            crate::api::mix::EngineUpdate::TrackAnalyzed {
+                track_id,
+                bpm,
+                first_beat_seconds,
+            } => {
+                <i32>::sse_encode(4, serializer);
+                <u64>::sse_encode(track_id, serializer);
+                <Option<f32>>::sse_encode(bpm, serializer);
+                <Option<f64>>::sse_encode(first_beat_seconds, serializer);
+            }
             crate::api::mix::EngineUpdate::DeckPosition {
                 deck,
                 position_seconds,
                 playing,
             } => {
-                <i32>::sse_encode(4, serializer);
+                <i32>::sse_encode(5, serializer);
                 <crate::api::mix::Deck>::sse_encode(deck, serializer);
                 <f64>::sse_encode(position_seconds, serializer);
                 <bool>::sse_encode(playing, serializer);
             }
             crate::api::mix::EngineUpdate::Levels(field0) => {
-                <i32>::sse_encode(5, serializer);
+                <i32>::sse_encode(6, serializer);
                 <crate::api::mix::LevelsDto>::sse_encode(field0, serializer);
             }
             crate::api::mix::EngineUpdate::AutoMixChanged { state, status } => {
-                <i32>::sse_encode(6, serializer);
+                <i32>::sse_encode(7, serializer);
                 <crate::api::mix::AutoMixStateDto>::sse_encode(state, serializer);
                 <crate::api::mix::AutoMixStatusDto>::sse_encode(status, serializer);
             }
             crate::api::mix::EngineUpdate::QueueChanged { upcoming } => {
-                <i32>::sse_encode(7, serializer);
+                <i32>::sse_encode(8, serializer);
                 <Vec<u64>>::sse_encode(upcoming, serializer);
             }
             crate::api::mix::EngineUpdate::TransitionStarted { from, to } => {
-                <i32>::sse_encode(8, serializer);
-                <crate::api::mix::Deck>::sse_encode(from, serializer);
-                <crate::api::mix::Deck>::sse_encode(to, serializer);
-            }
-            crate::api::mix::EngineUpdate::TransitionCompleted { from, to } => {
                 <i32>::sse_encode(9, serializer);
                 <crate::api::mix::Deck>::sse_encode(from, serializer);
                 <crate::api::mix::Deck>::sse_encode(to, serializer);
             }
-            crate::api::mix::EngineUpdate::TrackSkipped { track_id, reason } => {
+            crate::api::mix::EngineUpdate::TransitionCompleted { from, to } => {
                 <i32>::sse_encode(10, serializer);
+                <crate::api::mix::Deck>::sse_encode(from, serializer);
+                <crate::api::mix::Deck>::sse_encode(to, serializer);
+            }
+            crate::api::mix::EngineUpdate::TrackSkipped { track_id, reason } => {
+                <i32>::sse_encode(11, serializer);
                 <u64>::sse_encode(track_id, serializer);
                 <String>::sse_encode(reason, serializer);
             }
             crate::api::mix::EngineUpdate::QueueExhausted => {
-                <i32>::sse_encode(11, serializer);
+                <i32>::sse_encode(12, serializer);
             }
             crate::api::mix::EngineUpdate::Underrun { deck } => {
-                <i32>::sse_encode(12, serializer);
+                <i32>::sse_encode(13, serializer);
                 <crate::api::mix::Deck>::sse_encode(deck, serializer);
             }
             _ => {
@@ -2029,6 +2085,26 @@ impl SseEncode for Option<String> {
     }
 }
 
+impl SseEncode for Option<f32> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <bool>::sse_encode(self.is_some(), serializer);
+        if let Some(value) = self {
+            <f32>::sse_encode(value, serializer);
+        }
+    }
+}
+
+impl SseEncode for Option<f64> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <bool>::sse_encode(self.is_some(), serializer);
+        if let Some(value) = self {
+            <f64>::sse_encode(value, serializer);
+        }
+    }
+}
+
 impl SseEncode for crate::api::mix::ScanResultDto {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
@@ -2064,6 +2140,7 @@ impl SseEncode for crate::api::mix::TrackDto {
         <String>::sse_encode(self.path, serializer);
         <String>::sse_encode(self.title, serializer);
         <Option<String>>::sse_encode(self.artist, serializer);
+        <Option<f32>>::sse_encode(self.bpm, serializer);
     }
 }
 

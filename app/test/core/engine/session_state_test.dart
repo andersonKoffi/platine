@@ -190,4 +190,29 @@ void main() {
     expect(DeckSide.b.crossfaderSide, 1);
     expect(DeckSide.a.label, 'A');
   });
+
+  test('analysed tempos reach the library and survive a library refresh', () {
+    final state = apply(const [
+      LibraryChanged(library),
+      TrackAnalyzed(trackId: 2, bpm: 124, firstBeat: 0.3),
+      TrackAnalyzed(trackId: 3),
+    ]);
+    expect(state.track(2)?.bpm, 124);
+    expect(state.track(2)?.firstBeat, 0.3);
+    expect(state.track(3)?.bpm, isNull);
+    expect(state.track(1)?.bpm, isNull);
+
+    // Append mode resends the whole library without first beats.
+    final refreshed = reduceSession(
+      state,
+      const LibraryChanged([
+        ...library,
+        TrackInfo(id: 4, path: '/d.mp3', title: 'D'),
+      ]),
+      now,
+    );
+    expect(refreshed.track(2)?.bpm, 124);
+    expect(refreshed.track(2)?.firstBeat, 0.3);
+    expect(refreshed.track(4)?.bpm, isNull);
+  });
 }

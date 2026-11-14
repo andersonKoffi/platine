@@ -52,6 +52,17 @@ final class WaveformReady extends EngineEvent {
   final WaveformData waveform;
 }
 
+/// Tempo of a track, once analysed.
+final class TrackAnalyzed extends EngineEvent {
+  const new({required this.trackId, this.bpm, this.firstBeat});
+
+  final int trackId;
+
+  /// `null` when no steady beat was found.
+  final double? bpm;
+  final double? firstBeat;
+}
+
 final class DeckPositionChanged extends EngineEvent {
   const new({
     required this.deck,

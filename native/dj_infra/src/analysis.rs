@@ -1,12 +1,12 @@
 //! Track analysis in one decoding pass: exact duration, leading/trailing
-//! silence and a three-band coloured waveform. BPM joins in P5.
+//! silence, a three-band coloured waveform and the tempo (beat grid).
 
 use std::path::Path;
 
 use dj_domain::ports::{
     AnalysisRequest, AudioStream, DecodeError, TrackAnalysis, TrackAnalyzer, TrackDecoder,
 };
-use dj_domain::{Seconds, TrackTiming, Waveform};
+use dj_domain::{OnsetDetector, Seconds, TrackTiming, Waveform, estimate_beat_grid};
 
 /// Length of the analysis windows, in seconds.
 const WINDOW_SECONDS: f64 = 0.01;
@@ -43,6 +43,9 @@ impl<D: TrackDecoder> TrackAnalyzer for SilenceAnalyzer<D> {
 
         let mut detector = SilenceDetector::new(threshold);
         let mut bands = BandSplitter::new(spec.sample_rate);
+        let mut onsets = request
+            .detect_bpm
+            .then(|| OnsetDetector::new(spec.sample_rate));
         let mut peaks: Vec<[f32; 3]> = Vec::new();
         let mut band_peak = [0.0f32; 3];
         let mut buffer = vec![0.0f32; window_frames * channels * 64];
@@ -62,6 +65,9 @@ impl<D: TrackDecoder> TrackAnalyzer for SilenceAnalyzer<D> {
                 // Channel counts are tiny.
                 #[allow(clippy::cast_precision_loss)]
                 let mono = sum / channels as f32;
+                if let Some(onsets) = onsets.as_mut() {
+                    onsets.push(mono);
+                }
                 for (peak, value) in band_peak.iter_mut().zip(bands.split(mono)) {
                     *peak = peak.max(value.abs());
                 }
@@ -91,7 +97,7 @@ impl<D: TrackDecoder> TrackAnalyzer for SilenceAnalyzer<D> {
                 seconds(leading),
                 seconds(trailing),
             ),
-            bpm: None,
+            beat_grid: onsets.and_then(|onsets| estimate_beat_grid(&onsets.finish())),
             waveform: Waveform::from_peaks(
                 points_per_second(window_frames, spec.sample_rate),
                 &peaks,

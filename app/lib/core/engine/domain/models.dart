@@ -36,6 +36,8 @@ class TrackInfo {
     required this.path,
     required this.title,
     this.artist,
+    this.bpm,
+    this.firstBeat,
   });
 
   final int id;
@@ -43,16 +45,35 @@ class TrackInfo {
   final String title;
   final String? artist;
 
+  /// Tempo, once analysed (`null`: unknown or no steady beat).
+  final double? bpm;
+
+  /// Time of the first beat in seconds, once analysed.
+  final double? firstBeat;
+
+  /// Same track with an analysed tempo.
+  TrackInfo withTempo({required double? bpm, required double? firstBeat}) =>
+      TrackInfo(
+        id: id,
+        path: path,
+        title: title,
+        artist: artist,
+        bpm: bpm,
+        firstBeat: firstBeat,
+      );
+
   @override
   bool operator ==(Object other) =>
       other is TrackInfo &&
       other.id == id &&
       other.path == path &&
       other.title == title &&
-      other.artist == artist;
+      other.artist == artist &&
+      other.bpm == bpm &&
+      other.firstBeat == firstBeat;
 
   @override
-  int get hashCode => Object.hash(id, path, title, artist);
+  int get hashCode => Object.hash(id, path, title, artist, bpm, firstBeat);
 }
 
 /// A file that could not be used.

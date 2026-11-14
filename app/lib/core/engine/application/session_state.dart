@@ -190,7 +190,7 @@ SessionState reduceSession(
 ) {
   return switch (event) {
     LibraryChanged(:final tracks) => state.copyWith(
-      library: tracks,
+      library: _keepTempos(tracks, state.library),
       queueExhausted: false,
     ),
     DeckLoading(:final deck, :final trackId) => state.withDeck(
@@ -223,6 +223,15 @@ SessionState reduceSession(
       state.deck(deck).trackId == trackId
           ? state.withDeck(deck, state.deck(deck).copyWith(waveform: waveform))
           : state,
+    TrackAnalyzed(:final trackId, :final bpm, :final firstBeat) =>
+      state.copyWith(
+        library: [
+          for (final track in state.library)
+            track.id == trackId
+                ? track.withTempo(bpm: bpm, firstBeat: firstBeat)
+                : track,
+        ],
+      ),
     DeckPositionChanged(:final deck, :final position, :final playing) =>
       state.withDeck(
         deck,
@@ -280,4 +289,20 @@ SessionState _autoMixChanged(SessionState state, AutoMixChanged event) {
     return next.copyWith(clearTransition: true);
   }
   return next;
+}
+
+/// Keeps the tempos already analysed when the library is resent (append mode).
+List<TrackInfo> _keepTempos(List<TrackInfo> tracks, List<TrackInfo> previous) {
+  if (previous.isEmpty) return tracks;
+  final known = {for (final track in previous) track.id: track};
+  return [
+    for (final track in tracks)
+      switch (known[track.id]) {
+        final TrackInfo old when old.bpm != null && track.bpm == null =>
+          track.withTempo(bpm: old.bpm, firstBeat: old.firstBeat),
+        final TrackInfo old when old.firstBeat != null =>
+          track.withTempo(bpm: track.bpm, firstBeat: old.firstBeat),
+        _ => track,
+      },
+  ];
 }

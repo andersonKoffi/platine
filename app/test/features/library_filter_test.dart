@@ -23,4 +23,17 @@ void main() {
       3,
     ]);
   });
+
+  test('tracks can be sorted by tempo, unknown tempos last', () {
+    final withTempos = [
+      tracks[0].withTempo(bpm: 128, firstBeat: 0),
+      tracks[1],
+      tracks[2].withTempo(bpm: 96.5, firstBeat: 0.2),
+    ];
+    final sorted = filterTracks(
+      withTempos,
+      const LibraryQuery(sort: LibrarySort.bpm),
+    );
+    expect(sorted.map((t) => t.id), [3, 1, 2]);
+  });
 }

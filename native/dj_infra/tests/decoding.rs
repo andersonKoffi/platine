@@ -7,7 +7,7 @@ use common::TempDir;
 use dj_domain::Seconds;
 use dj_domain::ports::{AudioStream, DecodeError, TrackDecoder};
 use dj_infra::SymphoniaDecoder;
-use test_support::wav::{Tone, write_corrupt};
+use test_support::wav::{Tone, drum_loop, write_corrupt, write_mono};
 
 fn read_all(stream: &mut impl AudioStream) -> Vec<f32> {
     let mut all = Vec::new();
@@ -102,7 +102,8 @@ fn analysis_measures_duration_and_silences() {
     assert!((timing.duration().as_f64() - 3.75).abs() < 1e-3);
     assert!((timing.effective_start().as_f64() - 0.5).abs() <= 0.011);
     assert!((timing.effective_end().as_f64() - 2.5).abs() <= 0.011);
-    assert_eq!(analysis.bpm, None);
+    // A steady tone has no rhythm.
+    assert_eq!(analysis.beat_grid, None);
 
     let corrupt = dir.file("bad.wav");
     write_corrupt(&corrupt).unwrap();
@@ -111,4 +112,30 @@ fn analysis_measures_duration_and_silences() {
             .analyze(&corrupt, &AnalysisRequest::default())
             .is_err()
     );
+}
+
+#[test]
+fn analysis_measures_the_tempo_of_a_drum_loop() {
+    use dj_domain::ports::{AnalysisRequest, TrackAnalyzer};
+    use dj_infra::SilenceAnalyzer;
+
+    let dir = TempDir::new("tempo");
+    let path = dir.file("loop.wav");
+    write_mono(&path, 22_050, &drum_loop(124.0, 12.0, 22_050)).unwrap();
+    let analysis = SilenceAnalyzer::new(SymphoniaDecoder)
+        .analyze(&path, &AnalysisRequest::default())
+        .unwrap();
+    let grid = analysis.beat_grid.expect("a tempo");
+    assert!((grid.bpm.value() - 124.0).abs() < 0.05, "{:?}", grid.bpm);
+
+    let without = SilenceAnalyzer::new(SymphoniaDecoder)
+        .analyze(
+            &path,
+            &AnalysisRequest {
+                detect_bpm: false,
+                ..AnalysisRequest::default()
+            },
+        )
+        .unwrap();
+    assert_eq!(without.beat_grid, None);
 }

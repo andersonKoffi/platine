@@ -8,7 +8,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 part 'library_controller.g.dart';
 
 /// How the library list is ordered.
-enum LibrarySort { folder, title }
+enum LibrarySort { folder, title, bpm }
 
 /// Search text and sort order of the library list.
 class LibraryQuery {
@@ -53,10 +53,18 @@ List<TrackInfo> filterTracks(List<TrackInfo> tracks, LibraryQuery query) {
                 track.path.toLowerCase().contains(needle))
               track,
         ];
-  if (query.sort == LibrarySort.title) {
-    matching.sort(
-      (a, b) => a.title.toLowerCase().compareTo(b.title.toLowerCase()),
-    );
+  switch (query.sort) {
+    case LibrarySort.folder:
+      break;
+    case LibrarySort.title:
+      matching.sort(
+        (a, b) => a.title.toLowerCase().compareTo(b.title.toLowerCase()),
+      );
+    case LibrarySort.bpm:
+      // Slowest first; tracks without a known tempo go last.
+      matching.sort(
+        (a, b) => (a.bpm ?? double.infinity).compareTo(b.bpm ?? double.infinity),
+      );
   }
   return matching;
 }
