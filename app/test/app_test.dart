@@ -18,9 +18,7 @@ class _FakeDiagnosticsRepository implements DiagnosticsRepository {
 }
 
 void main() {
-  testWidgets('shows the app title and a healthy engine badge', (
-    tester,
-  ) async {
+  testWidgets('shows the app title and a healthy engine badge', (tester) async {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [

@@ -22,8 +22,7 @@ void main() {
       if (isGenerated || isAllowed) continue;
 
       final importsBridge = file.readAsLinesSync().any(
-        (line) =>
-            line.startsWith('import') && line.contains('/src/rust/'),
+        (line) => line.startsWith('import') && line.contains('/src/rust/'),
       );
       if (importsBridge) offenders.add(path);
     }
