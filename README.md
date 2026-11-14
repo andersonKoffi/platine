@@ -2,7 +2,9 @@
 
 A beautiful, fun DJ app for macOS (Apple Silicon and Intel). Flutter UI, Rust real-time audio engine.
 
-> Status: **P0 — scaffolding**. The UI shell talks to the Rust engine through `flutter_rust_bridge` (`ping` → `pong`).
+> Status: **P1 — domain complete**. `dj_domain` implements the playback queue, shuffle,
+> crossfade curves and the auto-mix state machine (see ADR 0004). The UI shell talks to the
+> Rust engine through `flutter_rust_bridge` (`ping` → `pong`); audio arrives in P2.
 
 ## Repository layout
 
@@ -65,6 +67,7 @@ make help              # everything else
 
 ## CI
 
-GitHub Actions on `macos-latest`: Rust fmt/clippy/tests, bridge codegen freshness,
+GitHub Actions on `macos-latest`: Rust fmt/clippy/tests, `dj_domain` line coverage ≥ 90 %
+(`cargo llvm-cov`), bridge codegen freshness,
 `flutter analyze`, `flutter test`, universal release build (checked with `lipo`),
 and integration tests.

@@ -35,6 +35,16 @@ jobs:
         run: cargo clippy --workspace --all-targets -- -D warnings
       - name: cargo test
         run: cargo test --workspace
+      - name: Install coverage tooling
+        run: rustup component add llvm-tools
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-llvm-cov
+      - name: Coverage of dj_domain (>= 90 % of lines)
+        run: >
+          cargo llvm-cov -p dj_domain --summary-only
+          --ignore-filename-regex '(tests/|test_support/)'
+          --fail-under-lines 90
 
   flutter:
     name: Flutter (codegen, analyze, tests, macOS build)
