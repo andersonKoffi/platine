@@ -39,7 +39,7 @@ flutter_rust_bridge::frb_generated_boilerplate!(
     default_rust_auto_opaque = RustAutoOpaqueMoi,
 );
 pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_VERSION: &str = "2.13.0";
-pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = -492394854;
+pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = -383834284;
 
 // Section: executor
 
@@ -184,6 +184,42 @@ fn wire__crate__api__mix__load_track_impl(
                 transform_result_sse::<_, flutter_rust_bridge::for_generated::anyhow::Error>(
                     (move || {
                         let output_ok = crate::api::mix::load_track(api_deck, api_track_id)?;
+                        std::result::Result::Ok(output_ok)
+                    })(),
+                )
+            }
+        },
+    )
+}
+fn wire__crate__api__mix__move_in_queue_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
+    rust_vec_len_: i32,
+    data_len_: i32,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::SseCodec, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "move_in_queue",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let message = unsafe {
+                flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
+                    ptr_,
+                    rust_vec_len_,
+                    data_len_,
+                )
+            };
+            let mut deserializer =
+                flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+            let api_from = <u32>::sse_decode(&mut deserializer);
+            let api_to = <u32>::sse_decode(&mut deserializer);
+            deserializer.end();
+            move |context| {
+                transform_result_sse::<_, flutter_rust_bridge::for_generated::anyhow::Error>(
+                    (move || {
+                        let output_ok = crate::api::mix::move_in_queue(api_from, api_to)?;
                         std::result::Result::Ok(output_ok)
                     })(),
                 )
@@ -1194,6 +1230,13 @@ impl SseDecode for crate::api::mix::TrackDto {
     }
 }
 
+impl SseDecode for u32 {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        deserializer.cursor.read_u32::<NativeEndian>().unwrap()
+    }
+}
+
 impl SseDecode for u64 {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
@@ -1226,21 +1269,22 @@ fn pde_ffi_dispatcher_primary_impl(
         2 => wire__crate__api__diagnostics__init_app_impl(port, ptr, rust_vec_len, data_len),
         3 => wire__crate__api__mix__load_folder_impl(port, ptr, rust_vec_len, data_len),
         4 => wire__crate__api__mix__load_track_impl(port, ptr, rust_vec_len, data_len),
-        7 => wire__crate__api__mix__resume_automix_impl(port, ptr, rust_vec_len, data_len),
-        8 => wire__crate__api__mix__seek_impl(port, ptr, rust_vec_len, data_len),
-        9 => wire__crate__api__mix__set_automix_enabled_impl(port, ptr, rust_vec_len, data_len),
-        10 => wire__crate__api__mix__set_crossfade_curve_impl(port, ptr, rust_vec_len, data_len),
-        11 => wire__crate__api__mix__set_crossfade_duration_impl(port, ptr, rust_vec_len, data_len),
-        12 => wire__crate__api__mix__set_crossfader_impl(port, ptr, rust_vec_len, data_len),
-        13 => wire__crate__api__mix__set_deck_gain_impl(port, ptr, rust_vec_len, data_len),
-        14 => wire__crate__api__mix__set_eq_impl(port, ptr, rust_vec_len, data_len),
-        15 => wire__crate__api__mix__set_master_gain_impl(port, ptr, rust_vec_len, data_len),
-        16 => wire__crate__api__mix__set_repeat_impl(port, ptr, rust_vec_len, data_len),
-        17 => wire__crate__api__mix__set_shuffle_impl(port, ptr, rust_vec_len, data_len),
-        18 => wire__crate__api__mix__set_silence_threshold_impl(port, ptr, rust_vec_len, data_len),
-        19 => wire__crate__api__mix__start_session_impl(port, ptr, rust_vec_len, data_len),
-        20 => wire__crate__api__mix__stop_session_impl(port, ptr, rust_vec_len, data_len),
-        21 => wire__crate__api__mix__toggle_play_impl(port, ptr, rust_vec_len, data_len),
+        5 => wire__crate__api__mix__move_in_queue_impl(port, ptr, rust_vec_len, data_len),
+        8 => wire__crate__api__mix__resume_automix_impl(port, ptr, rust_vec_len, data_len),
+        9 => wire__crate__api__mix__seek_impl(port, ptr, rust_vec_len, data_len),
+        10 => wire__crate__api__mix__set_automix_enabled_impl(port, ptr, rust_vec_len, data_len),
+        11 => wire__crate__api__mix__set_crossfade_curve_impl(port, ptr, rust_vec_len, data_len),
+        12 => wire__crate__api__mix__set_crossfade_duration_impl(port, ptr, rust_vec_len, data_len),
+        13 => wire__crate__api__mix__set_crossfader_impl(port, ptr, rust_vec_len, data_len),
+        14 => wire__crate__api__mix__set_deck_gain_impl(port, ptr, rust_vec_len, data_len),
+        15 => wire__crate__api__mix__set_eq_impl(port, ptr, rust_vec_len, data_len),
+        16 => wire__crate__api__mix__set_master_gain_impl(port, ptr, rust_vec_len, data_len),
+        17 => wire__crate__api__mix__set_repeat_impl(port, ptr, rust_vec_len, data_len),
+        18 => wire__crate__api__mix__set_shuffle_impl(port, ptr, rust_vec_len, data_len),
+        19 => wire__crate__api__mix__set_silence_threshold_impl(port, ptr, rust_vec_len, data_len),
+        20 => wire__crate__api__mix__start_session_impl(port, ptr, rust_vec_len, data_len),
+        21 => wire__crate__api__mix__stop_session_impl(port, ptr, rust_vec_len, data_len),
+        22 => wire__crate__api__mix__toggle_play_impl(port, ptr, rust_vec_len, data_len),
         _ => unreachable!(),
     }
 }
@@ -1253,8 +1297,8 @@ fn pde_ffi_dispatcher_sync_impl(
 ) -> flutter_rust_bridge::for_generated::WireSyncRust2DartSse {
     // Codec=Pde (Serialization + dispatch), see doc to use other codecs
     match func_id {
-        5 => wire__crate__api__diagnostics__native_versions_impl(ptr, rust_vec_len, data_len),
-        6 => wire__crate__api__diagnostics__ping_impl(ptr, rust_vec_len, data_len),
+        6 => wire__crate__api__diagnostics__native_versions_impl(ptr, rust_vec_len, data_len),
+        7 => wire__crate__api__diagnostics__ping_impl(ptr, rust_vec_len, data_len),
         _ => unreachable!(),
     }
 }
@@ -1964,6 +2008,13 @@ impl SseEncode for crate::api::mix::TrackDto {
         <String>::sse_encode(self.path, serializer);
         <String>::sse_encode(self.title, serializer);
         <Option<String>>::sse_encode(self.artist, serializer);
+    }
+}
+
+impl SseEncode for u32 {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        serializer.cursor.write_u32::<NativeEndian>(self).unwrap();
     }
 }
 

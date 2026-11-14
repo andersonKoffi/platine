@@ -238,6 +238,11 @@ impl<R: RandomSource> Controller<R> {
             SessionCommand::SetMasterGain(gain) => {
                 self.send_engine(EngineCommand::SetMasterGain(gain));
             }
+            SessionCommand::MoveInQueue { from, to } => {
+                if self.scheduler.move_upcoming(from, to).is_ok() {
+                    self.publish();
+                }
+            }
             SessionCommand::LoadTrack { deck, track } => {
                 if self.library.contains_key(&track) {
                     self.feed(AutoMixInput::ManualIntervention);

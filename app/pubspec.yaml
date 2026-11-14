@@ -8,9 +8,11 @@ environment:
   flutter: ">=3.50.0"
 
 dependencies:
+  desktop_drop: ^0.9.2
   # Builds and links the Rust engine (native/dj_api) through cargokit.
   dj_api:
     path: rust_builder
+  file_selector: ^1.1.0
   flutter:
     sdk: flutter
   flutter_riverpod: ^3.5.0
@@ -19,6 +21,7 @@ dependencies:
   freezed_annotation: ^3.1.0
   material_ui: ^1.11.0
   riverpod_annotation: ^4.0.8
+  shared_preferences: ^2.5.6
 
 dev_dependencies:
   build_runner: ^2.17.1
@@ -33,3 +36,11 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  fonts:
+    # Space Grotesk, SIL Open Font License 1.1 (assets/fonts/SpaceGrotesk-OFL.txt).
+    - family: SpaceGrotesk
+      fonts:
+        - asset: assets/fonts/SpaceGrotesk-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/SpaceGrotesk-Bold.ttf
+          weight: 700

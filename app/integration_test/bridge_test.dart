@@ -21,8 +21,11 @@ void main() {
     expect(versions.infra, isNotEmpty);
   });
 
-  testWidgets('the app shows a healthy engine badge', (tester) async {
+  testWidgets('the app starts on the real engine', (tester) async {
     await tester.pumpWidget(const ProviderScope(child: PlatineApp()));
-    expect(find.text('Engine: pong'), findsOneWidget);
+    await tester.pump(const Duration(seconds: 1));
+    // Either the drop zone, or an audio error banner on machines without
+    // an output device (CI): the app must not crash in both cases.
+    expect(find.text('Platine'), findsOneWidget);
   });
 }

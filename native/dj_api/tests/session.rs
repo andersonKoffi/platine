@@ -371,6 +371,22 @@ fn folder_errors_empty_folders_and_append_mode() {
     )));
     assert!(h.log.iter().any(|e| matches!(e, SessionEvent::Levels(_))));
 
+    padded_tone(&dir.0, "02.wav", 550.0);
+    padded_tone(&dir.0, "03.wav", 660.0);
+    padded_tone(&dir.0, "04.wav", 770.0);
+    h.load_folder(&dir.0, LoadMode::Replace).unwrap();
+    h.controller
+        .handle(SessionCommand::MoveInQueue { from: 1, to: 0 });
+    h.drain();
+    let last_queue = h.log.iter().rev().find_map(|e| match e {
+        SessionEvent::QueueChanged { upcoming } => Some(upcoming.clone()),
+        _ => None,
+    });
+    // Deck B took track 2 of the new scan; tracks 3, 4, 5 wait, then 4 moves first.
+    assert_eq!(last_queue, Some(vec![TrackId(4), TrackId(3), TrackId(5)]));
+    h.controller
+        .handle(SessionCommand::MoveInQueue { from: 7, to: 0 });
+
     h.controller.handle(SessionCommand::SetShuffle(true));
     h.controller.handle(SessionCommand::SetRepeat(true));
     h.controller.handle(SessionCommand::SetAutoMix(false));

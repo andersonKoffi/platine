@@ -55,6 +55,11 @@ pub enum SessionCommand {
         gain: Gain,
     },
     SetMasterGain(Gain),
+    /// Moves a waiting track in the queue (drag and drop).
+    MoveInQueue {
+        from: usize,
+        to: usize,
+    },
     /// Loads a library track by hand (suspends the auto-mix).
     LoadTrack {
         deck: DeckId,

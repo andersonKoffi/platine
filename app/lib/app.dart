@@ -1,9 +1,8 @@
 import 'package:material_ui/material_ui.dart';
-import 'package:platine/core/diagnostics/presentation/bridge_status_badge.dart';
+import 'package:platine/core/design_system/theme.dart';
+import 'package:platine/features/shell/presentation/platine_shell.dart';
 
 /// Root widget of Platine.
-///
-/// P0 shell: the design system, decks, mixer and library land in P4.
 class PlatineApp extends StatelessWidget {
   const new({super.key});
 
@@ -12,32 +11,8 @@ class PlatineApp extends StatelessWidget {
     return MaterialApp(
       title: 'Platine',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        brightness: Brightness.dark,
-        colorSchemeSeed: Colors.deepPurple,
-      ),
-      home: const _ShellPage(),
-    );
-  }
-}
-
-class _ShellPage extends StatelessWidget {
-  const new();
-
-  @override
-  Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
-    return Scaffold(
-      body: Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text('Platine', style: textTheme.displayMedium),
-            const SizedBox(height: 16),
-            const BridgeStatusBadge(),
-          ],
-        ),
-      ),
+      theme: buildPlatineTheme(),
+      home: const PlatineShell(),
     );
   }
 }

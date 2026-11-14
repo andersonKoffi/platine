@@ -374,6 +374,17 @@ pub fn set_master_gain(linear: f32) -> anyhow::Result<()> {
     send(SessionCommand::SetMasterGain(Gain::new(linear)?))
 }
 
+/// Moves a waiting track of the queue from index `from` to index `to`.
+///
+/// # Errors
+/// Fails if the session is not started.
+pub fn move_in_queue(from: u32, to: u32) -> anyhow::Result<()> {
+    send(SessionCommand::MoveInQueue {
+        from: from as usize,
+        to: to as usize,
+    })
+}
+
 /// Loads a library track on a deck by hand (suspends the auto-mix).
 ///
 /// # Errors
@@ -535,6 +546,7 @@ mod tests {
         assert!(set_shuffle(true).is_err());
         assert!(toggle_play(Deck::A).is_err());
         assert!(load_folder("/tmp".into(), FolderMode::Replace).is_err());
+        assert!(move_in_queue(0, 1).is_err());
     }
 
     #[test]
