@@ -189,6 +189,18 @@ impl DeckVoice {
         frame
     }
 
+    /// Drops queued chunks of older generations, even while stopped, so that
+    /// leftovers of a previous track never occupy the ring a new load needs.
+    /// Bounded by the ring size; lock-free and allocation-free.
+    pub(crate) fn discard_stale(&mut self) {
+        while let Ok(next) = self.feed.peek() {
+            if next.generation >= self.generation {
+                break;
+            }
+            let _ = self.feed.pop();
+        }
+    }
+
     /// Moves to the next chunk of the current generation. Returns `false` if
     /// none is available (end of stream or starvation).
     fn next_chunk(&mut self) -> bool {
@@ -280,6 +292,23 @@ mod tests {
         assert_eq!(v.take_end(), None);
         assert!(!v.take_starvation());
         assert_eq!(v.id(), DeckId::A);
+    }
+
+    #[test]
+    fn a_stopped_voice_frees_the_ring_from_stale_chunks() {
+        let (mut v, mut feed) = voice();
+        v.cue(1, 0);
+        for i in 0..8 {
+            assert!(feed.try_push(&chunk(1, i * 512, 0.5, false)));
+        }
+        assert_eq!(feed.free_slots(), 0);
+        v.eject(); // the track is gone: its audio is now stale
+        v.discard_stale();
+        assert_eq!(feed.free_slots(), 8);
+        // Chunks of the current generation are kept.
+        assert!(feed.try_push(&chunk(v.generation(), 0, 0.5, false)));
+        v.discard_stale();
+        assert_eq!(feed.free_slots(), 7);
     }
 
     #[test]

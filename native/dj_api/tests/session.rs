@@ -441,3 +441,66 @@ fn folder_errors_empty_folders_and_append_mode() {
     assert_eq!(h.controller.status(), AutoMixStatus::Off);
     assert!(format!("{:?}", h.controller).contains("Controller"));
 }
+
+/// Regression: a long tail after the fade used to leave the outgoing deck's
+/// buffer full of stale audio, so the next track on that deck never became
+/// ready and the auto-mix stalled after two tracks.
+#[test]
+fn long_trailing_silence_does_not_stall_the_third_track() {
+    let dir = TempDir::new("long-tail");
+    for (i, frequency) in [440.0, 660.0, 880.0].iter().enumerate() {
+        Tone::sine(*frequency, 4.0)
+            .with_silences(0.2, 5.0)
+            .write(&dir.0.join(format!("{i:02}.wav")))
+            .unwrap();
+    }
+    let settings = SessionSettings {
+        automix: AutoMixSettings {
+            crossfade: CrossfadeDuration::new(1.0).unwrap(),
+            ..AutoMixSettings::default()
+        },
+        order: PlayOrder::Sequential,
+        repeat: RepeatMode::Off,
+        ui_interval: Duration::ZERO,
+        ..SessionSettings::default()
+    };
+    // Production sizing: the decoders keep only a few seconds ahead.
+    let parts =
+        build_with_config(EngineConfig::new(RATE), 2, settings, SeededRandom::new(7)).unwrap();
+    let mut controller = parts.controller;
+    let mut output = OfflineOutput::new(RATE, 2);
+    output.start(parts.render).unwrap();
+    let (reply, answer) = bounded(1);
+    controller.handle(SessionCommand::LoadFolder {
+        path: dir.0.clone(),
+        mode: LoadMode::Replace,
+        reply,
+    });
+    answer.recv().unwrap().unwrap();
+
+    let mut log = Vec::new();
+    let deadline = Instant::now() + Duration::from_secs(30);
+    let mut rendered = 0usize;
+    // Paced like a sound card (about 10x real time) so decoders run freely.
+    while rendered < RATE as usize * 30 && Instant::now() < deadline {
+        controller.poll();
+        log.extend(parts.events.try_iter());
+        if exhausted(&log) {
+            break;
+        }
+        let _ = output.render(512, 512);
+        rendered += 512;
+        std::thread::sleep(Duration::from_millis(1));
+    }
+    let transitions: Vec<_> = log
+        .iter()
+        .filter_map(|e| match e {
+            SessionEvent::TransitionStarted { from, to } => Some((*from, *to)),
+            _ => None,
+        })
+        .collect();
+    assert_eq!(
+        transitions,
+        vec![(DeckId::A, DeckId::B), (DeckId::B, DeckId::A)]
+    );
+}

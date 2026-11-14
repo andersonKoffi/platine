@@ -183,6 +183,9 @@ impl Engine {
         if channels == 0 {
             return;
         }
+        for deck in &mut self.decks {
+            deck.discard_stale();
+        }
         for frame in out.chunks_exact_mut(channels) {
             let mixed = self.next_frame();
             match frame {
