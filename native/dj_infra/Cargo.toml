@@ -16,6 +16,7 @@ rubato.workspace = true
 rtrb.workspace = true
 symphonia = { workspace = true, features = ["aac", "adpcm", "aiff", "alac", "flac", "isomp4", "mp3", "ogg", "pcm", "vorbis", "wav"] }
 thiserror.workspace = true
+walkdir.workspace = true
 
 [dev-dependencies]
 test_support.workspace = true

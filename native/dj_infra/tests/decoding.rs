@@ -83,3 +83,32 @@ fn rejects_corrupt_and_missing_files() {
     ));
     assert!(dir.path().exists());
 }
+
+#[test]
+fn analysis_measures_duration_and_silences() {
+    use dj_domain::ports::{AnalysisRequest, TrackAnalyzer};
+    use dj_infra::SilenceAnalyzer;
+
+    let dir = TempDir::new("analysis");
+    let path = dir.file("padded.wav");
+    Tone::sine(440.0, 2.0)
+        .with_silences(0.5, 1.25)
+        .write(&path)
+        .unwrap();
+    let analysis = SilenceAnalyzer::new(SymphoniaDecoder)
+        .analyze(&path, &AnalysisRequest::default())
+        .unwrap();
+    let timing = analysis.timing;
+    assert!((timing.duration().as_f64() - 3.75).abs() < 1e-3);
+    assert!((timing.effective_start().as_f64() - 0.5).abs() <= 0.011);
+    assert!((timing.effective_end().as_f64() - 2.5).abs() <= 0.011);
+    assert_eq!(analysis.bpm, None);
+
+    let corrupt = dir.file("bad.wav");
+    write_corrupt(&corrupt).unwrap();
+    assert!(
+        SilenceAnalyzer::new(SymphoniaDecoder)
+            .analyze(&corrupt, &AnalysisRequest::default())
+            .is_err()
+    );
+}

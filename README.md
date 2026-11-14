@@ -2,9 +2,9 @@
 
 A beautiful, fun DJ app for macOS (Apple Silicon and Intel). Flutter UI, Rust real-time audio engine.
 
-> Status: **P2 — audio engine**. `dj_domain` holds the auto-mix logic (ADR 0004);
-> `dj_engine` mixes two decks in real time and `dj_infra` decodes files and drives the sound
-> card (ADR 0005). The UI shell still only pings the engine; auto-mix is wired in P3.
+> Status: **P3 — auto-mix wired**. A session scans a folder, analyses silences, loads
+> both decks and auto-mixes them on the sound card (ADRs 0004, 0005, 0007). The Flutter API
+> (`dj_api::api::mix`) is generated; the real UI arrives in P4.
 
 ## Repository layout
 
@@ -50,10 +50,13 @@ make test-integration  # integration tests against the real Rust engine
 make help              # everything else
 ```
 
-Hear the engine without the UI (plays the first file, then crossfades into the second):
+Hear the engine without the UI:
 
 ```bash
 cd native
+# Auto-mix a whole folder (8 s fades; add --shuffle and/or --repeat)
+cargo run --release -p dj_api --example automix -- ~/Music/Set 8 --shuffle
+# Crossfade two files at a given time
 cargo run --release -p dj_infra --example mix -- ~/Music/a.mp3 ~/Music/b.flac 30 8
 ```
 

@@ -584,10 +584,13 @@ dependencies = [
 name = "dj_api"
 version = "0.1.0"
 dependencies = [
+ "anyhow",
+ "crossbeam-channel",
  "dj_domain",
  "dj_engine",
  "dj_infra",
  "flutter_rust_bridge",
+ "test_support",
 ]
 
 [[package]]
@@ -623,6 +626,7 @@ dependencies = [
  "symphonia",
  "test_support",
  "thiserror 2.0.21",
+ "walkdir",
 ]
 
 [[package]]

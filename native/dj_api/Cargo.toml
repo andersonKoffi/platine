@@ -15,6 +15,11 @@ dj_domain.workspace = true
 dj_engine.workspace = true
 dj_infra.workspace = true
 flutter_rust_bridge.workspace = true
+anyhow.workspace = true
+crossbeam-channel.workspace = true
+
+[dev-dependencies]
+test_support.workspace = true
 
 [lints]
 workspace = true

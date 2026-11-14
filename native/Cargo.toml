@@ -21,6 +21,7 @@ flutter_rust_bridge = "=2.13.0"
 
 # Errors
 thiserror = "2.0.21"
+anyhow = "1.0.104"
 
 # Audio
 cpal = "0.18.2"
@@ -28,6 +29,7 @@ symphonia = { version = "0.6.1", default-features = false }
 rubato = "5.1.0"
 rtrb = "0.4.1"
 crossbeam-channel = "0.5.17"
+walkdir = "2.5.0"
 
 # Testing
 proptest = "1.12.0"
