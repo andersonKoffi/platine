@@ -130,7 +130,7 @@ mod tests {
         );
         assert_eq!(report.tracks[0].id, TrackId(10));
         assert_eq!(report.tracks[3].id, TrackId(13));
-        assert!(report.skipped.is_empty());
+        assert_eq!(report.skipped, Vec::new());
         std::fs::remove_dir_all(&dir).unwrap();
     }
 
@@ -146,7 +146,7 @@ mod tests {
     fn empty_folder_gives_an_empty_report() {
         let dir = temp_dir("empty");
         let report = FolderScanner::default().scan(&dir).unwrap();
-        assert!(report.tracks.is_empty());
+        assert_eq!(report.tracks, Vec::new());
         std::fs::remove_dir_all(&dir).unwrap();
     }
 }

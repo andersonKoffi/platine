@@ -273,7 +273,7 @@ fn manual_crossfader_suspends_and_resume_restarts_the_automation() {
         }
     )));
     h.run_until(1.0, |_| false);
-    assert!(h.transitions().is_empty());
+    assert_eq!(h.transitions(), Vec::new());
 
     h.controller.handle(SessionCommand::ResumeAutoMix);
     assert_eq!(h.controller.status(), AutoMixStatus::Running);
@@ -350,7 +350,7 @@ fn folder_errors_empty_folders_and_append_mode() {
     );
 
     let summary = h.load_folder(&dir.0, LoadMode::Replace).unwrap();
-    assert!(summary.tracks.is_empty());
+    assert_eq!(summary.tracks, Vec::new());
     assert!(exhausted(&h.log));
 
     padded_tone(&dir.0, "01.wav", 440.0);
