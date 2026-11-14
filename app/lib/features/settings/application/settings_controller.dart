@@ -49,6 +49,11 @@ class MixSettingsController extends _$MixSettingsController {
     unawaited(ref.read(engineGatewayProvider).setRepeat(enabled: enabled));
   }
 
+  void setMonoOutput({required bool enabled}) {
+    _update(state.copyWith(monoOutput: enabled));
+    unawaited(ref.read(engineGatewayProvider).setMonoOutput(enabled: enabled));
+  }
+
   void setSilenceThreshold(double db) {
     _update(state.copyWith(silenceThresholdDb: db));
     unawaited(ref.read(engineGatewayProvider).setSilenceThreshold(db));

@@ -60,4 +60,15 @@ void main() {
       throwsStateError,
     );
   });
+
+  test('mono output is persisted and sent to the engine', () async {
+    await container.read(engineStartupProvider.future);
+    container
+        .read(mixSettingsControllerProvider.notifier)
+        .setMonoOutput(enabled: true);
+    expect(container.read(mixSettingsControllerProvider).monoOutput, isTrue);
+    expect(gateway.calls, contains('setMonoOutput true'));
+    await pumpEventQueue();
+    expect((await repository.load()).monoOutput, isTrue);
+  });
 }

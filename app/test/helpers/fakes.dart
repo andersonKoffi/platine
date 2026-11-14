@@ -65,6 +65,10 @@ class FakeEngineGateway implements EngineGateway {
       calls.add('setRepeat $enabled');
 
   @override
+  Future<void> setMonoOutput({required bool enabled}) async =>
+      calls.add('setMonoOutput $enabled');
+
+  @override
   Future<void> resumeAutoMix() async => calls.add('resumeAutoMix');
 
   @override

@@ -416,6 +416,15 @@ pub fn set_eq(deck: Deck, band: Band, linear: f32) -> anyhow::Result<()> {
     })
 }
 
+/// Mono output: left and right summed on both channels (a PA fed by a
+/// single cable then gets the whole mix).
+///
+/// # Errors
+/// Fails if the session is not started.
+pub fn set_mono_output(enabled: bool) -> anyhow::Result<()> {
+    send(SessionCommand::SetMonoOutput(enabled))
+}
+
 /// # Errors
 /// Fails if `linear` is outside `[0, +12 dB]` or the session is not started.
 pub fn set_master_gain(linear: f32) -> anyhow::Result<()> {

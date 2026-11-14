@@ -67,6 +67,7 @@ pub enum SessionCommand {
         gain: Gain,
     },
     SetMasterGain(Gain),
+    SetMonoOutput(bool),
     /// Moves a waiting track in the queue (drag and drop).
     MoveInQueue {
         from: usize,

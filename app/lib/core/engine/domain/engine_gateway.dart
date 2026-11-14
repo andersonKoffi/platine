@@ -24,6 +24,9 @@ abstract interface class EngineGateway {
 
   Future<void> setRepeat({required bool enabled});
 
+  /// Left and right summed on both outputs.
+  Future<void> setMonoOutput({required bool enabled});
+
   Future<void> resumeAutoMix();
 
   /// Starts the fade to the next track right away.

@@ -252,6 +252,9 @@ impl<R: RandomSource> Controller<R> {
             SessionCommand::SetEq { deck, band, gain } => {
                 self.send_engine(EngineCommand::SetEq { deck, band, gain });
             }
+            SessionCommand::SetMonoOutput(mono) => {
+                self.send_engine(EngineCommand::SetMonoOutput(mono));
+            }
             SessionCommand::SetMasterGain(gain) => {
                 self.send_engine(EngineCommand::SetMasterGain(gain));
             }

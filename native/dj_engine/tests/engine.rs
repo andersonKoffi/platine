@@ -531,3 +531,34 @@ fn keylock_keeps_the_key_when_the_pitch_changes() {
     assert!(position < consumed, "{position}");
     assert!(consumed - position < u64::from(RATE * 3 / 10), "{position}");
 }
+
+#[test]
+fn mono_output_sums_left_and_right_on_both_channels() {
+    let (mut engine, mut handle, [mut a, _]) = engine();
+    // Left at 0.8, right silent.
+    let mut chunk = AudioChunk {
+        generation: 1,
+        frames: CHUNK_FRAMES as u16,
+        ..AudioChunk::EMPTY
+    };
+    for frame in 0..CHUNK_FRAMES {
+        chunk.samples[frame * 2] = 0.8;
+    }
+    for index in 0..20u64 {
+        chunk.start_frame = index * CHUNK_FRAMES as u64;
+        assert!(a.try_push(&chunk));
+    }
+    handle
+        .send(Cmd::SetCrossfader(CrossfaderPosition::fully(DeckId::A)))
+        .unwrap();
+    handle.send(Cmd::SetMonoOutput(true)).unwrap();
+    start_deck(&mut handle, DeckId::A);
+    let out = render(&mut engine, 4_096);
+    let (left, right) = (out[2 * 4_000], out[2 * 4_000 + 1]);
+    assert!((left - right).abs() < 1e-6, "{left} {right}");
+    assert!(left > 0.3, "{left}");
+
+    handle.send(Cmd::SetMonoOutput(false)).unwrap();
+    let out = render(&mut engine, 1_024);
+    assert!(out[2 * 1_000 + 1].abs() < 1e-3);
+}

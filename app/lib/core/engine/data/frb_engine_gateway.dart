@@ -27,6 +27,7 @@ class FrbEngineGateway implements EngineGateway {
         silenceThresholdDb: settings.silenceThresholdDb,
       ),
     );
+    if (settings.monoOutput) await rust.setMonoOutput(enabled: true);
     _updates = rust.engineUpdates().listen(
       (update) => _events.add(mapUpdate(update)),
       onError: _events.addError,
@@ -73,6 +74,10 @@ class FrbEngineGateway implements EngineGateway {
   @override
   Future<void> setRepeat({required bool enabled}) =>
       rust.setRepeat(enabled: enabled);
+
+  @override
+  Future<void> setMonoOutput({required bool enabled}) =>
+      rust.setMonoOutput(enabled: enabled);
 
   @override
   Future<void> resumeAutoMix() => rust.resumeAutomix();

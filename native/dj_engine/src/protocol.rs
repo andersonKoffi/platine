@@ -78,6 +78,8 @@ pub enum EngineCommand {
     SetCrossfader(CrossfaderPosition),
     SetCrossfaderCurve(CrossfadeCurve),
     SetMasterGain(Gain),
+    /// Sends `(left + right) / 2` to both channels, for a PA fed by one cable.
+    SetMonoOutput(bool),
     ScheduleTransition(EngineTransition),
     /// Cancels a scheduled transition or freezes a running one.
     CancelTransition,

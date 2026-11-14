@@ -135,6 +135,8 @@ pub struct Engine {
     report_interval: u32,
     until_report: u32,
     master_peak: [f32; 2],
+    /// Left and right summed to both channels (single-channel PA).
+    mono: bool,
 }
 
 impl Engine {
@@ -161,6 +163,7 @@ impl Engine {
             report_interval: config.report_interval_frames.max(1),
             until_report: config.report_interval_frames.max(1),
             master_peak: [0.0; 2],
+            mono: false,
         };
         let handle = EngineHandle {
             commands: command_tx,
@@ -212,10 +215,14 @@ impl Engine {
         let a = self.decks[0].next_frame();
         let b = self.decks[1].next_frame();
         let master = self.master.next_value();
-        let mixed = [
+        let mut mixed = [
             (a[0] * gains[0] + b[0] * gains[1]) * master,
             (a[1] * gains[0] + b[1] * gains[1]) * master,
         ];
+        if self.mono {
+            let sum = f32::midpoint(mixed[0], mixed[1]);
+            mixed = [sum, sum];
+        }
         self.master_peak[0] = self.master_peak[0].max(mixed[0].abs());
         self.master_peak[1] = self.master_peak[1].max(mixed[1].abs());
         self.advance_automation();
@@ -252,6 +259,7 @@ impl Engine {
             }
             EngineCommand::SetCrossfaderCurve(curve) => self.crossfader_curve = curve,
             EngineCommand::SetMasterGain(gain) => self.master.set_target(gain.linear()),
+            EngineCommand::SetMonoOutput(mono) => self.mono = mono,
             EngineCommand::ScheduleTransition(transition) => self.pending = Some(transition),
             EngineCommand::CancelTransition => {
                 self.pending = None;

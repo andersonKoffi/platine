@@ -15,6 +15,7 @@ class PrefsSettingsRepository implements SettingsRepository {
   static const _shuffle = 'mix.shuffle';
   static const _repeat = 'mix.repeat';
   static const _silence = 'mix.silenceThresholdDb';
+  static const _mono = 'output.mono';
 
   @override
   Future<MixSettings> load() async {
@@ -32,6 +33,7 @@ class PrefsSettingsRepository implements SettingsRepository {
       repeat: await _prefs.getBool(_repeat) ?? defaults.repeat,
       silenceThresholdDb:
           await _prefs.getDouble(_silence) ?? defaults.silenceThresholdDb,
+      monoOutput: await _prefs.getBool(_mono) ?? defaults.monoOutput,
     );
   }
 
@@ -43,5 +45,6 @@ class PrefsSettingsRepository implements SettingsRepository {
     await _prefs.setBool(_shuffle, settings.shuffle);
     await _prefs.setBool(_repeat, settings.repeat);
     await _prefs.setDouble(_silence, settings.silenceThresholdDb);
+    await _prefs.setBool(_mono, settings.monoOutput);
   }
 }

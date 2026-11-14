@@ -116,6 +116,7 @@ class MixSettings {
     this.shuffle = false,
     this.repeat = false,
     this.silenceThresholdDb = -50,
+    this.monoOutput = false,
   });
 
   static const double defaultCrossfadeSeconds = 8;
@@ -129,6 +130,9 @@ class MixSettings {
   final bool repeat;
   final double silenceThresholdDb;
 
+  /// Left and right summed on both outputs (PA fed by a single cable).
+  final bool monoOutput;
+
   MixSettings copyWith({
     bool? automix,
     double? crossfadeSeconds,
@@ -136,6 +140,7 @@ class MixSettings {
     bool? shuffle,
     bool? repeat,
     double? silenceThresholdDb,
+    bool? monoOutput,
   }) {
     return MixSettings(
       automix: automix ?? this.automix,
@@ -144,6 +149,7 @@ class MixSettings {
       shuffle: shuffle ?? this.shuffle,
       repeat: repeat ?? this.repeat,
       silenceThresholdDb: silenceThresholdDb ?? this.silenceThresholdDb,
+      monoOutput: monoOutput ?? this.monoOutput,
     );
   }
 
@@ -155,7 +161,8 @@ class MixSettings {
       other.curve == curve &&
       other.shuffle == shuffle &&
       other.repeat == repeat &&
-      other.silenceThresholdDb == silenceThresholdDb;
+      other.silenceThresholdDb == silenceThresholdDb &&
+      other.monoOutput == monoOutput;
 
   @override
   int get hashCode => Object.hash(
@@ -165,6 +172,7 @@ class MixSettings {
     shuffle,
     repeat,
     silenceThresholdDb,
+    monoOutput,
   );
 }
 

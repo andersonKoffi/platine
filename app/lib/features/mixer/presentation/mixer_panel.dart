@@ -41,6 +41,9 @@ class MixerPanel extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final tokens = context.tokens;
     final master = ref.watch(masterGainProvider);
+    final mono = ref.watch(
+      mixSettingsControllerProvider.select((s) => s.monoOutput),
+    );
     final level = ref.watch(
       sessionStoreProvider.select((s) => s.levels.master),
     );
@@ -73,7 +76,20 @@ class MixerPanel extends ConsumerWidget {
                             .read(masterGainProvider.notifier)
                             .set(p * MasterGain.max),
                       ),
-                      SizedBox(height: tokens.space3),
+                      SizedBox(height: tokens.space2),
+                      PadButton(
+                        label: 'MONO',
+                        tooltip: 'Sortie mono : gauche et droite additionnés '
+                            '(sono branchée sur une seule entrée)',
+                        color: tokens.warning,
+                        width: 56,
+                        height: 24,
+                        active: mono,
+                        onPressed: () => ref
+                            .read(mixSettingsControllerProvider.notifier)
+                            .setMonoOutput(enabled: !mono),
+                      ),
+                      SizedBox(height: tokens.space2),
                       Expanded(
                         child: VuMeter(
                           level: level,
