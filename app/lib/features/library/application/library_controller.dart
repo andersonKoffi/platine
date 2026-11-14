@@ -1,6 +1,6 @@
 import 'package:platine/core/engine/application/engine_providers.dart';
 import 'package:platine/core/engine/domain/models.dart';
-import 'package:platine/features/library/data/file_selector_folder_picker.dart';
+import 'package:platine/features/library/data/open_panel_folder_picker.dart';
 import 'package:platine/features/library/domain/folder_picker.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -18,7 +18,7 @@ class LibraryQuery {
 }
 
 @Riverpod(keepAlive: true)
-FolderPicker folderPicker(Ref ref) => pickFolderWithFileSelector;
+FolderPicker folderPicker(Ref ref) => pickFolderWithOpenPanel;
 
 @Riverpod(keepAlive: true)
 class LibraryQueryController extends _$LibraryQueryController {

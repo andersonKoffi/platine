@@ -12,7 +12,6 @@ dependencies:
   # Builds and links the Rust engine (native/dj_api) through cargokit.
   dj_api:
     path: rust_builder
-  file_selector: ^1.1.0
   flutter:
     sdk: flutter
   flutter_riverpod: ^3.5.0
