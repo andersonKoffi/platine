@@ -46,8 +46,8 @@ void main() {
   test('changing the range keeps the pitch inside it', () {
     final controller = deck(DeckSide.a)..cycleRange();
     expect(state(DeckSide.a).pitchRange, PitchRangeOption.sixteen);
-    controller.setPitch(12);
     controller
+      ..setPitch(12)
       ..cycleRange() // ±50
       ..cycleRange(); // back to ±8
     expect(state(DeckSide.a).pitchRange, PitchRangeOption.eight);

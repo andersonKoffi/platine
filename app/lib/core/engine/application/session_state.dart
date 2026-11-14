@@ -310,8 +310,10 @@ List<TrackInfo> _keepTempos(List<TrackInfo> tracks, List<TrackInfo> previous) {
       switch (known[track.id]) {
         final TrackInfo old when old.bpm != null && track.bpm == null =>
           track.withTempo(bpm: old.bpm, firstBeat: old.firstBeat),
-        final TrackInfo old when old.firstBeat != null =>
-          track.withTempo(bpm: track.bpm, firstBeat: old.firstBeat),
+        final TrackInfo old when old.firstBeat != null => track.withTempo(
+          bpm: track.bpm,
+          firstBeat: old.firstBeat,
+        ),
         _ => track,
       },
   ];

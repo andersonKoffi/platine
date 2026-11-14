@@ -63,7 +63,8 @@ List<TrackInfo> filterTracks(List<TrackInfo> tracks, LibraryQuery query) {
     case LibrarySort.bpm:
       // Slowest first; tracks without a known tempo go last.
       matching.sort(
-        (a, b) => (a.bpm ?? double.infinity).compareTo(b.bpm ?? double.infinity),
+        (a, b) =>
+            (a.bpm ?? double.infinity).compareTo(b.bpm ?? double.infinity),
       );
   }
   return matching;

@@ -12,7 +12,7 @@ enum PitchRangeOption {
   sixteen(16),
   fifty(50);
 
-  const new(this.percent);
+  new(this.percent);
 
   final double percent;
 
@@ -127,9 +127,7 @@ class DeckControlsController extends _$DeckControlsController {
   void toggleKeylock() {
     state = state.copyWith(keylock: !state.keylock);
     unawaited(
-      ref
-          .read(engineGatewayProvider)
-          .setKeylock(_side, enabled: state.keylock),
+      ref.read(engineGatewayProvider).setKeylock(_side, enabled: state.keylock),
     );
   }
 

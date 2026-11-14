@@ -5,340 +5,384 @@
 
 import '../frb_generated.dart';
 import '../lib.dart';
+
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 import 'package:freezed_annotation/freezed_annotation.dart' hide protected;
 part 'mix.freezed.dart';
 
-            // These functions are ignored because they are not marked as `pub`: `send`, `session_slot`, `with_session`
-// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`
+// These functions are ignored because they are not marked as `pub`: `send`, `session_slot`, `with_session`
+// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `assert_fields_are_eq`, `assert_fields_are_eq`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`
 
-
-            /// Opens the default audio output and starts the engine. Replaces a running session.
+/// Opens the default audio output and starts the engine. Replaces a running session.
 ///
 /// # Errors
 /// Fails if no audio output is available or a setting is out of range.
-Future<void>  startSession({required SessionConfig config }) => RustLib.instance.api.crateApiMixStartSession(config: config);
+Future<void> startSession({required SessionConfig config}) =>
+    RustLib.instance.api.crateApiMixStartSession(config: config);
 
 /// Stops the audio and every worker thread.
-Future<void>  stopSession() => RustLib.instance.api.crateApiMixStopSession();
+Future<void> stopSession() => RustLib.instance.api.crateApiMixStopSession();
 
 /// Streams engine updates to Dart until the session stops.
 ///
 /// # Errors
 /// Fails if the session is not started.
-Stream<EngineUpdate>  engineUpdates() => RustLib.instance.api.crateApiMixEngineUpdates();
+Stream<EngineUpdate> engineUpdates() =>
+    RustLib.instance.api.crateApiMixEngineUpdates();
 
 /// Scans `path` recursively and replaces or extends the queue.
 ///
 /// # Errors
 /// Fails if the folder cannot be read or the session is not started.
-Future<ScanResultDto>  loadFolder({required String path , required FolderMode mode }) => RustLib.instance.api.crateApiMixLoadFolder(path: path, mode: mode);
+Future<ScanResultDto> loadFolder({
+  required String path,
+  required FolderMode mode,
+}) => RustLib.instance.api.crateApiMixLoadFolder(path: path, mode: mode);
 
 /// # Errors
 /// Fails if the session is not started.
-Future<void>  setAutomixEnabled({required bool enabled }) => RustLib.instance.api.crateApiMixSetAutomixEnabled(enabled: enabled);
+Future<void> setAutomixEnabled({required bool enabled}) =>
+    RustLib.instance.api.crateApiMixSetAutomixEnabled(enabled: enabled);
 
 /// # Errors
 /// Fails if `seconds` is outside `[0, 30]` or the session is not started.
-Future<void>  setCrossfadeDuration({required double seconds }) => RustLib.instance.api.crateApiMixSetCrossfadeDuration(seconds: seconds);
+Future<void> setCrossfadeDuration({required double seconds}) =>
+    RustLib.instance.api.crateApiMixSetCrossfadeDuration(seconds: seconds);
 
 /// # Errors
 /// Fails if the session is not started.
-Future<void>  setCrossfadeCurve({required CurveKind curve }) => RustLib.instance.api.crateApiMixSetCrossfadeCurve(curve: curve);
+Future<void> setCrossfadeCurve({required CurveKind curve}) =>
+    RustLib.instance.api.crateApiMixSetCrossfadeCurve(curve: curve);
 
 /// Threshold (dBFS) below which the start and end of tracks count as silence.
 ///
 /// # Errors
 /// Fails if the session is not started.
-Future<void>  setSilenceThreshold({required double db }) => RustLib.instance.api.crateApiMixSetSilenceThreshold(db: db);
+Future<void> setSilenceThreshold({required double db}) =>
+    RustLib.instance.api.crateApiMixSetSilenceThreshold(db: db);
 
 /// # Errors
 /// Fails if the session is not started.
-Future<void>  setShuffle({required bool enabled }) => RustLib.instance.api.crateApiMixSetShuffle(enabled: enabled);
+Future<void> setShuffle({required bool enabled}) =>
+    RustLib.instance.api.crateApiMixSetShuffle(enabled: enabled);
 
 /// # Errors
 /// Fails if the session is not started.
-Future<void>  setRepeat({required bool enabled }) => RustLib.instance.api.crateApiMixSetRepeat(enabled: enabled);
+Future<void> setRepeat({required bool enabled}) =>
+    RustLib.instance.api.crateApiMixSetRepeat(enabled: enabled);
 
 /// Resumes a suspended auto-mix.
 ///
 /// # Errors
 /// Fails if the session is not started.
-Future<void>  resumeAutomix() => RustLib.instance.api.crateApiMixResumeAutomix();
+Future<void> resumeAutomix() => RustLib.instance.api.crateApiMixResumeAutomix();
 
 /// Starts the fade to the next track right away ("mix now").
 ///
 /// # Errors
 /// Fails if the session is not started.
-Future<void>  mixNow() => RustLib.instance.api.crateApiMixMixNow();
+Future<void> mixNow() => RustLib.instance.api.crateApiMixMixNow();
 
 /// # Errors
 /// Fails if the session is not started.
-Future<void>  togglePlay({required Deck deck }) => RustLib.instance.api.crateApiMixTogglePlay(deck: deck);
+Future<void> togglePlay({required Deck deck}) =>
+    RustLib.instance.api.crateApiMixTogglePlay(deck: deck);
 
 /// # Errors
 /// Fails if `seconds` is negative or the session is not started.
-Future<void>  seek({required Deck deck , required double seconds }) => RustLib.instance.api.crateApiMixSeek(deck: deck, seconds: seconds);
+Future<void> seek({required Deck deck, required double seconds}) =>
+    RustLib.instance.api.crateApiMixSeek(deck: deck, seconds: seconds);
 
 /// `position`: 0 = only deck A, 1 = only deck B.
 ///
 /// # Errors
 /// Fails if `position` is outside `[0, 1]` or the session is not started.
-Future<void>  setCrossfader({required double position }) => RustLib.instance.api.crateApiMixSetCrossfader(position: position);
+Future<void> setCrossfader({required double position}) =>
+    RustLib.instance.api.crateApiMixSetCrossfader(position: position);
 
 /// Keylock: when on, pitch changes alter the tempo but not the key.
 ///
 /// # Errors
 /// Fails if the session is not started.
-Future<void>  setKeylock({required Deck deck , required bool enabled }) => RustLib.instance.api.crateApiMixSetKeylock(deck: deck, enabled: enabled);
+Future<void> setKeylock({required Deck deck, required bool enabled}) =>
+    RustLib.instance.api.crateApiMixSetKeylock(deck: deck, enabled: enabled);
 
 /// Pitch fader: playback speed change in percent (`+4` plays 4 % faster).
 ///
 /// # Errors
 /// Fails if `percent` is outside `[-50, +50]` or the session is not started.
-Future<void>  setPitch({required Deck deck , required double percent }) => RustLib.instance.api.crateApiMixSetPitch(deck: deck, percent: percent);
+Future<void> setPitch({required Deck deck, required double percent}) =>
+    RustLib.instance.api.crateApiMixSetPitch(deck: deck, percent: percent);
 
 /// # Errors
 /// Fails if `linear` is outside `[0, +12 dB]` or the session is not started.
-Future<void>  setDeckGain({required Deck deck , required double linear }) => RustLib.instance.api.crateApiMixSetDeckGain(deck: deck, linear: linear);
+Future<void> setDeckGain({required Deck deck, required double linear}) =>
+    RustLib.instance.api.crateApiMixSetDeckGain(deck: deck, linear: linear);
 
 /// `linear`: 0 kills the band, 1 is neutral.
 ///
 /// # Errors
 /// Fails if `linear` is outside `[0, +12 dB]` or the session is not started.
-Future<void>  setEq({required Deck deck , required Band band , required double linear }) => RustLib.instance.api.crateApiMixSetEq(deck: deck, band: band, linear: linear);
+Future<void> setEq({
+  required Deck deck,
+  required Band band,
+  required double linear,
+}) => RustLib.instance.api.crateApiMixSetEq(
+  deck: deck,
+  band: band,
+  linear: linear,
+);
 
 /// # Errors
 /// Fails if `linear` is outside `[0, +12 dB]` or the session is not started.
-Future<void>  setMasterGain({required double linear }) => RustLib.instance.api.crateApiMixSetMasterGain(linear: linear);
+Future<void> setMasterGain({required double linear}) =>
+    RustLib.instance.api.crateApiMixSetMasterGain(linear: linear);
 
 /// Moves a waiting track of the queue from index `from` to index `to`.
 ///
 /// # Errors
 /// Fails if the session is not started.
-Future<void>  moveInQueue({required int from , required int to }) => RustLib.instance.api.crateApiMixMoveInQueue(from: from, to: to);
+Future<void> moveInQueue({required int from, required int to}) =>
+    RustLib.instance.api.crateApiMixMoveInQueue(from: from, to: to);
 
 /// Loads a library track on a deck by hand (suspends the auto-mix).
 ///
 /// # Errors
 /// Fails if the session is not started.
-Future<void>  loadTrack({required Deck deck , required BigInt trackId }) => RustLib.instance.api.crateApiMixLoadTrack(deck: deck, trackId: trackId);
-
-            @freezed
-                sealed class AutoMixStateDto with _$AutoMixStateDto  {
-                    const AutoMixStateDto._();
-
-                     const factory AutoMixStateDto.idle() = AutoMixStateDto_Idle;
- const factory AutoMixStateDto.playing({   required Deck active , }) = AutoMixStateDto_Playing;
- const factory AutoMixStateDto.crossfading({   required Deck from ,  required Deck to , }) = AutoMixStateDto_Crossfading;
- const factory AutoMixStateDto.waitingForNext({   required Deck deck , }) = AutoMixStateDto_WaitingForNext;
- const factory AutoMixStateDto.finished() = AutoMixStateDto_Finished;
-
-                    
-
-                    
-                }
-
-/// Auto-mix status shown by the UI.
-enum AutoMixStatusDto {
-                    off,
-running,
-suspended,
-                    ;
-                    
-                }
-
-/// Isolator band.
-enum Band {
-                    low,
-mid,
-high,
-                    ;
-                    
-                }
-
-/// Crossfader curve.
-enum CurveKind {
-                    equalPower,
-linear,
-cut,
-                    ;
-                    
-                }
-
-/// One of the two decks.
-enum Deck {
-                    a,
-b,
-                    ;
-                    
-                }
+Future<void> loadTrack({required Deck deck, required BigInt trackId}) =>
+    RustLib.instance.api.crateApiMixLoadTrack(deck: deck, trackId: trackId);
 
 @freezed
-                sealed class EngineUpdate with _$EngineUpdate  {
-                    const EngineUpdate._();
+sealed class AutoMixStateDto with _$AutoMixStateDto {
+  const AutoMixStateDto._();
 
-                     const factory EngineUpdate.libraryChanged({   required List<TrackDto> tracks , }) = EngineUpdate_LibraryChanged;
- const factory EngineUpdate.deckLoading({   required Deck deck ,  required BigInt trackId , }) = EngineUpdate_DeckLoading;
- const factory EngineUpdate.deckLoaded({   required Deck deck ,  required BigInt trackId ,  required double durationSeconds ,  required double startSeconds ,  required double endSeconds , }) = EngineUpdate_DeckLoaded;
- /// Coloured overview: one value per band and window, `0..=255`.
-const factory EngineUpdate.waveform({   required Deck deck ,  required BigInt trackId ,  required int pointsPerSecond ,  required Uint8List low ,  required Uint8List mid ,  required Uint8List high , }) = EngineUpdate_Waveform;
- /// Tempo of a track, once analysed; `bpm` is `None` without a steady beat.
-const factory EngineUpdate.trackAnalyzed({   required BigInt trackId ,  double? bpm ,  double? firstBeatSeconds , }) = EngineUpdate_TrackAnalyzed;
- const factory EngineUpdate.deckPosition({   required Deck deck ,  required double positionSeconds ,  required bool playing , }) = EngineUpdate_DeckPosition;
- const factory EngineUpdate.levels(  LevelsDto field0,) = EngineUpdate_Levels;
- const factory EngineUpdate.autoMixChanged({   required AutoMixStateDto state ,  required AutoMixStatusDto status , }) = EngineUpdate_AutoMixChanged;
- const factory EngineUpdate.queueChanged({   required Uint64List upcoming , }) = EngineUpdate_QueueChanged;
- const factory EngineUpdate.transitionStarted({   required Deck from ,  required Deck to , }) = EngineUpdate_TransitionStarted;
- const factory EngineUpdate.transitionCompleted({   required Deck from ,  required Deck to , }) = EngineUpdate_TransitionCompleted;
- const factory EngineUpdate.trackSkipped({   required BigInt trackId ,  required String reason , }) = EngineUpdate_TrackSkipped;
- const factory EngineUpdate.queueExhausted() = EngineUpdate_QueueExhausted;
- const factory EngineUpdate.underrun({   required Deck deck , }) = EngineUpdate_Underrun;
+  const factory AutoMixStateDto.idle() = AutoMixStateDto_Idle;
+  const factory AutoMixStateDto.playing({required Deck active}) =
+      AutoMixStateDto_Playing;
+  const factory AutoMixStateDto.crossfading({
+    required Deck from,
+    required Deck to,
+  }) = AutoMixStateDto_Crossfading;
+  const factory AutoMixStateDto.waitingForNext({required Deck deck}) =
+      AutoMixStateDto_WaitingForNext;
+  const factory AutoMixStateDto.finished() = AutoMixStateDto_Finished;
+}
 
-                    
+/// Auto-mix status shown by the UI.
+enum AutoMixStatusDto { off, running, suspended }
 
-                    
-                }
+/// Isolator band.
+enum Band { low, mid, high }
+
+/// Crossfader curve.
+enum CurveKind { equalPower, linear, cut }
+
+/// One of the two decks.
+enum Deck { a, b }
+
+@freezed
+sealed class EngineUpdate with _$EngineUpdate {
+  const EngineUpdate._();
+
+  const factory EngineUpdate.libraryChanged({required List<TrackDto> tracks}) =
+      EngineUpdate_LibraryChanged;
+  const factory EngineUpdate.deckLoading({
+    required Deck deck,
+    required BigInt trackId,
+  }) = EngineUpdate_DeckLoading;
+  const factory EngineUpdate.deckLoaded({
+    required Deck deck,
+    required BigInt trackId,
+    required double durationSeconds,
+    required double startSeconds,
+    required double endSeconds,
+  }) = EngineUpdate_DeckLoaded;
+
+  /// Coloured overview: one value per band and window, `0..=255`.
+  const factory EngineUpdate.waveform({
+    required Deck deck,
+    required BigInt trackId,
+    required int pointsPerSecond,
+    required Uint8List low,
+    required Uint8List mid,
+    required Uint8List high,
+  }) = EngineUpdate_Waveform;
+
+  /// Tempo of a track, once analysed; `bpm` is `None` without a steady beat.
+  const factory EngineUpdate.trackAnalyzed({
+    required BigInt trackId,
+    double? bpm,
+    double? firstBeatSeconds,
+  }) = EngineUpdate_TrackAnalyzed;
+  const factory EngineUpdate.deckPosition({
+    required Deck deck,
+    required double positionSeconds,
+    required bool playing,
+  }) = EngineUpdate_DeckPosition;
+  const factory EngineUpdate.levels(LevelsDto field0) = EngineUpdate_Levels;
+  const factory EngineUpdate.autoMixChanged({
+    required AutoMixStateDto state,
+    required AutoMixStatusDto status,
+  }) = EngineUpdate_AutoMixChanged;
+  const factory EngineUpdate.queueChanged({required Uint64List upcoming}) =
+      EngineUpdate_QueueChanged;
+  const factory EngineUpdate.transitionStarted({
+    required Deck from,
+    required Deck to,
+  }) = EngineUpdate_TransitionStarted;
+  const factory EngineUpdate.transitionCompleted({
+    required Deck from,
+    required Deck to,
+  }) = EngineUpdate_TransitionCompleted;
+  const factory EngineUpdate.trackSkipped({
+    required BigInt trackId,
+    required String reason,
+  }) = EngineUpdate_TrackSkipped;
+  const factory EngineUpdate.queueExhausted() = EngineUpdate_QueueExhausted;
+  const factory EngineUpdate.underrun({required Deck deck}) =
+      EngineUpdate_Underrun;
+}
 
 /// What a newly chosen folder does to the queue.
-enum FolderMode {
-                    replace,
-append,
-                    ;
-                    
-                }
+enum FolderMode { replace, append }
 
 /// Peak levels (linear, 1.0 = 0 dBFS), left and right.
-class LevelsDto  {
-                final F32Array2 deckA;
-final F32Array2 deckB;
-final F32Array2 master;
+class LevelsDto {
+  final F32Array2 deckA;
+  final F32Array2 deckB;
+  final F32Array2 master;
 
-                const LevelsDto({required this.deckA ,required this.deckB ,required this.master ,});
+  const LevelsDto({
+    required this.deckA,
+    required this.deckB,
+    required this.master,
+  });
 
+  @override
+  int get hashCode => deckA.hashCode ^ deckB.hashCode ^ master.hashCode;
 
-
-
-
-        @override
-        int get hashCode => deckA.hashCode^deckB.hashCode^master.hashCode;
-
-
-
-        @override
-        bool operator ==(Object other) =>
-            identical(this, other) ||
-            other is LevelsDto &&
-                runtimeType == other.runtimeType
-                && deckA == other.deckA&& deckB == other.deckB&& master == other.master;
-
-            }
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is LevelsDto &&
+          runtimeType == other.runtimeType &&
+          deckA == other.deckA &&
+          deckB == other.deckB &&
+          master == other.master;
+}
 
 /// Result of scanning a folder.
-class ScanResultDto  {
-                final List<TrackDto> tracks;
-final List<SkippedDto> skipped;
+class ScanResultDto {
+  final List<TrackDto> tracks;
+  final List<SkippedDto> skipped;
 
-                const ScanResultDto({required this.tracks ,required this.skipped ,});
+  const ScanResultDto({required this.tracks, required this.skipped});
 
+  @override
+  int get hashCode => tracks.hashCode ^ skipped.hashCode;
 
-
-
-
-        @override
-        int get hashCode => tracks.hashCode^skipped.hashCode;
-
-
-
-        @override
-        bool operator ==(Object other) =>
-            identical(this, other) ||
-            other is ScanResultDto &&
-                runtimeType == other.runtimeType
-                && tracks == other.tracks&& skipped == other.skipped;
-
-            }
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is ScanResultDto &&
+          runtimeType == other.runtimeType &&
+          tracks == other.tracks &&
+          skipped == other.skipped;
+}
 
 /// Settings applied when the session starts.
-class SessionConfig  {
-                final bool automix;
-final double crossfadeSeconds;
-final CurveKind curve;
-final bool shuffle;
-final bool repeat;
-final double silenceThresholdDb;
+class SessionConfig {
+  final bool automix;
+  final double crossfadeSeconds;
+  final CurveKind curve;
+  final bool shuffle;
+  final bool repeat;
+  final double silenceThresholdDb;
 
-                const SessionConfig({required this.automix ,required this.crossfadeSeconds ,required this.curve ,required this.shuffle ,required this.repeat ,required this.silenceThresholdDb ,});
+  const SessionConfig({
+    required this.automix,
+    required this.crossfadeSeconds,
+    required this.curve,
+    required this.shuffle,
+    required this.repeat,
+    required this.silenceThresholdDb,
+  });
 
+  @override
+  int get hashCode =>
+      automix.hashCode ^
+      crossfadeSeconds.hashCode ^
+      curve.hashCode ^
+      shuffle.hashCode ^
+      repeat.hashCode ^
+      silenceThresholdDb.hashCode;
 
-
-
-
-        @override
-        int get hashCode => automix.hashCode^crossfadeSeconds.hashCode^curve.hashCode^shuffle.hashCode^repeat.hashCode^silenceThresholdDb.hashCode;
-
-
-
-        @override
-        bool operator ==(Object other) =>
-            identical(this, other) ||
-            other is SessionConfig &&
-                runtimeType == other.runtimeType
-                && automix == other.automix&& crossfadeSeconds == other.crossfadeSeconds&& curve == other.curve&& shuffle == other.shuffle&& repeat == other.repeat&& silenceThresholdDb == other.silenceThresholdDb;
-
-            }
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is SessionConfig &&
+          runtimeType == other.runtimeType &&
+          automix == other.automix &&
+          crossfadeSeconds == other.crossfadeSeconds &&
+          curve == other.curve &&
+          shuffle == other.shuffle &&
+          repeat == other.repeat &&
+          silenceThresholdDb == other.silenceThresholdDb;
+}
 
 /// A file that could not be read during the scan.
-class SkippedDto  {
-                final String path;
-final String reason;
+class SkippedDto {
+  final String path;
+  final String reason;
 
-                const SkippedDto({required this.path ,required this.reason ,});
+  const SkippedDto({required this.path, required this.reason});
 
+  @override
+  int get hashCode => path.hashCode ^ reason.hashCode;
 
-
-
-
-        @override
-        int get hashCode => path.hashCode^reason.hashCode;
-
-
-
-        @override
-        bool operator ==(Object other) =>
-            identical(this, other) ||
-            other is SkippedDto &&
-                runtimeType == other.runtimeType
-                && path == other.path&& reason == other.reason;
-
-            }
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is SkippedDto &&
+          runtimeType == other.runtimeType &&
+          path == other.path &&
+          reason == other.reason;
+}
 
 /// A library track.
-class TrackDto  {
-                final BigInt id;
-final String path;
-final String title;
-final String? artist;
-/// Tempo, once the track has been analysed.
-final double? bpm;
+class TrackDto {
+  final BigInt id;
+  final String path;
+  final String title;
+  final String? artist;
 
-                const TrackDto({required this.id ,required this.path ,required this.title ,this.artist ,this.bpm ,});
+  /// Tempo, once the track has been analysed.
+  final double? bpm;
 
+  const TrackDto({
+    required this.id,
+    required this.path,
+    required this.title,
+    this.artist,
+    this.bpm,
+  });
 
+  @override
+  int get hashCode =>
+      id.hashCode ^
+      path.hashCode ^
+      title.hashCode ^
+      artist.hashCode ^
+      bpm.hashCode;
 
-
-
-        @override
-        int get hashCode => id.hashCode^path.hashCode^title.hashCode^artist.hashCode^bpm.hashCode;
-
-
-
-        @override
-        bool operator ==(Object other) =>
-            identical(this, other) ||
-            other is TrackDto &&
-                runtimeType == other.runtimeType
-                && id == other.id&& path == other.path&& title == other.title&& artist == other.artist&& bpm == other.bpm;
-
-            }
-            
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is TrackDto &&
+          runtimeType == other.runtimeType &&
+          id == other.id &&
+          path == other.path &&
+          title == other.title &&
+          artist == other.artist &&
+          bpm == other.bpm;
+}

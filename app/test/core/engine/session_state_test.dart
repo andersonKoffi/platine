@@ -219,7 +219,13 @@ void main() {
   test('mix now needs a deck on air and a ready standby deck', () {
     final playing = apply(const [
       LibraryChanged(library),
-      DeckLoaded(deck: DeckSide.a, trackId: 1, duration: 100, start: 0, end: 99),
+      DeckLoaded(
+        deck: DeckSide.a,
+        trackId: 1,
+        duration: 100,
+        start: 0,
+        end: 99,
+      ),
       AutoMixChanged(
         phase: AutoMixPhase.playing,
         mode: AutoMixMode.running,
