@@ -3,11 +3,9 @@ library;
 
 import 'dart:io';
 import 'dart:math' as math;
-import 'dart:typed_data';
 
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:material_ui/material_ui.dart';
 import 'package:platine/app.dart';
 import 'package:platine/core/engine/domain/engine_event.dart';
 import 'package:platine/core/engine/domain/models.dart';

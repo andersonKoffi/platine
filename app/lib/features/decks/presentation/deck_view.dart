@@ -125,7 +125,7 @@ enum _DeckRole {
   incoming('ENTRÉE'),
   outgoing('SORTIE');
 
-  const new(this.label);
+  new(this.label);
 
   final String label;
 }

@@ -33,24 +33,52 @@ class AutoMixPanel extends ConsumerWidget {
                 ).textTheme.titleMedium?.copyWith(letterSpacing: 2),
               ),
               const Spacer(),
-              Semantics(
-                label: 'Activer l’auto-mix',
-                child: Switch(
-                  value: settings.automix,
-                  onChanged: (value) => controller.setAutoMix(enabled: value),
+              PadButton(
+                label: '',
+                icon: Icons.shuffle_rounded,
+                tooltip: 'Aléatoire',
+                color: tokens.deckB,
+                width: 32,
+                height: 26,
+                active: settings.shuffle,
+                onPressed: () =>
+                    controller.setShuffle(enabled: !settings.shuffle),
+              ),
+              SizedBox(width: tokens.space1),
+              PadButton(
+                label: '',
+                icon: Icons.repeat_rounded,
+                tooltip: 'Repeat',
+                color: tokens.deckB,
+                width: 32,
+                height: 26,
+                active: settings.repeat,
+                onPressed: () =>
+                    controller.setRepeat(enabled: !settings.repeat),
+              ),
+              SizedBox(
+                height: 26,
+                child: FittedBox(
+                  child: Semantics(
+                    label: 'Activer l’auto-mix',
+                    child: Switch(
+                      value: settings.automix,
+                      onChanged: (value) =>
+                          controller.setAutoMix(enabled: value),
+                    ),
+                  ),
                 ),
               ),
             ],
           ),
+          SizedBox(height: tokens.space1),
           _StatusRow(mode: mode),
-          SizedBox(height: tokens.space3),
+          SizedBox(height: tokens.space2),
           _CrossfadeControl(
             seconds: settings.crossfadeSeconds,
             onChanged: controller.setCrossfadeSeconds,
           ),
-          SizedBox(height: tokens.space3),
-          const ControlLabel('Courbe'),
-          SizedBox(height: tokens.space1),
+          SizedBox(height: tokens.space2),
           Row(
             children: [
               for (final (curve, label) in [
@@ -61,6 +89,7 @@ class AutoMixPanel extends ConsumerWidget {
                 Expanded(
                   child: PadButton(
                     label: label,
+                    height: 26,
                     tooltip: switch (curve) {
                       CrossfadeCurveType.equalPower =>
                         'Courbe equal-power (volume constant)',
@@ -76,37 +105,7 @@ class AutoMixPanel extends ConsumerWidget {
               ],
             ],
           ),
-          SizedBox(height: tokens.space2),
-          Row(
-            children: [
-              Expanded(
-                child: PadButton(
-                  label: 'ALÉATOIRE',
-                  icon: Icons.shuffle_rounded,
-                  tooltip: 'Aléatoire',
-                  color: tokens.deckB,
-                  active: settings.shuffle,
-                  onPressed: () =>
-                      controller.setShuffle(enabled: !settings.shuffle),
-                ),
-              ),
-              SizedBox(width: tokens.space1),
-              Expanded(
-                child: PadButton(
-                  label: 'REPEAT',
-                  icon: Icons.repeat_rounded,
-                  tooltip: 'Repeat',
-                  color: tokens.deckB,
-                  active: settings.repeat,
-                  onPressed: () =>
-                      controller.setRepeat(enabled: !settings.repeat),
-                ),
-              ),
-            ],
-          ),
           SizedBox(height: tokens.space3),
-          Divider(color: tokens.panelBorder),
-          SizedBox(height: tokens.space2),
           const ControlLabel('File d’attente'),
           SizedBox(height: tokens.space1),
           const Expanded(child: _QueueList()),
@@ -192,12 +191,16 @@ class _CrossfadeControl extends StatelessWidget {
         ),
         Semantics(
           label: 'Durée du fondu',
-          child: Slider(
+          child: SizedBox(
+            height: 26,
+            child: Slider(
+              padding: EdgeInsets.zero,
             value: seconds,
             max: MixSettings.maxCrossfadeSeconds,
             divisions: 60,
             label: '${seconds.toStringAsFixed(1)} s',
             onChanged: onChanged,
+            ),
           ),
         ),
         Row(

@@ -117,9 +117,10 @@ class _ChannelStrip extends ConsumerWidget {
       color: accent,
       onChanged: (p) => controller.setGain(faderToGain(p)),
     );
-    return Column(
+    final knobs = Column(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
-        for (final band in EqBandType.values.reversed) ...[
+        for (final band in EqBandType.values.reversed)
           _EqKnob(
             side: side,
             band: band,
@@ -127,19 +128,22 @@ class _ChannelStrip extends ConsumerWidget {
             onChanged: (p) => controller.setBand(band, knobToEq(p)),
             onKill: () => controller.toggleKill(band),
           ),
-          SizedBox(height: tokens.space1),
-        ],
-        SizedBox(height: tokens.space2),
+      ],
+    );
+    final gap = SizedBox(width: tokens.space1);
+    return Column(
+      children: [
         Expanded(
           child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             mainAxisAlignment: MainAxisAlignment.center,
             children: side == DeckSide.a
-                ? [meter, SizedBox(width: tokens.space2), fader]
-                : [fader, SizedBox(width: tokens.space2), meter],
+                ? [knobs, gap, meter, gap, fader]
+                : [fader, gap, meter, gap, knobs],
           ),
         ),
         SizedBox(height: tokens.space1),
-        ControlLabel(side.label, color: accent),
+        ControlLabel('Deck ${side.label}', color: accent),
       ],
     );
   }
@@ -195,7 +199,7 @@ class _EqKnob extends StatelessWidget {
           position: eqToKnob(level),
           label: 'Égaliseur $_name platine ${side.label}',
           color: killed ? tokens.danger : color,
-          size: 38,
+          size: 36,
           onChanged: onChanged,
           onDoubleTap: onKill,
         ),

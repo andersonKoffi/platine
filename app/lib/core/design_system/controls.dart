@@ -51,6 +51,8 @@ class Knob extends StatelessWidget {
       slider: true,
       label: label,
       value: valueText ?? '${(position * 100).round()} %',
+      increasedValue: '${((position + _step).clamp(0, 1) * 100).round()} %',
+      decreasedValue: '${((position - _step).clamp(0, 1) * 100).round()} %',
       onIncrease: () => _nudge(_step),
       onDecrease: () => _nudge(-_step),
       child: FocusableActionDetector(
@@ -205,6 +207,8 @@ class VerticalFader extends StatelessWidget {
       slider: true,
       label: label,
       value: '${(position * 100).round()} %',
+      increasedValue: '${((position + _step).clamp(0, 1) * 100).round()} %',
+      decreasedValue: '${((position - _step).clamp(0, 1) * 100).round()} %',
       onIncrease: () => _nudge(_step),
       onDecrease: () => _nudge(-_step),
       child: LayoutBuilder(
@@ -263,20 +267,12 @@ class _FaderPainter extends CustomPainter {
     for (var i = 0; i <= 10; i++) {
       final y = capHeight / 2 + travel * i / 10;
       final half = i % 5 == 0 ? size.width * 0.45 : size.width * 0.3;
-      canvas.drawLine(
-        Offset(midX - half, y),
-        Offset(midX - 8, y),
-        Paint()
-          ..color = tick
-          ..strokeWidth = 1,
-      );
-      canvas.drawLine(
-        Offset(midX + 8, y),
-        Offset(midX + half, y),
-        Paint()
-          ..color = tick
-          ..strokeWidth = 1,
-      );
+      final paint = Paint()
+        ..color = tick
+        ..strokeWidth = 1;
+      canvas
+        ..drawLine(Offset(midX - half, y), Offset(midX - 8, y), paint)
+        ..drawLine(Offset(midX + 8, y), Offset(midX + half, y), paint);
     }
     canvas.drawRRect(
       RRect.fromRectAndRadius(
@@ -359,6 +355,8 @@ class HorizontalFader extends StatelessWidget {
       slider: true,
       label: label,
       value: '${(position * 100).round()} %',
+      increasedValue: '${((position + 0.05).clamp(0, 1) * 100).round()} %',
+      decreasedValue: '${((position - 0.05).clamp(0, 1) * 100).round()} %',
       onIncrease: () => onChanged((position + 0.05).clamp(0, 1)),
       onDecrease: () => onChanged((position - 0.05).clamp(0, 1)),
       child: LayoutBuilder(

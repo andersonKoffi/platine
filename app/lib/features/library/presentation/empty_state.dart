@@ -48,7 +48,7 @@ class _EmptyLibraryState extends ConsumerState<EmptyLibrary>
     return PanelBox(
       accent: widget.dragging ? tokens.deckA : null,
       child: Center(
-        child: Column(
+        child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             SizedBox(
@@ -74,20 +74,23 @@ class _EmptyLibraryState extends ConsumerState<EmptyLibrary>
                 ),
               ),
             ),
-            SizedBox(height: tokens.space3),
+            SizedBox(width: tokens.space5),
+            Flexible(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
             Text(
               widget.dragging
                   ? 'Lâche, on s’occupe du reste !'
                   : 'Dépose un dossier de musique ici',
               style: textTheme.headlineSmall,
-              textAlign: TextAlign.center,
             ),
             SizedBox(height: tokens.space2),
             Text(
               'Platine charge le titre 1 sur la platine A, le titre 2 sur la '
               'platine B, et enchaîne tout seul.',
               style: TextStyle(color: tokens.textSecondary),
-              textAlign: TextAlign.center,
             ),
             SizedBox(height: tokens.space4),
             FilledButton.icon(
@@ -99,6 +102,9 @@ class _EmptyLibraryState extends ConsumerState<EmptyLibrary>
                   unawaited(ref.read(libraryLoaderProvider).pickAndLoad()),
               icon: const Icon(Icons.folder_open_rounded),
               label: const Text('Choisir un dossier  (⌘O)'),
+            ),
+                ],
+              ),
             ),
           ],
         ),
