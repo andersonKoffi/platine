@@ -1,20 +1,32 @@
 //! Concrete adapters of Platine.
 //!
-//! Implements the domain ports: audio output (cpal), track decoding
-//! (symphonia + rubato), folder scanning, analysis (silence, BPM, waveforms)
-//! and the SQLite analysis cache.
+//! - [`decode`]: symphonia decoder implementing the `TrackDecoder` port;
+//! - [`resample`]: conversion to the engine sample rate (rubato);
+//! - [`loader`]: one decoder thread per deck, feeding the engine's chunk rings;
+//! - [`output`]: cpal output implementing the `AudioOutput` port.
 //!
-//! The content lands in phases P2, P3 and P5; P0 only provides the crate boundary.
+//! Scanning, analysis and the SQLite cache land in P3 and P5.
+
+// Tests build signals with numeric casts on purpose.
+#![cfg_attr(
+    test,
+    allow(
+        clippy::cast_possible_truncation,
+        clippy::cast_precision_loss,
+        clippy::cast_possible_wrap,
+        clippy::float_cmp
+    )
+)]
+
+pub mod decode;
+pub mod loader;
+pub mod output;
+pub mod resample;
+
+pub use decode::{SymphoniaDecoder, SymphoniaStream};
+pub use loader::{DeckLoader, LoadedTrackInfo, LoaderEvent, LoaderRequest};
+pub use output::CpalOutput;
+pub use resample::StereoResampler;
 
 /// Semantic version of the infrastructure crate, exposed for diagnostics.
 pub const VERSION: &str = env!("CARGO_PKG_VERSION");
-
-#[cfg(test)]
-mod tests {
-    use super::VERSION;
-
-    #[test]
-    fn exposes_crate_version() {
-        assert_ne!(VERSION, "");
-    }
-}

@@ -1,6 +1,8 @@
 //! Shared test helpers for Platine: deterministic fakes of the domain ports.
 //!
-//! Audio fixture generation joins in P2.
+//! Audio fixtures are generated on the fly (`wav`).
+
+pub mod wav;
 
 use std::cell::Cell;
 

@@ -32,6 +32,11 @@ pub struct StreamSpec {
 pub trait AudioStream: Send {
     fn spec(&self) -> StreamSpec;
 
+    /// Duration announced by the container, if known.
+    fn duration(&self) -> Option<Seconds> {
+        None
+    }
+
     /// Fills `out` with interleaved samples; returns how many were written.
     /// `Ok(0)` means end of stream.
     ///
@@ -145,6 +150,34 @@ pub enum OutputError {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    struct Silence;
+
+    impl AudioStream for Silence {
+        fn spec(&self) -> StreamSpec {
+            StreamSpec {
+                sample_rate: 48_000,
+                channels: 2,
+            }
+        }
+
+        fn read(&mut self, _: &mut [f32]) -> Result<usize, DecodeError> {
+            Ok(0)
+        }
+
+        fn seek(&mut self, _: Seconds) -> Result<(), DecodeError> {
+            Ok(())
+        }
+    }
+
+    #[test]
+    fn streams_have_no_duration_by_default() {
+        let mut stream = Silence;
+        assert_eq!(stream.duration(), None);
+        assert_eq!(stream.read(&mut []), Ok(0));
+        assert_eq!(stream.seek(Seconds::ZERO), Ok(()));
+        assert_eq!(stream.spec().channels, 2);
+    }
 
     #[test]
     fn default_analysis_uses_minus_fifty_dbfs() {

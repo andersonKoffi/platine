@@ -2,9 +2,9 @@
 
 A beautiful, fun DJ app for macOS (Apple Silicon and Intel). Flutter UI, Rust real-time audio engine.
 
-> Status: **P1 — domain complete**. `dj_domain` implements the playback queue, shuffle,
-> crossfade curves and the auto-mix state machine (see ADR 0004). The UI shell talks to the
-> Rust engine through `flutter_rust_bridge` (`ping` → `pong`); audio arrives in P2.
+> Status: **P2 — audio engine**. `dj_domain` holds the auto-mix logic (ADR 0004);
+> `dj_engine` mixes two decks in real time and `dj_infra` decodes files and drives the sound
+> card (ADR 0005). The UI shell still only pings the engine; auto-mix is wired in P3.
 
 ## Repository layout
 
@@ -50,6 +50,13 @@ make test-integration  # integration tests against the real Rust engine
 make help              # everything else
 ```
 
+Hear the engine without the UI (plays the first file, then crossfades into the second):
+
+```bash
+cd native
+cargo run --release -p dj_infra --example mix -- ~/Music/a.mp3 ~/Music/b.flac 30 8
+```
+
 ## Generated code policy
 
 - **Committed:** the bridge glue (`app/lib/src/rust/**`, `native/dj_api/src/frb_generated.rs`),
@@ -67,7 +74,7 @@ make help              # everything else
 
 ## CI
 
-GitHub Actions on `macos-latest`: Rust fmt/clippy/tests, `dj_domain` line coverage ≥ 90 %
-(`cargo llvm-cov`), bridge codegen freshness,
+GitHub Actions on `macos-latest`: Rust fmt/clippy/tests, line coverage ≥ 90 % on `dj_domain`
+and ≥ 70 % overall (`cargo llvm-cov`), bridge codegen freshness,
 `flutter analyze`, `flutter test`, universal release build (checked with `lipo`),
 and integration tests.
