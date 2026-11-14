@@ -144,4 +144,40 @@ void main() {
     final library = tester.getTopLeft(find.byType(LibraryPanel));
     expect(library.dy, greaterThan(deck.dy));
   });
+
+  testWidgets('a track dragged from the library loads on a stopped deck', (
+    tester,
+  ) async {
+    await pumpPlatine(tester, gateway);
+    emitPlayingSession(gateway);
+    gateway.emit(
+      const DeckPositionChanged(deck: DeckSide.a, position: 10, playing: true),
+    );
+    await tester.pump();
+
+    Future<void> dragFinaleTo(DeckSide side) async {
+      final row = find.descendant(
+        of: find.byType(LibraryPanel),
+        matching: find.text('Finale'),
+      );
+      final deck = find.byWidgetPredicate(
+        (w) => w is DeckView && w.side == side,
+      );
+      final gesture = await tester.startGesture(tester.getCenter(row));
+      await tester.pump(kLongPressTimeout);
+      await gesture.moveBy(const Offset(0, -20));
+      await tester.pump();
+      await gesture.moveTo(tester.getCenter(deck));
+      await tester.pump();
+      await gesture.up();
+      await tester.pump();
+    }
+
+    // Deck A is on air: the drop is refused so the music never stops.
+    await dragFinaleTo(DeckSide.a);
+    expect(gateway.calls.where((c) => c.startsWith('loadTrack')), isEmpty);
+
+    await dragFinaleTo(DeckSide.b);
+    expect(gateway.calls, contains('loadTrack b 3'));
+  });
 }

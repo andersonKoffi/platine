@@ -7,6 +7,7 @@ import 'package:platine/core/design_system/widgets.dart';
 import 'package:platine/core/engine/application/engine_providers.dart';
 import 'package:platine/core/engine/application/session_state.dart';
 import 'package:platine/core/engine/domain/models.dart';
+import 'package:platine/features/decks/presentation/deck_drop_target.dart';
 import 'package:platine/features/decks/presentation/jog_wheel.dart';
 import 'package:platine/features/decks/presentation/playback_position.dart';
 import 'package:platine/features/decks/presentation/waveform_view.dart';
@@ -79,7 +80,9 @@ class DeckView extends ConsumerWidget {
     );
 
     final mirrored = side == DeckSide.b;
-    return PanelBox(
+    return DeckDropTarget(
+      side: side,
+      child: PanelBox(
       accent: deck.playing ? accent : null,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -103,6 +106,7 @@ class DeckView extends ConsumerWidget {
             ),
           ),
         ],
+      ),
       ),
     );
   }

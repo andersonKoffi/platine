@@ -293,7 +293,7 @@ class _TrackRow extends ConsumerWidget {
         ? tokens.panelRaised.withValues(alpha: 0.35)
         : null;
     final titleColor = isPlaying ? tokens.textPrimary : null;
-    return Semantics(
+    final row = Semantics(
       label: [
         track.title,
         if (isPlaying) 'en cours',
@@ -386,6 +386,13 @@ class _TrackRow extends ConsumerWidget {
         ),
       ),
     );
+    return Draggable<TrackInfo>(
+      data: track,
+      dragAnchorStrategy: pointerDragAnchorStrategy,
+      feedback: _DragChip(track: track),
+      childWhenDragging: Opacity(opacity: 0.4, child: row),
+      child: row,
+    );
   }
 }
 
@@ -437,4 +444,39 @@ String formatOf(String path) {
   final name = path.split('/').last;
   final dot = name.lastIndexOf('.');
   return dot < 0 ? '' : name.substring(dot + 1).toUpperCase();
+}
+
+/// Label following the pointer while a track is dragged onto a deck.
+class _DragChip extends StatelessWidget {
+  const new({required this.track});
+
+  final TrackInfo track;
+
+  @override
+  Widget build(BuildContext context) {
+    final tokens = context.tokens;
+    return Material(
+      color: Colors.transparent,
+      child: Container(
+        padding: EdgeInsets.symmetric(
+          horizontal: tokens.space3,
+          vertical: tokens.space2,
+        ),
+        decoration: BoxDecoration(
+          color: tokens.panelRaised,
+          borderRadius: BorderRadius.circular(tokens.radiusSmall),
+          border: Border.all(color: tokens.textSecondary),
+          boxShadow: const [BoxShadow(blurRadius: 12, color: Colors.black54)],
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.music_note_rounded, size: 16, color: tokens.textPrimary),
+            SizedBox(width: tokens.space2),
+            Text(track.title, style: Theme.of(context).textTheme.bodyMedium),
+          ],
+        ),
+      ),
+    );
+  }
 }
