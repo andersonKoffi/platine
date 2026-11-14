@@ -18,7 +18,7 @@ use dj_api::session::{
 use dj_domain::ports::AudioOutput;
 use dj_domain::{
     AutoMixSettings, AutoMixStatus, CrossfadeDuration, CrossfaderPosition, DeckId, PlayOrder,
-    RepeatMode, TrackId,
+    RepeatMode, Seconds, TrackId,
 };
 use dj_engine::{EngineConfig, OfflineOutput};
 use test_support::SeededRandom;
@@ -282,6 +282,54 @@ fn manual_crossfader_suspends_and_resume_restarts_the_automation() {
             .any(|e| matches!(e, SessionEvent::TransitionStarted { .. }))
     });
     assert_eq!(h.transitions(), vec![(DeckId::A, DeckId::B)]);
+}
+
+#[test]
+fn pausing_and_seeking_the_deck_on_air_keep_the_automation_running() {
+    let dir = TempDir::new("onair");
+    for (name, frequency) in [("01.wav", 440.0), ("02.wav", 660.0), ("03.wav", 880.0)] {
+        padded_tone(&dir.0, name, frequency);
+    }
+    let mut h = Harness::new(Harness::settings(1.0, PlayOrder::Sequential));
+    h.load_folder(&dir.0, LoadMode::Replace).unwrap();
+    h.run_until(0.5, |_| false);
+
+    h.controller.handle(SessionCommand::TogglePlay(DeckId::A));
+    h.controller.handle(SessionCommand::TogglePlay(DeckId::A));
+    h.controller.handle(SessionCommand::Seek {
+        deck: DeckId::A,
+        position: Seconds::new(1.0).unwrap(),
+    });
+    assert_eq!(h.controller.status(), AutoMixStatus::Running);
+
+    h.run_until(20.0, exhausted);
+    assert_eq!(
+        h.transitions(),
+        vec![(DeckId::A, DeckId::B), (DeckId::B, DeckId::A)]
+    );
+}
+
+#[test]
+fn a_suspended_automix_takes_over_when_the_music_would_stop() {
+    let dir = TempDir::new("takeover");
+    for (name, frequency) in [("01.wav", 440.0), ("02.wav", 660.0), ("03.wav", 880.0)] {
+        padded_tone(&dir.0, name, frequency);
+    }
+    let mut h = Harness::new(Harness::settings(1.0, PlayOrder::Sequential));
+    h.load_folder(&dir.0, LoadMode::Replace).unwrap();
+    h.run_until(0.5, |_| false);
+    h.controller
+        .handle(SessionCommand::SetCrossfader(CrossfaderPosition::fully(
+            DeckId::A,
+        )));
+    assert_eq!(h.controller.status(), AutoMixStatus::Suspended);
+
+    // Track 1 ends without a fade, then tracks 2 and 3 follow on their own.
+    h.run_until(20.0, exhausted);
+    assert_eq!(h.controller.status(), AutoMixStatus::Running);
+    assert_eq!(h.transitions(), vec![(DeckId::B, DeckId::A)]);
+    let loads: Vec<TrackId> = h.loads().into_iter().map(|(_, track)| track).collect();
+    assert_eq!(loads, vec![TrackId(1), TrackId(2), TrackId(3)]);
 }
 
 #[test]

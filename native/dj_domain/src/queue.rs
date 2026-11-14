@@ -135,6 +135,18 @@ impl PlaybackQueue {
         self.upcoming.retain(|candidate| *candidate != track);
     }
 
+    /// Takes `track` out of the waiting tracks (it was loaded by hand).
+    pub fn take(&mut self, track: TrackId) {
+        self.upcoming.retain(|candidate| *candidate != track);
+    }
+
+    /// Puts back a track that left a deck before being played.
+    pub fn push_front(&mut self, track: TrackId) {
+        if self.natural.contains(&track) && !self.upcoming.contains(&track) {
+            self.upcoming.push_front(track);
+        }
+    }
+
     /// Moves a waiting track (drag and drop in the UI).
     ///
     /// # Errors

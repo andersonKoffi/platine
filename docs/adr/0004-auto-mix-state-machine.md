@@ -45,3 +45,18 @@ deterministically, without audio, files or wall-clock time.
 - The controller (P3) is thin glue: forward events in, execute commands out.
 - Some timing precision depends on the engine honouring `start_at`; the
   simulation tolerates one step of jitter per transition, the engine must not.
+
+## Amendment (2026-11-14) — manual actions
+
+Field testing showed that suspending the automation on every manual action
+(play, seek, manual load) left users in silence once the decks ran out. Now:
+
+- only the crossfader, starting the standby deck by hand, or replacing the
+  track on air suspend the auto-mix;
+- pausing or seeking the deck on air keeps it running (the engine starts the
+  transition when the outgoing deck reaches it);
+- a track loaded by hand on the standby deck becomes the next track
+  (`AutoMixInput::ManualLoad`); the displaced track goes back to the front of
+  the queue;
+- when the track on air ends while the auto-mix is suspended (but enabled),
+  the auto-mix takes over again instead of stopping.

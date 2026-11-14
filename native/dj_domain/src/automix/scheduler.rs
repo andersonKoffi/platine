@@ -156,6 +156,9 @@ impl<R: RandomSource> AutoMixScheduler<R> {
                 self.suspended = true;
                 self.on_activity_change(was_active, &mut actions);
             }
+            AutoMixInput::ManualLoad { deck, track } => {
+                self.on_manual_load(deck, track, &mut actions);
+            }
             AutoMixInput::Resume => {
                 let was_active = self.is_active();
                 self.suspended = false;
@@ -222,6 +225,35 @@ impl<R: RandomSource> AutoMixScheduler<R> {
         self.try_plan(actions);
     }
 
+    fn on_manual_load(&mut self, deck: DeckId, track: TrackId, actions: &mut Actions) {
+        let on_air = match self.state {
+            AutoMixState::Playing { active } => active == deck,
+            AutoMixState::Crossfading { .. } => true,
+            AutoMixState::Idle | AutoMixState::WaitingForNext { .. } | AutoMixState::Finished => {
+                false
+            }
+        };
+        if on_air {
+            let was_active = self.is_active();
+            self.suspended = true;
+            self.on_activity_change(was_active, actions);
+        } else if let Some(previous) = self.deck(deck).track()
+            && previous != track
+        {
+            // The displaced track was never played: it stays next in line.
+            self.queue.push_front(previous);
+        }
+        self.queue.take(track);
+        if self
+            .planned
+            .is_some_and(|plan| plan.from == deck || plan.to == deck)
+        {
+            self.cancel_plan(actions);
+        }
+        self.decks[deck.index()].start_loading(track);
+        actions.push(AutoMixAction::LoadTrack { deck, track });
+    }
+
     fn on_track_load_failed(&mut self, deck: DeckId, track: TrackId, actions: &mut Actions) {
         if self.deck(deck).load() != DeckLoad::Loading(track) {
             return;
@@ -257,7 +289,10 @@ impl<R: RandomSource> AutoMixScheduler<R> {
                 self.cancel_plan(actions);
                 actions.push(AutoMixAction::Stop { deck });
                 self.decks[deck.index()].clear();
-                if self.is_active() {
+                if self.settings.enabled {
+                    // The automation never leaves silence: a suspended
+                    // auto-mix takes over again when the track on air ends.
+                    self.suspended = false;
                     self.continue_after_end(deck, actions);
                 } else {
                     self.state = AutoMixState::Idle;

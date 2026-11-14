@@ -447,23 +447,63 @@ mod manual_control {
     }
 
     #[test]
-    fn track_end_while_suspended_stops_without_moving_on() {
+    fn track_end_while_suspended_resumes_instead_of_leaving_silence() {
         let mut mix = playing_a(3);
         mix.handle(In::ManualIntervention);
+        let actions = mix.handle(In::TrackEnded { deck: DA });
+        assert_eq!(actions[0], A::Stop { deck: DA });
+        assert!(actions.contains(&A::Play {
+            deck: DB,
+            from: Some(s(0.0))
+        }));
+        assert_eq!(mix.status(), AutoMixStatus::Running);
+        assert_eq!(mix.state(), AutoMixState::Playing { active: DB });
+    }
+
+    #[test]
+    fn track_end_with_automix_off_stops() {
+        let mut mix = playing_a(3);
+        mix.handle(In::SetEnabled(false));
         assert_eq!(
             mix.handle(In::TrackEnded { deck: DA }),
             vec![A::Stop { deck: DA }]
         );
         assert_eq!(mix.state(), AutoMixState::Idle);
-        // Resuming starts the other deck, which is ready.
-        let actions = mix.handle(In::Resume);
+    }
+
+    #[test]
+    fn manual_load_on_standby_becomes_the_next_track() {
+        let mut mix = playing_a(4);
+        let actions = mix.handle(In::ManualLoad {
+            deck: DB,
+            track: t(4),
+        });
         assert_eq!(
-            actions[0],
-            A::Play {
-                deck: DB,
-                from: Some(s(0.0))
-            }
+            actions,
+            vec![
+                A::CancelTransition,
+                A::LoadTrack {
+                    deck: DB,
+                    track: t(4)
+                }
+            ]
         );
+        assert_eq!(mix.status(), AutoMixStatus::Running);
+        // The displaced track 2 comes back first; track 4 left the queue.
+        assert_eq!(mix.queue().upcoming().collect::<Vec<_>>(), vec![t(2), t(3)]);
+        let plan = plan_of(&mix.handle(loaded(DB, 4, untrimmed(60.0)))).unwrap();
+        assert_eq!(plan.to, DB);
+    }
+
+    #[test]
+    fn manual_load_on_air_suspends() {
+        let mut mix = playing_a(3);
+        let actions = mix.handle(In::ManualLoad {
+            deck: DA,
+            track: t(3),
+        });
+        assert_eq!(actions[0], A::CancelTransition);
+        assert_eq!(mix.status(), AutoMixStatus::Suspended);
     }
 
     #[test]

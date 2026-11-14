@@ -245,8 +245,7 @@ impl<R: RandomSource> Controller<R> {
             }
             SessionCommand::LoadTrack { deck, track } => {
                 if self.library.contains_key(&track) {
-                    self.feed(AutoMixInput::ManualIntervention);
-                    self.start_load(deck, track);
+                    self.feed(AutoMixInput::ManualLoad { deck, track });
                 }
             }
             SessionCommand::Shutdown => return false,
@@ -284,7 +283,19 @@ impl<R: RandomSource> Controller<R> {
         if slot.timing.is_none() {
             return;
         }
-        self.feed(AutoMixInput::ManualIntervention);
+        // Pausing or resuming the deck on air leaves the automation in charge
+        // (a paused deck simply delays the next transition). Starting the
+        // other deck by hand means the user is mixing: suspend.
+        let on_air = match self.scheduler.state() {
+            AutoMixState::Playing { active } => Some(active),
+            AutoMixState::Crossfading { to, .. } => Some(to),
+            AutoMixState::Idle | AutoMixState::WaitingForNext { .. } | AutoMixState::Finished => {
+                None
+            }
+        };
+        if !slot.playing && on_air.is_some_and(|active| active != deck) {
+            self.feed(AutoMixInput::ManualIntervention);
+        }
         if slot.playing {
             self.send_engine(EngineCommand::Pause { deck });
             self.decks[deck.index()].playing = false;
@@ -298,7 +309,8 @@ impl<R: RandomSource> Controller<R> {
         if self.decks[deck.index()].timing.is_none() {
             return;
         }
-        self.feed(AutoMixInput::ManualIntervention);
+        // Seeking keeps the plan valid: the engine starts the transition
+        // when the outgoing deck reaches it, or at once if already past it.
         self.cue(deck, position);
     }
 

@@ -107,8 +107,15 @@ pub enum AutoMixInput {
     TrackEnded {
         deck: DeckId,
     },
-    /// The user moved the crossfader, paused, or loaded a track by hand.
+    /// The user took the mix over (crossfader, playing the standby deck,
+    /// replacing the track on air).
     ManualIntervention,
+    /// The user loaded a track by hand. On the standby deck it becomes the
+    /// next track; on the deck on air it suspends the automation.
+    ManualLoad {
+        deck: DeckId,
+        track: TrackId,
+    },
     Resume,
 }
 
