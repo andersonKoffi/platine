@@ -80,30 +80,34 @@ class _EmptyLibraryState extends ConsumerState<EmptyLibrary>
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-            Text(
-              widget.dragging
-                  ? 'Lâche, on s’occupe du reste !'
-                  : 'Dépose un dossier de musique ici',
-              style: textTheme.headlineSmall,
-            ),
-            SizedBox(height: tokens.space2),
-            Text(
-              'Platine charge le titre 1 sur la platine A, '
-              'le titre 2 sur la platine B, '
-              'et enchaîne tout seul.',
-              style: TextStyle(color: tokens.textSecondary),
-            ),
-            SizedBox(height: tokens.space4),
-            FilledButton.icon(
-              style: FilledButton.styleFrom(
-                minimumSize: Size(0, tokens.minTouchTarget + tokens.space2),
-                padding: EdgeInsets.symmetric(horizontal: tokens.space5),
-              ),
-              onPressed: () =>
-                  unawaited(ref.read(libraryLoaderProvider).pickAndLoad()),
-              icon: const Icon(Icons.folder_open_rounded),
-              label: const Text('Choisir un dossier  (⌘O)'),
-            ),
+                  Text(
+                    widget.dragging
+                        ? 'Lâche, on s’occupe du reste !'
+                        : 'Dépose un dossier de musique ici',
+                    style: textTheme.headlineSmall,
+                  ),
+                  SizedBox(height: tokens.space2),
+                  Text(
+                    'Platine charge le titre 1 sur la platine A, '
+                    'le titre 2 sur la platine B, '
+                    'et enchaîne tout seul.',
+                    style: TextStyle(color: tokens.textSecondary),
+                  ),
+                  SizedBox(height: tokens.space4),
+                  FilledButton.icon(
+                    style: FilledButton.styleFrom(
+                      minimumSize: Size(
+                        0,
+                        tokens.minTouchTarget + tokens.space2,
+                      ),
+                      padding: EdgeInsets.symmetric(horizontal: tokens.space5),
+                    ),
+                    onPressed: () => unawaited(
+                      ref.read(libraryLoaderProvider).pickAndLoad(),
+                    ),
+                    icon: const Icon(Icons.folder_open_rounded),
+                    label: const Text('Choisir un dossier  (⌘O)'),
+                  ),
                 ],
               ),
             ),

@@ -216,10 +216,7 @@ class _DeckHeader extends StatelessWidget {
       opacity: role == _DeckRole.idle ? 0 : 1,
       duration: tokens.durationMedium,
       child: Container(
-        padding: EdgeInsets.symmetric(
-          horizontal: tokens.space2,
-          vertical: 2,
-        ),
+        padding: EdgeInsets.symmetric(horizontal: tokens.space2, vertical: 2),
         decoration: BoxDecoration(
           color: role == _DeckRole.onAir || role == _DeckRole.incoming
               ? accent.withValues(alpha: 0.2)
@@ -327,9 +324,8 @@ class DeckWaveform extends ConsumerWidget {
           ),
           child: Text(
             side.label,
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-              color: deck.playing ? tokens.background : accent,
-            ),
+            style: Theme.of(context).textTheme.titleMedium
+                ?.copyWith(color: deck.playing ? tokens.background : accent),
           ),
         ),
         Expanded(

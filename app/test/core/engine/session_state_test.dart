@@ -68,7 +68,13 @@ void main() {
     expect(state.deckA.waveform, same(waveform));
     final reloaded = reduceSession(
       state,
-      const DeckLoaded(deck: DeckSide.a, trackId: 2, duration: 1, start: 0, end: 1),
+      const DeckLoaded(
+        deck: DeckSide.a,
+        trackId: 2,
+        duration: 1,
+        start: 0,
+        end: 1,
+      ),
       now,
     );
     expect(reloaded.deckA.waveform, isNull);

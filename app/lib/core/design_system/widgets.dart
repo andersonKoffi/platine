@@ -70,9 +70,7 @@ class ControlLabel extends StatelessWidget {
       text.toUpperCase(),
       maxLines: 1,
       overflow: TextOverflow.clip,
-      style: Theme.of(
-        context,
-      ).textTheme.labelSmall?.copyWith(color: color),
+      style: Theme.of(context).textTheme.labelSmall?.copyWith(color: color),
     );
   }
 }
@@ -114,24 +112,24 @@ class PadButton extends StatelessWidget {
     final content = FittedBox(
       fit: BoxFit.scaleDown,
       child: Row(
-      mainAxisSize: MainAxisSize.min,
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        if (icon != null) Icon(icon, size: 16, color: foreground),
-        if (icon != null && label.isNotEmpty) SizedBox(width: tokens.space1),
-        if (label.isNotEmpty)
-          Text(
-            label,
-            maxLines: 1,
-            style: TextStyle(
-              fontFamily: tokens.displayFamily,
-              fontWeight: FontWeight.w700,
-              fontSize: 11,
-              letterSpacing: 0.8,
-              color: foreground,
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          if (icon != null) Icon(icon, size: 16, color: foreground),
+          if (icon != null && label.isNotEmpty) SizedBox(width: tokens.space1),
+          if (label.isNotEmpty)
+            Text(
+              label,
+              maxLines: 1,
+              style: TextStyle(
+                fontFamily: tokens.displayFamily,
+                fontWeight: FontWeight.w700,
+                fontSize: 11,
+                letterSpacing: 0.8,
+                color: foreground,
+              ),
             ),
-          ),
-      ],
+        ],
       ),
     );
     final button = Semantics(

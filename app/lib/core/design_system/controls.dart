@@ -74,8 +74,7 @@ class Knob extends StatelessWidget {
           },
           child: GestureDetector(
             onDoubleTap: onDoubleTap ?? () => onChanged(defaultPosition),
-            onVerticalDragUpdate: (details) =>
-                _nudge(-details.delta.dy / 150),
+            onVerticalDragUpdate: (details) => _nudge(-details.delta.dy / 150),
             child: Tooltip(
               message: label,
               child: CustomPaint(
@@ -435,10 +434,18 @@ class _CrossfaderPainter extends CustomPainter {
         ).createShader(slotRect),
     );
     final x = travel * position;
-    final capRect = Rect.fromLTWH(x, midY - size.height * 0.4, capWidth, size.height * 0.8);
+    final capRect = Rect.fromLTWH(
+      x,
+      midY - size.height * 0.4,
+      capWidth,
+      size.height * 0.8,
+    );
     canvas
       ..drawRRect(
-        RRect.fromRectAndRadius(capRect.translate(0, 2), const Radius.circular(3)),
+        RRect.fromRectAndRadius(
+          capRect.translate(0, 2),
+          const Radius.circular(3),
+        ),
         Paint()..color = Colors.black54,
       )
       ..drawRRect(

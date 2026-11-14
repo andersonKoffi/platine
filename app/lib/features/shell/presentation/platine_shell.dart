@@ -235,7 +235,10 @@ class _TopBar extends ConsumerWidget {
               children: [
                 Icon(Icons.circle, size: 8, color: color),
                 SizedBox(width: tokens.space2),
-                Text(status, style: textTheme.labelSmall?.copyWith(color: color)),
+                Text(
+                  status,
+                  style: textTheme.labelSmall?.copyWith(color: color),
+                ),
               ],
             ),
           ),

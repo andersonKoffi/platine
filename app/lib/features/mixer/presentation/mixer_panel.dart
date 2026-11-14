@@ -13,8 +13,9 @@ import 'package:platine/features/settings/application/settings_controller.dart';
 
 /// Knob position (`0..1`, neutral in the middle) of an isolator level
 /// (`0..2`, neutral 1).
-double eqToKnob(double level) =>
-    level <= 1 ? level * 0.5 : 0.5 + (level - 1) / (DeckControls.maxLevel - 1) * 0.5;
+double eqToKnob(double level) => level <= 1
+    ? level * 0.5
+    : 0.5 + (level - 1) / (DeckControls.maxLevel - 1) * 0.5;
 
 /// Inverse of [eqToKnob].
 double knobToEq(double position) => position <= 0.5
@@ -22,8 +23,9 @@ double knobToEq(double position) => position <= 0.5
     : 1 + (position - 0.5) * 2 * (DeckControls.maxLevel - 1);
 
 /// Fader position of a deck gain: unity at 80 %, +6 dB at the top.
-double gainToFader(double gain) =>
-    gain <= 1 ? gain * 0.8 : 0.8 + (gain - 1) / (DeckControls.maxLevel - 1) * 0.2;
+double gainToFader(double gain) => gain <= 1
+    ? gain * 0.8
+    : 0.8 + (gain - 1) / (DeckControls.maxLevel - 1) * 0.2;
 
 /// Inverse of [gainToFader].
 double faderToGain(double position) => position <= 0.8

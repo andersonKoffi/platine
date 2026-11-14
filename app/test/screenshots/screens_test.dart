@@ -97,22 +97,74 @@ void _emitMix(FakeEngineGateway gateway) {
       title: 'God My King',
       artist: 'MARIZU',
     ),
-    TrackInfo(id: 3, path: '/Music/Brunch/Afro Sunrise.flac', title: 'Afro Sunrise'),
-    TrackInfo(id: 4, path: '/Music/Brunch/Amapiano Nights.mp3', title: 'Amapiano Nights', artist: 'Kabza'),
-    TrackInfo(id: 5, path: '/Music/Brunch/Coupé Décalé Mix.wav', title: 'Coupé Décalé Mix'),
-    TrackInfo(id: 6, path: '/Music/Brunch/Highlife Groove.mp3', title: 'Highlife Groove', artist: 'Osibisa'),
+    TrackInfo(
+      id: 3,
+      path: '/Music/Brunch/Afro Sunrise.flac',
+      title: 'Afro Sunrise',
+    ),
+    TrackInfo(
+      id: 4,
+      path: '/Music/Brunch/Amapiano Nights.mp3',
+      title: 'Amapiano Nights',
+      artist: 'Kabza',
+    ),
+    TrackInfo(
+      id: 5,
+      path: '/Music/Brunch/Coupé Décalé Mix.wav',
+      title: 'Coupé Décalé Mix',
+    ),
+    TrackInfo(
+      id: 6,
+      path: '/Music/Brunch/Highlife Groove.mp3',
+      title: 'Highlife Groove',
+      artist: 'Osibisa',
+    ),
   ];
   gateway
     ..emit(const LibraryChanged(library))
     ..emit(const DeckLoading(deck: DeckSide.a, trackId: 1))
     ..emit(const DeckLoading(deck: DeckSide.b, trackId: 2))
-    ..emit(WaveformReady(deck: DeckSide.a, trackId: 1, waveform: _waveform(1, 214)))
-    ..emit(WaveformReady(deck: DeckSide.b, trackId: 2, waveform: _waveform(2, 189)))
-    ..emit(const DeckLoaded(deck: DeckSide.a, trackId: 1, duration: 214, start: 0.4, end: 211))
-    ..emit(const DeckLoaded(deck: DeckSide.b, trackId: 2, duration: 189, start: 1.2, end: 186))
-    ..emit(const DeckPositionChanged(deck: DeckSide.a, position: 96.4, playing: true))
-    ..emit(const DeckPositionChanged(deck: DeckSide.b, position: 1.2, playing: false))
-    ..emit(const LevelsChanged(LevelSnapshot(deckA: 0.7, deckB: 0, master: 0.68)))
+    ..emit(
+      WaveformReady(deck: DeckSide.a, trackId: 1, waveform: _waveform(1, 214)),
+    )
+    ..emit(
+      WaveformReady(deck: DeckSide.b, trackId: 2, waveform: _waveform(2, 189)),
+    )
+    ..emit(
+      const DeckLoaded(
+        deck: DeckSide.a,
+        trackId: 1,
+        duration: 214,
+        start: 0.4,
+        end: 211,
+      ),
+    )
+    ..emit(
+      const DeckLoaded(
+        deck: DeckSide.b,
+        trackId: 2,
+        duration: 189,
+        start: 1.2,
+        end: 186,
+      ),
+    )
+    ..emit(
+      const DeckPositionChanged(
+        deck: DeckSide.a,
+        position: 96.4,
+        playing: true,
+      ),
+    )
+    ..emit(
+      const DeckPositionChanged(
+        deck: DeckSide.b,
+        position: 1.2,
+        playing: false,
+      ),
+    )
+    ..emit(
+      const LevelsChanged(LevelSnapshot(deckA: 0.7, deckB: 0, master: 0.68)),
+    )
     ..emit(
       const AutoMixChanged(
         phase: AutoMixPhase.playing,

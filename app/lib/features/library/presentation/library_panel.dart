@@ -193,7 +193,10 @@ class _TableHeader extends StatelessWidget {
       color: tokens.panelRaised,
       child: const Row(
         children: [
-          SizedBox(width: _numberWidth, child: Center(child: ControlLabel('#'))),
+          SizedBox(
+            width: _numberWidth,
+            child: Center(child: ControlLabel('#')),
+          ),
           Expanded(flex: 5, child: ControlLabel('Titre')),
           Expanded(flex: 3, child: ControlLabel('Artiste')),
           Expanded(flex: 3, child: ControlLabel('Dossier')),
@@ -362,10 +365,7 @@ class _TrackRow extends ConsumerWidget {
               ),
               SizedBox(
                 width: _formatWidth,
-                child: Text(
-                  formatOf(track.path),
-                  style: textTheme.labelSmall,
-                ),
+                child: Text(formatOf(track.path), style: textTheme.labelSmall),
               ),
               SizedBox(
                 width: _loadWidth,

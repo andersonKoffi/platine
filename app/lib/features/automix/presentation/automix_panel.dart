@@ -28,9 +28,8 @@ class AutoMixPanel extends ConsumerWidget {
             children: [
               Text(
                 'AUTOMIX',
-                style: Theme.of(
-                  context,
-                ).textTheme.titleMedium?.copyWith(letterSpacing: 2),
+                style: Theme.of(context).textTheme.titleMedium
+                    ?.copyWith(letterSpacing: 2),
               ),
               const Spacer(),
               PadButton(
@@ -143,7 +142,10 @@ class _StatusRow extends ConsumerWidget {
                   color: color,
                   shape: BoxShape.circle,
                   boxShadow: [
-                    BoxShadow(color: color.withValues(alpha: 0.6), blurRadius: 6),
+                    BoxShadow(
+                      color: color.withValues(alpha: 0.6),
+                      blurRadius: 6,
+                    ),
                   ],
                 ),
               ),
@@ -195,11 +197,11 @@ class _CrossfadeControl extends StatelessWidget {
             height: 26,
             child: Slider(
               padding: EdgeInsets.zero,
-            value: seconds,
-            max: MixSettings.maxCrossfadeSeconds,
-            divisions: 60,
-            label: '${seconds.toStringAsFixed(1)} s',
-            onChanged: onChanged,
+              value: seconds,
+              max: MixSettings.maxCrossfadeSeconds,
+              divisions: 60,
+              label: '${seconds.toStringAsFixed(1)} s',
+              onChanged: onChanged,
             ),
           ),
         ),
@@ -271,7 +273,11 @@ class _QueueList extends ConsumerWidget {
                 width: 22,
                 child: Text(
                   '${index + 1}',
-                  style: counterStyle(context, size: 11, color: tokens.textMuted),
+                  style: counterStyle(
+                    context,
+                    size: 11,
+                    color: tokens.textMuted,
+                  ),
                 ),
               ),
               Expanded(
