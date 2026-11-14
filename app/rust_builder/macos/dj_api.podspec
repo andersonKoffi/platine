@@ -38,6 +38,7 @@ Builds the Platine Rust engine (native/dj_api) with cargokit.
   }
   s.pod_target_xcconfig = {
     'DEFINES_MODULE' => 'YES',
-    'OTHER_LDFLAGS' => '-force_load ${BUILT_PRODUCTS_DIR}/libdj_api.a',
+    # -lc++: the keylock (Signalsmith Stretch) is C++ inside the static library.
+    'OTHER_LDFLAGS' => '-force_load ${BUILT_PRODUCTS_DIR}/libdj_api.a -lc++',
   }
 end

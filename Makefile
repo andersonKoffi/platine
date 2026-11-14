@@ -9,6 +9,7 @@ bootstrap: ## First setup: macOS runner scaffold, pub get, all codegen
 	cd app && flutter pub get
 	./tool/gen_bridge.sh
 	cd app && dart run build_runner build --delete-conflicting-outputs
+	cd app/macos && pod install
 
 gen: ## Regenerate bridge glue and Riverpod code
 	./tool/gen_bridge.sh

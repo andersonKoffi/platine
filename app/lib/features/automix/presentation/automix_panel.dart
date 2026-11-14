@@ -104,8 +104,6 @@ class AutoMixPanel extends ConsumerWidget {
               ],
             ],
           ),
-          SizedBox(height: tokens.space2),
-          const _MixNowButton(),
           SizedBox(height: tokens.space3),
           const ControlLabel('File d’attente'),
           SizedBox(height: tokens.space1),
@@ -125,11 +123,11 @@ class _MixNowButton extends ConsumerWidget {
     final tokens = context.tokens;
     final enabled = ref.watch(sessionStoreProvider.select((s) => s.canMixNow));
     return PadButton(
-      label: 'ENCHAÎNER MAINTENANT',
+      label: 'ENCHAÎNER',
       icon: Icons.fast_forward_rounded,
       tooltip: 'Enchaîner maintenant (N)',
       color: tokens.success,
-      height: 32,
+      height: 26,
       onPressed: enabled
           ? () => unawaited(ref.read(engineGatewayProvider).mixNow())
           : null,
@@ -187,6 +185,8 @@ class _StatusRow extends ConsumerWidget {
             onPressed: () =>
                 unawaited(ref.read(engineGatewayProvider).resumeAutoMix()),
           ),
+        SizedBox(width: tokens.space1),
+        const _MixNowButton(),
       ],
     );
   }

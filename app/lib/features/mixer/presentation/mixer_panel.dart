@@ -79,8 +79,7 @@ class MixerPanel extends ConsumerWidget {
                       SizedBox(height: tokens.space2),
                       PadButton(
                         label: 'MONO',
-                        tooltip: 'Sortie mono : gauche et droite additionnés '
-                            '(sono branchée sur une seule entrée)',
+                        tooltip: 'Sortie mono (sono sur une seule entrée)',
                         color: tokens.warning,
                         width: 56,
                         height: 24,
