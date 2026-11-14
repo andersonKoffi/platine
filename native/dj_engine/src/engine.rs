@@ -186,7 +186,7 @@ impl Engine {
         for frame in out.chunks_exact_mut(channels) {
             let mixed = self.next_frame();
             match frame {
-                [mono] => *mono = 0.5 * (mixed[0] + mixed[1]),
+                [mono] => *mono = f32::midpoint(mixed[0], mixed[1]),
                 [left, right, rest @ ..] => {
                     *left = mixed[0];
                     *right = mixed[1];
