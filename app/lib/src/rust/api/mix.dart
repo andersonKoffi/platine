@@ -66,6 +66,12 @@ Future<void>  setRepeat({required bool enabled }) => RustLib.instance.api.crateA
 /// Fails if the session is not started.
 Future<void>  resumeAutomix() => RustLib.instance.api.crateApiMixResumeAutomix();
 
+/// Starts the fade to the next track right away ("mix now").
+///
+/// # Errors
+/// Fails if the session is not started.
+Future<void>  mixNow() => RustLib.instance.api.crateApiMixMixNow();
+
 /// # Errors
 /// Fails if the session is not started.
 Future<void>  togglePlay({required Deck deck }) => RustLib.instance.api.crateApiMixTogglePlay(deck: deck);

@@ -734,3 +734,52 @@ mod library_changes {
         assert!(mix.move_upcoming(3, 0).is_err());
     }
 }
+
+mod mix_now {
+    use super::*;
+
+    #[test]
+    fn starts_the_transition_at_the_current_position() {
+        let mut mix = playing_a(3);
+        // A transition is already planned for the end of the track: it is replaced.
+        let actions = mix.handle(In::MixNow { position: s(42.0) });
+        assert_eq!(actions[0], A::CancelTransition);
+        let plan = plan_of(&actions).unwrap();
+        assert_eq!((plan.from, plan.to), (DA, DB));
+        assert_eq!(plan.start_at, s(42.0));
+        assert_eq!(plan.fade, s(8.0));
+        assert_eq!(mix.planned_transition(), Some(plan));
+    }
+
+    #[test]
+    fn near_the_end_the_fade_shrinks_to_what_is_left() {
+        let mut mix = playing_a(3);
+        let actions = mix.handle(In::MixNow { position: s(177.0) });
+        assert_eq!(plan_of(&actions).unwrap().fade, s(3.0));
+    }
+
+    #[test]
+    fn resumes_a_suspended_automation() {
+        let mut mix = playing_a(3);
+        mix.handle(In::ManualIntervention);
+        assert_eq!(mix.status(), AutoMixStatus::Suspended);
+        let actions = mix.handle(In::MixNow { position: s(10.0) });
+        assert_eq!(plan_of(&actions).unwrap().start_at, s(10.0));
+        assert_eq!(mix.status(), AutoMixStatus::Running);
+    }
+
+    #[test]
+    fn does_nothing_without_a_track_waiting_or_when_disabled() {
+        let mut mix = playing_a(1);
+        assert_eq!(mix.handle(In::MixNow { position: s(10.0) }), NONE);
+
+        let mut mix = playing_a(3);
+        mix.handle(In::SetEnabled(false));
+        assert_eq!(mix.handle(In::MixNow { position: s(10.0) }), NONE);
+
+        let mut mix = playing_a(3);
+        mix.handle(In::MixNow { position: s(10.0) });
+        mix.handle(In::TransitionStarted { from: DA, to: DB });
+        assert_eq!(mix.handle(In::MixNow { position: s(11.0) }), NONE);
+    }
+}

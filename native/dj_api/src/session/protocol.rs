@@ -39,6 +39,8 @@ pub enum SessionCommand {
     SetShuffle(bool),
     SetRepeat(bool),
     ResumeAutoMix,
+    /// Starts the transition to the standby deck now.
+    MixNow,
     TogglePlay(DeckId),
     Seek {
         deck: DeckId,

@@ -107,6 +107,12 @@ pub enum AutoMixInput {
     TrackEnded {
         deck: DeckId,
     },
+    /// "Mix now": start the transition to the standby deck immediately.
+    /// `position` is where the deck on air currently is. Also hands control
+    /// back to a suspended automation.
+    MixNow {
+        position: Seconds,
+    },
     /// The user took the mix over (crossfader, playing the standby deck,
     /// replacing the track on air).
     ManualIntervention,

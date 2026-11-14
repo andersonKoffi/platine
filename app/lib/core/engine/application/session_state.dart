@@ -127,6 +127,15 @@ class SessionState {
 
   DeckState deck(DeckSide side) => side == DeckSide.a ? deckA : deckB;
 
+  /// "Mix now" is possible: a deck on air and a ready track on the other one.
+  bool get canMixNow {
+    final active = activeDeck;
+    if (active == null || phase != AutoMixPhase.playing) return false;
+    if (mode == AutoMixMode.off) return false;
+    final standby = deck(active.other);
+    return standby.hasTrack && !standby.loading;
+  }
+
   TrackInfo? track(int? id) {
     if (id == null) return null;
     for (final track in library) {

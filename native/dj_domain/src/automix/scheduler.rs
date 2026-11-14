@@ -9,7 +9,7 @@ use crate::ports::RandomSource;
 use crate::queue::{PlaybackQueue, RepeatMode};
 use crate::shuffle::PlayOrder;
 use crate::track::{TrackId, TrackTiming};
-use crate::values::{CrossfaderPosition, DeckId};
+use crate::values::{CrossfaderPosition, DeckId, Seconds};
 
 type Actions = Vec<AutoMixAction>;
 
@@ -187,6 +187,7 @@ impl<R: RandomSource> AutoMixScheduler<R> {
                 }
             }
             AutoMixInput::TrackEnded { deck } => self.on_track_ended(deck, &mut actions),
+            AutoMixInput::MixNow { position } => self.on_mix_now(position, &mut actions),
         }
         actions
     }
@@ -270,6 +271,36 @@ impl<R: RandomSource> AutoMixScheduler<R> {
             AutoMixState::Idle => self.after_idle_change(actions),
             _ => {}
         }
+    }
+
+    fn on_mix_now(&mut self, position: Seconds, actions: &mut Actions) {
+        if !self.settings.enabled {
+            return;
+        }
+        let AutoMixState::Playing { active } = self.state else {
+            return; // nothing on air, or a fade already running
+        };
+        let standby = active.other();
+        let (Some(outgoing), Some(incoming)) = (
+            self.deck(active).ready_timing(),
+            self.deck(standby).ready_timing(),
+        ) else {
+            return;
+        };
+        self.suspended = false;
+        self.cancel_plan(actions);
+        let remaining = outgoing.effective_end() - position;
+        let fade = effective_fade(self.settings.crossfade, &outgoing, &incoming).min(remaining);
+        let plan = TransitionPlan {
+            from: active,
+            to: standby,
+            start_at: position,
+            fade,
+            incoming_start: incoming.effective_start(),
+            curve: self.settings.curve,
+        };
+        self.planned = Some(plan);
+        actions.push(AutoMixAction::ScheduleTransition(plan));
     }
 
     fn on_transition_started(&mut self, from: DeckId, to: DeckId) {

@@ -26,6 +26,7 @@ const List<ShortcutHelp> shortcutHelp = [
   ShortcutHelp('↑  /  ↓', 'Volume master'),
   ShortcutHelp('A', 'Activer / désactiver l’auto-mix'),
   ShortcutHelp('R', 'Reprendre l’auto-mix suspendu'),
+  ShortcutHelp('N', 'Enchaîner maintenant sur le titre suivant'),
   ShortcutHelp('S', 'Mode aléatoire'),
   ShortcutHelp('L', 'Repeat'),
   ShortcutHelp('1 … 5', 'Fondu de 0, 4, 8, 12 ou 16 s'),
@@ -69,6 +70,11 @@ Map<ShortcutActivator, VoidCallback> buildShortcuts(
     ),
     const SingleActivator(LogicalKeyboardKey.keyR): () =>
         unawaited(gateway.resumeAutoMix()),
+    const SingleActivator(LogicalKeyboardKey.keyN): () {
+      if (ref.read(sessionStoreProvider).canMixNow) {
+        unawaited(gateway.mixNow());
+      }
+    },
     const SingleActivator(LogicalKeyboardKey.keyS): () => settings.setShuffle(
       enabled: !ref.read(mixSettingsControllerProvider).shuffle,
     ),

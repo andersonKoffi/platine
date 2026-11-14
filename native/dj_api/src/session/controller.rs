@@ -57,6 +57,8 @@ struct DeckSlot {
     fully_buffered: bool,
     /// Position the engine is cued at, before playing.
     cued_at: Seconds,
+    /// Last position reported by the engine.
+    position: Seconds,
     playing: bool,
     last_ui_update: Option<Instant>,
 }
@@ -226,6 +228,12 @@ impl<R: RandomSource> Controller<R> {
                 self.execute(&actions);
             }
             SessionCommand::ResumeAutoMix => self.feed(AutoMixInput::Resume),
+            SessionCommand::MixNow => {
+                if let AutoMixState::Playing { active } = self.scheduler.state() {
+                    let position = self.decks[active.index()].position;
+                    self.feed(AutoMixInput::MixNow { position });
+                }
+            }
             SessionCommand::TogglePlay(deck) => self.toggle_play(deck),
             SessionCommand::Seek { deck, position } => self.seek(deck, position),
             SessionCommand::SetCrossfader(position) => {
@@ -532,6 +540,7 @@ impl<R: RandomSource> Controller<R> {
                     return;
                 }
                 slot.playing = playing;
+                slot.position = position;
                 let due = slot
                     .last_ui_update
                     .is_none_or(|last| last.elapsed() >= interval);

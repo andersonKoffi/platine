@@ -26,6 +26,9 @@ abstract interface class EngineGateway {
 
   Future<void> resumeAutoMix();
 
+  /// Starts the fade to the next track right away.
+  Future<void> mixNow();
+
   Future<void> togglePlay(DeckSide deck);
 
   Future<void> seek(DeckSide deck, double seconds);

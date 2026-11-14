@@ -338,6 +338,14 @@ pub fn resume_automix() -> anyhow::Result<()> {
     send(SessionCommand::ResumeAutoMix)
 }
 
+/// Starts the fade to the next track right away ("mix now").
+///
+/// # Errors
+/// Fails if the session is not started.
+pub fn mix_now() -> anyhow::Result<()> {
+    send(SessionCommand::MixNow)
+}
+
 // ----- decks and mixer -------------------------------------------------------------------
 
 /// # Errors

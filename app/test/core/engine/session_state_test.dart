@@ -215,4 +215,39 @@ void main() {
     expect(refreshed.track(2)?.firstBeat, 0.3);
     expect(refreshed.track(4)?.bpm, isNull);
   });
+
+  test('mix now needs a deck on air and a ready standby deck', () {
+    final playing = apply(const [
+      LibraryChanged(library),
+      DeckLoaded(deck: DeckSide.a, trackId: 1, duration: 100, start: 0, end: 99),
+      AutoMixChanged(
+        phase: AutoMixPhase.playing,
+        mode: AutoMixMode.running,
+        active: DeckSide.a,
+      ),
+    ]);
+    expect(playing.canMixNow, isFalse);
+    final ready = reduceSession(
+      playing,
+      const DeckLoaded(
+        deck: DeckSide.b,
+        trackId: 2,
+        duration: 100,
+        start: 0,
+        end: 99,
+      ),
+      now,
+    );
+    expect(ready.canMixNow, isTrue);
+    final fading = reduceSession(
+      ready,
+      const AutoMixChanged(
+        phase: AutoMixPhase.crossfading,
+        mode: AutoMixMode.running,
+        active: DeckSide.b,
+      ),
+      now,
+    );
+    expect(fading.canMixNow, isFalse);
+  });
 }

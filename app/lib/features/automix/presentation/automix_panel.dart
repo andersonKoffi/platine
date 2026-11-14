@@ -104,12 +104,35 @@ class AutoMixPanel extends ConsumerWidget {
               ],
             ],
           ),
+          SizedBox(height: tokens.space2),
+          const _MixNowButton(),
           SizedBox(height: tokens.space3),
           const ControlLabel('File d’attente'),
           SizedBox(height: tokens.space1),
           const Expanded(child: _QueueList()),
         ],
       ),
+    );
+  }
+}
+
+/// Starts the fade to the next track without waiting for the end.
+class _MixNowButton extends ConsumerWidget {
+  const new();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final tokens = context.tokens;
+    final enabled = ref.watch(sessionStoreProvider.select((s) => s.canMixNow));
+    return PadButton(
+      label: 'ENCHAÎNER MAINTENANT',
+      icon: Icons.fast_forward_rounded,
+      tooltip: 'Enchaîner maintenant (N)',
+      color: tokens.success,
+      height: 32,
+      onPressed: enabled
+          ? () => unawaited(ref.read(engineGatewayProvider).mixNow())
+          : null,
     );
   }
 }

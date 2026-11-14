@@ -78,6 +78,9 @@ class FrbEngineGateway implements EngineGateway {
   Future<void> resumeAutoMix() => rust.resumeAutomix();
 
   @override
+  Future<void> mixNow() => rust.mixNow();
+
+  @override
   Future<void> togglePlay(DeckSide deck) => rust.togglePlay(deck: _deck(deck));
 
   @override

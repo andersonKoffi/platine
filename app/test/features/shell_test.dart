@@ -180,4 +180,24 @@ void main() {
     await dragFinaleTo(DeckSide.b);
     expect(gateway.calls, contains('loadTrack b 3'));
   });
+
+  testWidgets('mix now is offered when the next track is ready', (
+    tester,
+  ) async {
+    await pumpPlatine(tester, gateway);
+    await tester.pump();
+    final button = find.byTooltip('Enchaîner maintenant (N)');
+    expect(button, findsOneWidget);
+    await tester.tap(button);
+    await tester.sendKeyEvent(LogicalKeyboardKey.keyN);
+    expect(gateway.calls.where((c) => c == 'mixNow'), isEmpty);
+
+    emitPlayingSession(gateway);
+    await tester.pump();
+    await tester.tap(button);
+    await tester.pump();
+    expect(gateway.calls.where((c) => c == 'mixNow'), hasLength(1));
+    await tester.sendKeyEvent(LogicalKeyboardKey.keyN);
+    expect(gateway.calls.where((c) => c == 'mixNow'), hasLength(2));
+  });
 }

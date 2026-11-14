@@ -504,3 +504,24 @@ fn long_trailing_silence_does_not_stall_the_third_track() {
         vec![(DeckId::A, DeckId::B), (DeckId::B, DeckId::A)]
     );
 }
+
+#[test]
+fn mix_now_starts_the_fade_right_away() {
+    let dir = TempDir::new("mix-now");
+    for (i, frequency) in [440.0, 660.0].iter().enumerate() {
+        Tone::sine(*frequency, 20.0)
+            .write(&dir.0.join(format!("{i:02}.wav")))
+            .unwrap();
+    }
+    let mut h = Harness::new(Harness::settings(1.0, PlayOrder::Sequential));
+    h.load_folder(&dir.0, LoadMode::Replace).unwrap();
+    // Let deck A play for two seconds.
+    h.run_until(2.0, |_| false);
+    assert!(h.transitions().is_empty());
+    let pressed_at = h.audio.len() as f64 / f64::from(RATE);
+    h.controller.handle(SessionCommand::MixNow);
+    h.run_until(2.0, |_| false);
+    assert_eq!(h.transitions(), vec![(DeckId::A, DeckId::B)]);
+    // The incoming track is heard within the 1 s fade, long before the end of track 1.
+    assert!(h.level(660.0, pressed_at + 1.1, pressed_at + 1.4) > 0.4);
+}

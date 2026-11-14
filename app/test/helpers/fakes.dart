@@ -68,6 +68,9 @@ class FakeEngineGateway implements EngineGateway {
   Future<void> resumeAutoMix() async => calls.add('resumeAutoMix');
 
   @override
+  Future<void> mixNow() async => calls.add('mixNow');
+
+  @override
   Future<void> togglePlay(DeckSide deck) async =>
       calls.add('togglePlay ${deck.name}');
 

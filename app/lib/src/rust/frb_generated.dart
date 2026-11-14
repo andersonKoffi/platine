@@ -71,7 +71,7 @@ import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
                   String get codegenVersion => '2.13.0';
 
                   @override
-                  int get rustContentHash => -383834284;
+                  int get rustContentHash => 526915812;
 
                   static const kDefaultExternalLibraryLoaderConfig = ExternalLibraryLoaderConfig(
                     stem: 'dj_api',
@@ -90,6 +90,8 @@ Future<void> crateApiDiagnosticsInitApp();
 Future<ScanResultDto> crateApiMixLoadFolder({required String path , required FolderMode mode });
 
 Future<void> crateApiMixLoadTrack({required Deck deck , required BigInt trackId });
+
+Future<void> crateApiMixMixNow();
 
 Future<void> crateApiMixMoveInQueue({required int from , required int to });
 
@@ -245,12 +247,37 @@ sse_encode_u_64(trackId, serializer);
         );
         
 
+@override Future<void> crateApiMixMixNow()  { return handler.executeNormal(NormalTask(
+            callFfi: (port_) {
+              
+            final serializer = SseSerializer(generalizedFrbRustBinding);
+            pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 5, port: port_);
+            
+            },
+            codec: 
+        SseCodec(
+          decodeSuccessData: sse_decode_unit,
+          decodeErrorData: sse_decode_AnyhowException,
+        )
+        ,
+            constMeta: kCrateApiMixMixNowConstMeta,
+            argValues: [],
+            apiImpl: this,
+        )); }
+
+
+        TaskConstMeta get kCrateApiMixMixNowConstMeta => const TaskConstMeta(
+            debugName: "mix_now",
+            argNames: [],
+        );
+        
+
 @override Future<void> crateApiMixMoveInQueue({required int from , required int to })  { return handler.executeNormal(NormalTask(
             callFfi: (port_) {
               
             final serializer = SseSerializer(generalizedFrbRustBinding);sse_encode_u_32(from, serializer);
 sse_encode_u_32(to, serializer);
-            pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 5, port: port_);
+            pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 6, port: port_);
             
             },
             codec: 
@@ -275,7 +302,7 @@ sse_encode_u_32(to, serializer);
             callFfi: () {
               
             final serializer = SseSerializer(generalizedFrbRustBinding);
-            return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 6)!;
+            return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 7)!;
             
             },
             codec: 
@@ -300,7 +327,7 @@ sse_encode_u_32(to, serializer);
             callFfi: () {
               
             final serializer = SseSerializer(generalizedFrbRustBinding);
-            return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 7)!;
+            return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 8)!;
             
             },
             codec: 
@@ -325,7 +352,7 @@ sse_encode_u_32(to, serializer);
             callFfi: (port_) {
               
             final serializer = SseSerializer(generalizedFrbRustBinding);
-            pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 8, port: port_);
+            pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 9, port: port_);
             
             },
             codec: 
@@ -351,7 +378,7 @@ sse_encode_u_32(to, serializer);
               
             final serializer = SseSerializer(generalizedFrbRustBinding);sse_encode_deck(deck, serializer);
 sse_encode_f_64(seconds, serializer);
-            pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 9, port: port_);
+            pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 10, port: port_);
             
             },
             codec: 
@@ -376,7 +403,7 @@ sse_encode_f_64(seconds, serializer);
             callFfi: (port_) {
               
             final serializer = SseSerializer(generalizedFrbRustBinding);sse_encode_bool(enabled, serializer);
-            pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 10, port: port_);
+            pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 11, port: port_);
             
             },
             codec: 
@@ -401,7 +428,7 @@ sse_encode_f_64(seconds, serializer);
             callFfi: (port_) {
               
             final serializer = SseSerializer(generalizedFrbRustBinding);sse_encode_curve_kind(curve, serializer);
-            pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 11, port: port_);
+            pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 12, port: port_);
             
             },
             codec: 
@@ -426,7 +453,7 @@ sse_encode_f_64(seconds, serializer);
             callFfi: (port_) {
               
             final serializer = SseSerializer(generalizedFrbRustBinding);sse_encode_f_64(seconds, serializer);
-            pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 12, port: port_);
+            pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 13, port: port_);
             
             },
             codec: 
@@ -451,7 +478,7 @@ sse_encode_f_64(seconds, serializer);
             callFfi: (port_) {
               
             final serializer = SseSerializer(generalizedFrbRustBinding);sse_encode_f_32(position, serializer);
-            pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 13, port: port_);
+            pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 14, port: port_);
             
             },
             codec: 
@@ -477,7 +504,7 @@ sse_encode_f_64(seconds, serializer);
               
             final serializer = SseSerializer(generalizedFrbRustBinding);sse_encode_deck(deck, serializer);
 sse_encode_f_32(linear, serializer);
-            pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 14, port: port_);
+            pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 15, port: port_);
             
             },
             codec: 
@@ -504,7 +531,7 @@ sse_encode_f_32(linear, serializer);
             final serializer = SseSerializer(generalizedFrbRustBinding);sse_encode_deck(deck, serializer);
 sse_encode_band(band, serializer);
 sse_encode_f_32(linear, serializer);
-            pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 15, port: port_);
+            pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 16, port: port_);
             
             },
             codec: 
@@ -529,7 +556,7 @@ sse_encode_f_32(linear, serializer);
             callFfi: (port_) {
               
             final serializer = SseSerializer(generalizedFrbRustBinding);sse_encode_f_32(linear, serializer);
-            pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 16, port: port_);
+            pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 17, port: port_);
             
             },
             codec: 
@@ -554,7 +581,7 @@ sse_encode_f_32(linear, serializer);
             callFfi: (port_) {
               
             final serializer = SseSerializer(generalizedFrbRustBinding);sse_encode_bool(enabled, serializer);
-            pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 17, port: port_);
+            pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 18, port: port_);
             
             },
             codec: 
@@ -579,7 +606,7 @@ sse_encode_f_32(linear, serializer);
             callFfi: (port_) {
               
             final serializer = SseSerializer(generalizedFrbRustBinding);sse_encode_bool(enabled, serializer);
-            pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 18, port: port_);
+            pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 19, port: port_);
             
             },
             codec: 
@@ -604,7 +631,7 @@ sse_encode_f_32(linear, serializer);
             callFfi: (port_) {
               
             final serializer = SseSerializer(generalizedFrbRustBinding);sse_encode_f_32(db, serializer);
-            pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 19, port: port_);
+            pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 20, port: port_);
             
             },
             codec: 
@@ -629,7 +656,7 @@ sse_encode_f_32(linear, serializer);
             callFfi: (port_) {
               
             final serializer = SseSerializer(generalizedFrbRustBinding);sse_encode_box_autoadd_session_config(config, serializer);
-            pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 20, port: port_);
+            pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 21, port: port_);
             
             },
             codec: 
@@ -654,7 +681,7 @@ sse_encode_f_32(linear, serializer);
             callFfi: (port_) {
               
             final serializer = SseSerializer(generalizedFrbRustBinding);
-            pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 21, port: port_);
+            pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 22, port: port_);
             
             },
             codec: 
@@ -679,7 +706,7 @@ sse_encode_f_32(linear, serializer);
             callFfi: (port_) {
               
             final serializer = SseSerializer(generalizedFrbRustBinding);sse_encode_deck(deck, serializer);
-            pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 22, port: port_);
+            pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 23, port: port_);
             
             },
             codec: 
