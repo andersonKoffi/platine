@@ -1,3 +1,4 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart';
@@ -76,7 +77,9 @@ void main() {
     await tester.tap(find.byTooltip('Crossfader tout sur B'));
     await tester.tap(find.byTooltip('Fondu de 4 secondes'));
     await tester.tap(find.byTooltip('Charger sur la platine B').first);
-    await tester.pump();
+    // The row also listens for double taps: the single tap wins after the
+    // double-tap timeout.
+    await tester.pump(kDoubleTapTimeout + const Duration(milliseconds: 50));
 
     expect(gateway.calls, contains('togglePlay a'));
     expect(gateway.calls, contains('setCrossfader 1.00'));
