@@ -17,6 +17,8 @@ Builds the Platine Rust engine (native/dj_api) with cargokit.
   s.source           = { :path => '.' }
   s.source_files     = 'Classes/**/*'
   s.dependency 'FlutterMacOS'
+  # System frameworks used by the Rust audio stack (cpal on CoreAudio).
+  s.frameworks = 'AudioToolbox', 'AudioUnit', 'CoreAudio', 'CoreFoundation', 'Foundation'
 
   s.platform = :osx, '10.15'
   s.swift_version = '5.0'
