@@ -245,6 +245,7 @@ impl Engine {
                 self.voice(deck).set_eq(band, gain.linear());
             }
             EngineCommand::SetPitch { deck, pitch } => self.voice(deck).set_rate(pitch.ratio()),
+            EngineCommand::SetKeylock { deck, enabled } => self.voice(deck).set_keylock(enabled),
             EngineCommand::SetCrossfader(position) => {
                 self.freeze_automation();
                 self.crossfader.set_target(position.value());

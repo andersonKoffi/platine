@@ -78,4 +78,12 @@ void main() {
     expect(state(DeckSide.b).pitchRange, PitchRangeOption.sixteen);
     expect(gateway.calls.last, 'setPitch b 12.0');
   });
+
+  test('keylock toggles per deck', () {
+    deck(DeckSide.a).toggleKeylock();
+    expect(state(DeckSide.a).keylock, isTrue);
+    expect(state(DeckSide.b).keylock, isFalse);
+    deck(DeckSide.a).toggleKeylock();
+    expect(gateway.calls, ['setKeylock a true', 'setKeylock a false']);
+  });
 }

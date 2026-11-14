@@ -35,6 +35,16 @@ class PitchControl extends ConsumerWidget {
             onPressed: controller.cycleRange,
           ),
           SizedBox(height: tokens.space1),
+          PadButton(
+            label: 'KEY',
+            tooltip: 'Keylock platine ${side.label} : garder la tonalité',
+            color: accent,
+            height: 24,
+            width: width,
+            active: controls.keylock,
+            onPressed: controller.toggleKeylock,
+          ),
+          SizedBox(height: tokens.space1),
           const ControlLabel('+'),
           Expanded(
             child: VerticalFader(

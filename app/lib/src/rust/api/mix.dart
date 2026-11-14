@@ -86,6 +86,12 @@ Future<void>  seek({required Deck deck , required double seconds }) => RustLib.i
 /// Fails if `position` is outside `[0, 1]` or the session is not started.
 Future<void>  setCrossfader({required double position }) => RustLib.instance.api.crateApiMixSetCrossfader(position: position);
 
+/// Keylock: when on, pitch changes alter the tempo but not the key.
+///
+/// # Errors
+/// Fails if the session is not started.
+Future<void>  setKeylock({required Deck deck , required bool enabled }) => RustLib.instance.api.crateApiMixSetKeylock(deck: deck, enabled: enabled);
+
 /// Pitch fader: playback speed change in percent (`+4` plays 4 % faster).
 ///
 /// # Errors

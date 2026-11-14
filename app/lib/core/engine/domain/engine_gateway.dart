@@ -38,6 +38,9 @@ abstract interface class EngineGateway {
 
   Future<void> setDeckGain(DeckSide deck, double linear);
 
+  /// Keylock: pitch changes alter the tempo, not the key.
+  Future<void> setKeylock(DeckSide deck, {required bool enabled});
+
   /// Pitch fader: speed change in percent (`+4` = 4 % faster).
   Future<void> setPitch(DeckSide deck, double percent);
 

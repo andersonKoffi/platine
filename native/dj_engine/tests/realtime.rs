@@ -5,7 +5,7 @@
 #![allow(clippy::unwrap_used, clippy::cast_possible_truncation)]
 
 use assert_no_alloc::{AllocDisabler, assert_no_alloc};
-use dj_domain::{CrossfadeCurve, CrossfaderPosition, DeckId, Gain};
+use dj_domain::{CrossfadeCurve, CrossfaderPosition, DeckId, Gain, PitchPercent};
 use dj_engine::{
     AudioChunk, CHUNK_FRAMES, Engine, EngineCommand as Cmd, EngineConfig, EngineTransition, EqBand,
 };
@@ -43,6 +43,25 @@ fn render_does_not_allocate() {
             })
             .unwrap();
     }
+    // Deck B is time-stretched (keylock) and pitched.
+    handle
+        .send(Cmd::SetKeylock {
+            deck: DeckId::B,
+            enabled: true,
+        })
+        .unwrap();
+    handle
+        .send(Cmd::SetPitch {
+            deck: DeckId::B,
+            pitch: PitchPercent::new(6.0).unwrap(),
+        })
+        .unwrap();
+    handle
+        .send(Cmd::SetPitch {
+            deck: DeckId::A,
+            pitch: PitchPercent::new(-3.0).unwrap(),
+        })
+        .unwrap();
     handle.send(Cmd::Play { deck: DeckId::A }).unwrap();
     handle
         .send(Cmd::SetCrossfader(CrossfaderPosition::CENTER))

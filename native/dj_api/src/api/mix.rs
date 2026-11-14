@@ -373,6 +373,17 @@ pub fn set_crossfader(position: f32) -> anyhow::Result<()> {
     )?))
 }
 
+/// Keylock: when on, pitch changes alter the tempo but not the key.
+///
+/// # Errors
+/// Fails if the session is not started.
+pub fn set_keylock(deck: Deck, enabled: bool) -> anyhow::Result<()> {
+    send(SessionCommand::SetKeylock {
+        deck: deck.into(),
+        enabled,
+    })
+}
+
 /// Pitch fader: playback speed change in percent (`+4` plays 4 % faster).
 ///
 /// # Errors

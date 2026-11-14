@@ -482,3 +482,52 @@ fn the_pitch_fader_changes_the_playback_speed() {
         "{position}"
     );
 }
+
+#[test]
+fn keylock_keeps_the_key_when_the_pitch_changes() {
+    use dj_domain::PitchPercent;
+
+    let (mut engine, mut handle, [mut a, _]) = engine();
+    feed_tone(&mut a, 1, 440.0, 1.5, 0.8);
+    handle
+        .send(Cmd::SetCrossfader(CrossfaderPosition::fully(DeckId::A)))
+        .unwrap();
+    handle
+        .send(Cmd::SetKeylock {
+            deck: DeckId::A,
+            enabled: true,
+        })
+        .unwrap();
+    handle
+        .send(Cmd::SetPitch {
+            deck: DeckId::A,
+            pitch: PitchPercent::new(25.0).unwrap(),
+        })
+        .unwrap();
+    start_deck(&mut handle, DeckId::A);
+    let quarter = RATE as usize / 4;
+    let out = left(&render(&mut engine, 4 * quarter));
+    let crossings = out[2 * quarter..]
+        .windows(2)
+        .filter(|w| w[0] < 0.0 && w[1] >= 0.0)
+        .count();
+    let frequency = crossings as f64 * 2.0;
+    assert!((frequency - 440.0).abs() <= 10.0, "heard {frequency} Hz");
+    // One second of output went through 1.25 s of track; what is heard lags
+    // by the latency of the stretcher (a few tenths of a second at most).
+    let position = events(&mut handle)
+        .iter()
+        .rev()
+        .find_map(|e| match e {
+            EngineEvent::Position {
+                deck: DeckId::A,
+                frame,
+                ..
+            } => Some(*frame),
+            _ => None,
+        })
+        .unwrap();
+    let consumed = (1.25 * f64::from(RATE)) as u64;
+    assert!(position < consumed, "{position}");
+    assert!(consumed - position < u64::from(RATE * 3 / 10), "{position}");
+}

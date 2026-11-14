@@ -51,6 +51,11 @@ pub enum SessionCommand {
         deck: DeckId,
         gain: Gain,
     },
+    /// Keylock: speed changes keep the key.
+    SetKeylock {
+        deck: DeckId,
+        enabled: bool,
+    },
     /// Playback speed of a deck (pitch fader).
     SetPitch {
         deck: DeckId,

@@ -70,6 +70,11 @@ pub enum EngineCommand {
         deck: DeckId,
         pitch: PitchPercent,
     },
+    /// Keylock: speed changes keep the key of the track.
+    SetKeylock {
+        deck: DeckId,
+        enabled: bool,
+    },
     SetCrossfader(CrossfaderPosition),
     SetCrossfaderCurve(CrossfadeCurve),
     SetMasterGain(Gain),

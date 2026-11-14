@@ -92,6 +92,10 @@ class FrbEngineGateway implements EngineGateway {
       rust.setCrossfader(position: position.clamp(0, 1));
 
   @override
+  Future<void> setKeylock(DeckSide deck, {required bool enabled}) =>
+      rust.setKeylock(deck: _deck(deck), enabled: enabled);
+
+  @override
   Future<void> setPitch(DeckSide deck, double percent) =>
       rust.setPitch(deck: _deck(deck), percent: percent.clamp(-50, 50));
 

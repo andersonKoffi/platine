@@ -30,6 +30,7 @@ class DeckControls {
     this.high = 1,
     this.pitch = 0,
     this.pitchRange = PitchRangeOption.eight,
+    this.keylock = false,
   });
 
   static const double maxLevel = 2;
@@ -42,6 +43,9 @@ class DeckControls {
   /// Speed change in percent, within [pitchRange].
   final double pitch;
   final PitchRangeOption pitchRange;
+
+  /// Pitch changes keep the key of the track.
+  final bool keylock;
 
   /// Speed ratio (1 = original speed).
   double get speed => 1 + pitch / 100;
@@ -56,6 +60,7 @@ class DeckControls {
     double? high,
     double? pitch,
     PitchRangeOption? pitchRange,
+    bool? keylock,
   }) => DeckControls(
     gain: gain ?? this.gain,
     low: low ?? this.low,
@@ -63,6 +68,7 @@ class DeckControls {
     high: high ?? this.high,
     pitch: pitch ?? this.pitch,
     pitchRange: pitchRange ?? this.pitchRange,
+    keylock: keylock ?? this.keylock,
   );
 
   double band(EqBandType band) => switch (band) {
@@ -117,6 +123,15 @@ class DeckControlsController extends _$DeckControlsController {
       setPitch((position.clamp(0, 1) - 0.5) * 2 * state.pitchRange.percent);
 
   void resetPitch() => setPitch(0);
+
+  void toggleKeylock() {
+    state = state.copyWith(keylock: !state.keylock);
+    unawaited(
+      ref
+          .read(engineGatewayProvider)
+          .setKeylock(_side, enabled: state.keylock),
+    );
+  }
 
   /// Sets the pitch so that this deck plays at [targetBpm] (SYNC), widening
   /// the range if needed. Returns `false` when the tempos are too far apart.

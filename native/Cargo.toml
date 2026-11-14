@@ -31,6 +31,9 @@ rtrb = "0.4.1"
 crossbeam-channel = "0.5.17"
 walkdir = "2.5.0"
 
+# Keylock (time-stretching), MIT
+signalsmith-stretch = "0.1.3"
+
 # Analysis cache
 rusqlite = { version = "0.42.0", features = ["bundled"] }
 dirs = "7.0.0"

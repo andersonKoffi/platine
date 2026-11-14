@@ -5,7 +5,7 @@ use dj_domain::DeckId;
 use rtrb::Consumer;
 
 use crate::chunk::AudioChunk;
-use crate::dsp::{Isolator, Smoother};
+use crate::dsp::{Isolator, Keylock, Smoother};
 use crate::protocol::EqBand;
 
 /// Real-time state of a deck. Everything is preallocated.
@@ -43,6 +43,14 @@ pub(crate) struct DeckVoice {
     primed: bool,
     /// Source position of the next frame heard (`a` in `history`).
     heard: u64,
+    /// Time-stretcher used instead of varispeed while keylock is on. Held in
+    /// an `Option` only to lend it out while it pulls source frames.
+    keylock: Option<Box<Keylock>>,
+    keylock_on: bool,
+    /// The stretcher has pulled source frames since its last reset.
+    keylock_started: bool,
+    /// Keylock switch waiting for the fade-out to finish.
+    pending_keylock: Option<bool>,
 }
 
 /// Slowest and fastest playback speeds (±50 %).
@@ -90,6 +98,10 @@ impl DeckVoice {
             fraction: 0.0,
             primed: false,
             heard: 0,
+            keylock: Some(Box::new(Keylock::new(sample_rate))),
+            keylock_on: false,
+            keylock_started: false,
+            pending_keylock: None,
         }
     }
 
@@ -104,6 +116,12 @@ impl DeckVoice {
     /// Next source frame to be heard. The interpolator reads three frames
     /// ahead of the frame it outputs next; they are not counted.
     pub(crate) fn position(&self) -> u64 {
+        if self.keylock_on {
+            return match (&self.keylock, self.keylock_started) {
+                (Some(keylock), true) => self.position.saturating_sub(keylock.latency_frames()),
+                _ => self.position,
+            };
+        }
         if self.primed {
             self.heard.min(self.position)
         } else {
@@ -141,7 +159,15 @@ impl DeckVoice {
         self.starvation_reported = false;
         self.primed = false;
         self.fraction = 0.0;
+        self.reset_keylock();
         self.eq.reset();
+    }
+
+    fn reset_keylock(&mut self) {
+        if let Some(keylock) = self.keylock.as_mut() {
+            keylock.reset();
+        }
+        self.keylock_started = false;
     }
 
     pub(crate) fn play(&mut self) {
@@ -163,7 +189,34 @@ impl DeckVoice {
         self.generation = self.generation.wrapping_add(1);
         self.primed = false;
         self.fraction = 0.0;
+        self.pending_keylock = None;
+        self.reset_keylock();
         self.eq.reset();
+    }
+
+    /// Keylock on or off. A playing deck fades out, switches, then fades in.
+    pub(crate) fn set_keylock(&mut self, on: bool) {
+        if self.pending_keylock.unwrap_or(self.keylock_on) == on {
+            return;
+        }
+        if self.playing && self.transport.current() > 0.0 {
+            self.pending_keylock = Some(on);
+            self.transport.set_target(0.0);
+        } else {
+            self.apply_keylock(on);
+        }
+    }
+
+    fn apply_keylock(&mut self, on: bool) {
+        self.keylock_on = on;
+        self.primed = false;
+        self.fraction = 0.0;
+        self.reset_keylock();
+    }
+
+    #[cfg(test)]
+    pub(crate) fn keylock_on(&self) -> bool {
+        self.keylock_on
     }
 
     /// Playback speed, clamped to ±50 %.
@@ -198,7 +251,11 @@ impl DeckVoice {
             self.on_silent();
             return [0.0; 2];
         }
-        let raw = self.read_varispeed();
+        let raw = if self.keylock_on {
+            self.read_keylocked()
+        } else {
+            self.read_varispeed()
+        };
         let gains = [
             self.eq_gains[0].next_value(),
             self.eq_gains[1].next_value(),
@@ -214,12 +271,31 @@ impl DeckVoice {
 
     /// The envelope reached zero: finish a pending seek or the pause.
     fn on_silent(&mut self) {
+        let keylock = self.pending_keylock.take();
+        if let Some(on) = keylock {
+            self.apply_keylock(on);
+        }
         if let Some((generation, position)) = self.pending_cue.take() {
             self.apply_cue(generation, position);
+            self.transport.set_target(1.0);
+        } else if keylock.is_some() {
             self.transport.set_target(1.0);
         } else {
             self.playing = false;
         }
+    }
+
+    /// Reads the source at the current speed through the time-stretcher, so
+    /// the key does not change.
+    fn read_keylocked(&mut self) -> [f32; 2] {
+        let rate = self.rate.next_value();
+        let Some(mut keylock) = self.keylock.take() else {
+            return self.read_raw();
+        };
+        let frame = keylock.next_frame(rate, &mut || self.read_raw());
+        self.keylock = Some(keylock);
+        self.keylock_started = true;
+        frame
     }
 
     /// Reads the source at the current speed with cubic interpolation.
@@ -432,6 +508,35 @@ mod tests {
         let before = v.position();
         raw_frames(&mut v, 100);
         assert_eq!(v.position() - before, 150);
+    }
+
+    #[test]
+    fn keylock_switches_after_a_fade_while_playing() {
+        let (mut v, mut feed) = voice();
+        for i in 0..4 {
+            assert!(feed.try_push(&chunk(1, i * CHUNK_FRAMES as u64, 0.3, false)));
+        }
+        // Stopped: the switch is immediate.
+        v.set_keylock(true);
+        assert!(v.keylock_on());
+        v.set_keylock(false);
+        assert!(!v.keylock_on());
+        v.cue(1, 0);
+        v.play();
+        for _ in 0..20 {
+            v.next_frame();
+        }
+        // Playing: fade out (4-frame ramp), switch, fade back in.
+        v.set_keylock(true);
+        assert!(!v.keylock_on());
+        for _ in 0..10 {
+            v.next_frame();
+        }
+        assert!(v.keylock_on());
+        assert!(v.is_playing());
+        // Asking again for the same state does nothing.
+        v.set_keylock(true);
+        assert!(v.keylock_on());
     }
 
     #[test]

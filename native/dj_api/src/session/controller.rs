@@ -240,6 +240,9 @@ impl<R: RandomSource> Controller<R> {
                 self.feed(AutoMixInput::ManualIntervention);
                 self.send_engine(EngineCommand::SetCrossfader(position));
             }
+            SessionCommand::SetKeylock { deck, enabled } => {
+                self.send_engine(EngineCommand::SetKeylock { deck, enabled });
+            }
             SessionCommand::SetPitch { deck, pitch } => {
                 self.send_engine(EngineCommand::SetPitch { deck, pitch });
             }
