@@ -60,4 +60,22 @@ void main() {
     expect(formatPitch(2.345), '+2.35%');
     expect(formatPitch(-1), '−1.00%');
   });
+
+  test('sync matches the tempo heard on the other deck', () {
+    expect(syncPitch(bpm: 120, targetBpm: 126), 5);
+    expect(syncPitch(bpm: 128, targetBpm: 124), -3.13);
+    // Half and double tempo.
+    expect(syncPitch(bpm: 70, targetBpm: 140), 0);
+    expect(syncPitch(bpm: 150, targetBpm: 76), 1.33);
+    expect(syncPitch(bpm: 100, targetBpm: 0), isNull);
+    expect(rangeFor(5), PitchRangeOption.eight);
+    expect(rangeFor(-12), PitchRangeOption.sixteen);
+    expect(rangeFor(30), PitchRangeOption.fifty);
+
+    final controller = deck(DeckSide.b);
+    expect(controller.syncTo(bpm: 100, targetBpm: 112), isTrue);
+    expect(state(DeckSide.b).pitch, 12);
+    expect(state(DeckSide.b).pitchRange, PitchRangeOption.sixteen);
+    expect(gateway.calls.last, 'setPitch b 12.0');
+  });
 }

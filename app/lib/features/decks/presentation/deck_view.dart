@@ -37,10 +37,34 @@ class DeckView extends ConsumerWidget {
       deckControlsControllerProvider(side).select((c) => c.speed),
     );
     final pitch = PitchControl(side: side, accent: accent);
+    final (myBpm, otherBpm) = ref.watch(
+      sessionStoreProvider.select(
+        (s) => (
+          s.track(s.deck(side).trackId)?.bpm,
+          s.track(s.deck(side.other).trackId)?.bpm,
+        ),
+      ),
+    );
+    final otherSpeed = ref.watch(
+      deckControlsControllerProvider(side.other).select((c) => c.speed),
+    );
 
     final transport = Column(
       mainAxisAlignment: MainAxisAlignment.end,
       children: [
+        PadButton(
+          label: 'SYNC',
+          tooltip: 'Caler le tempo de la platine ${side.label} sur l’autre',
+          color: accent,
+          width: 52,
+          height: 28,
+          onPressed: myBpm != null && otherBpm != null
+              ? () => ref
+                    .read(deckControlsControllerProvider(side).notifier)
+                    .syncTo(bpm: myBpm, targetBpm: otherBpm * otherSpeed)
+              : null,
+        ),
+        SizedBox(height: tokens.space3),
         RoundTransportButton(
           icon: Icons.first_page_rounded,
           text: 'CUE',

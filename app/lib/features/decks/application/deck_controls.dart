@@ -118,6 +118,19 @@ class DeckControlsController extends _$DeckControlsController {
 
   void resetPitch() => setPitch(0);
 
+  /// Sets the pitch so that this deck plays at [targetBpm] (SYNC), widening
+  /// the range if needed. Returns `false` when the tempos are too far apart.
+  bool syncTo({required double bpm, required double targetBpm}) {
+    final percent = syncPitch(bpm: bpm, targetBpm: targetBpm);
+    if (percent == null) return false;
+    final needed = rangeFor(percent);
+    if (needed.percent > state.pitchRange.percent) {
+      state = state.copyWith(pitchRange: needed);
+    }
+    setPitch(percent);
+    return true;
+  }
+
   /// Next range (±8 → ±16 → ±50 → ±8); the pitch is clamped to it.
   void cycleRange() {
     final range = state.pitchRange.next;
@@ -130,3 +143,24 @@ class DeckControlsController extends _$DeckControlsController {
     setBand(band, state.band(band) == 0 ? 1 : 0);
   }
 }
+
+/// Pitch (in percent) that makes a track at [bpm] play at [targetBpm],
+/// allowing half and double tempo (70 BPM syncs to 140 at +0 %).
+/// `null` when no option fits within ±50 %.
+double? syncPitch({required double bpm, required double targetBpm}) {
+  if (bpm <= 0 || targetBpm <= 0) return null;
+  double? best;
+  for (final factor in const [1.0, 2.0, 0.5]) {
+    final percent = (targetBpm / (bpm * factor) - 1) * 100;
+    if (percent.abs() <= 50 && (best == null || percent.abs() < best.abs())) {
+      best = percent;
+    }
+  }
+  return best == null ? null : (best * 100).round() / 100;
+}
+
+/// Smallest range that contains [percent].
+PitchRangeOption rangeFor(double percent) => PitchRangeOption.values.firstWhere(
+  (range) => percent.abs() <= range.percent,
+  orElse: () => PitchRangeOption.fifty,
+);
