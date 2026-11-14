@@ -1,4 +1,4 @@
-name: rust_lib_platine
+name: dj_api
 description: "Builds the Platine Rust engine (native/dj_api) with cargokit."
 version: 0.0.1
 publish_to: none

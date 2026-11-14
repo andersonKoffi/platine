@@ -17,6 +17,8 @@ not inside it.
 - Build integration through the FRB **cargokit** template, copied into
   `app/rust_builder` and trimmed to macOS. Its podspec points to
   `../../../native/dj_api` and statically links `libdj_api.a` (`-force_load`).
+  The plugin (pod) is named `dj_api` like the crate, so the generated loader
+  finds the symbols in `dj_api.framework/dj_api` without custom loading code.
   cargokit builds every architecture Xcode requests, which yields a universal
   binary for release builds.
 - Generated glue (`app/lib/src/rust`, `native/dj_api/src/frb_generated.rs`) is

@@ -4,7 +4,7 @@
 # cargokit template, adapted to a crate living outside the Flutter app.
 #
 Pod::Spec.new do |s|
-  s.name             = 'rust_lib_platine'
+  s.name             = 'dj_api'
   s.version          = '0.0.1'
   s.summary          = 'Platine Rust engine (dj_api), built by cargokit.'
   s.description      = <<-DESC
