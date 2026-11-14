@@ -31,7 +31,7 @@ class _EmptyLibraryState extends ConsumerState<EmptyLibrary>
     if (context.reduceMotion) {
       _pulse.stop();
     } else if (!_pulse.isAnimating) {
-      unawaited(_pulse.repeat());
+      _pulse.repeat();
     }
   }
 

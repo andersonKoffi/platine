@@ -236,11 +236,8 @@ class _QueueList extends ConsumerWidget {
     return ReorderableListView.builder(
       itemCount: upcoming.length,
       buildDefaultDragHandles: false,
-      onReorder: (from, to) {
-        // The framework reports the index before removal.
-        final target = to > from ? to - 1 : to;
-        unawaited(ref.read(engineGatewayProvider).moveInQueue(from, target));
-      },
+      onReorderItem: (from, to) =>
+          unawaited(ref.read(engineGatewayProvider).moveInQueue(from, to)),
       itemBuilder: (context, index) {
         final id = upcoming[index];
         final title = _titleOf(library, id);

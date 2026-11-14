@@ -1,5 +1,7 @@
-import 'dart:typed_data';
+import 'dart:typed_data' show Float32List;
 
+import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart'
+    show Uint64List;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:platine/core/engine/data/frb_engine_gateway.dart';
 import 'package:platine/core/engine/domain/engine_event.dart';

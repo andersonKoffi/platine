@@ -1,3 +1,4 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:platine/core/engine/application/engine_providers.dart';
 import 'package:platine/core/engine/domain/models.dart';
 import 'package:platine/features/library/data/open_panel_folder_picker.dart';

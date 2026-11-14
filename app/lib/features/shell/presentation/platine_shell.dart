@@ -132,7 +132,7 @@ class _PlatineShellState extends ConsumerState<PlatineShell>
         now,
       ) {
         if (before == false && now && !context.reduceMotion) {
-          unawaited(_celebration.forward(from: 0));
+          _celebration.forward(from: 0);
         }
       });
     final startup = ref.watch(engineStartupProvider);
