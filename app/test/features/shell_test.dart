@@ -133,9 +133,7 @@ void main() {
     await tester.pump(const Duration(seconds: 5));
   });
 
-  testWidgets('narrow windows put the library under the decks', (
-    tester,
-  ) async {
+  testWidgets('narrow windows put the library under the decks', (tester) async {
     await pumpPlatine(tester, gateway, size: const Size(1000, 900));
     emitPlayingSession(gateway);
     await tester.pump();

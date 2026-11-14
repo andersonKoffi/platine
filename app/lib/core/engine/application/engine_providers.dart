@@ -17,10 +17,7 @@ EngineGateway engineGateway(Ref ref) => FrbEngineGateway();
 class SessionStore extends _$SessionStore {
   @override
   SessionState build() {
-    final subscription = ref
-        .watch(engineGatewayProvider)
-        .events
-        .listen(_apply);
+    final subscription = ref.watch(engineGatewayProvider).events.listen(_apply);
     ref.onDispose(() => unawaited(subscription.cancel()));
     return const SessionState();
   }

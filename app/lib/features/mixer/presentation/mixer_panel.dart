@@ -17,7 +17,9 @@ class MixerPanel extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final tokens = context.tokens;
     final master = ref.watch(masterGainProvider);
-    final level = ref.watch(sessionStoreProvider.select((s) => s.levels.master));
+    final level = ref.watch(
+      sessionStoreProvider.select((s) => s.levels.master),
+    );
     return GlassPanel(
       child: Column(
         children: [
@@ -127,10 +129,7 @@ class _CrossfaderState extends ConsumerState<Crossfader>
                 ),
                 child: Semantics(
                   label: 'Crossfader',
-                  child: Slider(
-                    value: value,
-                    onChanged: controller.move,
-                  ),
+                  child: Slider(value: value, onChanged: controller.move),
                 ),
               ),
             ),
@@ -167,9 +166,8 @@ class _SideLabel extends StatelessWidget {
           child: Center(
             child: Text(
               side.label,
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                color: color,
-              ),
+              style: Theme.of(context).textTheme.titleMedium
+                  ?.copyWith(color: color),
             ),
           ),
         ),

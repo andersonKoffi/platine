@@ -3,17 +3,18 @@ import 'package:platine/core/design_system/tokens.dart';
 
 /// Builds the app theme from the design tokens.
 ThemeData buildPlatineTheme([PlatineTokens tokens = PlatineTokens.neon]) {
-  final scheme = ColorScheme.fromSeed(
-    seedColor: tokens.neonViolet,
-    brightness: Brightness.dark,
-  ).copyWith(
-    primary: tokens.neonCyan,
-    secondary: tokens.neonMagenta,
-    tertiary: tokens.neonViolet,
-    surface: tokens.surface,
-    onSurface: tokens.textPrimary,
-    error: tokens.danger,
-  );
+  final scheme =
+      ColorScheme.fromSeed(
+        seedColor: tokens.neonViolet,
+        brightness: Brightness.dark,
+      ).copyWith(
+        primary: tokens.neonCyan,
+        secondary: tokens.neonMagenta,
+        tertiary: tokens.neonViolet,
+        surface: tokens.surface,
+        onSurface: tokens.textPrimary,
+        error: tokens.danger,
+      );
   final base = ThemeData(
     colorScheme: scheme,
     scaffoldBackgroundColor: tokens.background,

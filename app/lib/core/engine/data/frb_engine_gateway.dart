@@ -150,11 +150,13 @@ EngineEvent mapUpdate(rust.EngineUpdate update) {
         master: _peak(field0.master),
       ),
     ),
-    rust.EngineUpdate_AutoMixChanged(:final state, :final status) =>
-      _autoMix(state, status),
-    rust.EngineUpdate_QueueChanged(:final upcoming) => QueueChanged(
-      [for (final id in upcoming) id.toInt()],
+    rust.EngineUpdate_AutoMixChanged(:final state, :final status) => _autoMix(
+      state,
+      status,
     ),
+    rust.EngineUpdate_QueueChanged(:final upcoming) => QueueChanged([
+      for (final id in upcoming) id.toInt(),
+    ]),
     rust.EngineUpdate_TransitionStarted(:final from, :final to) =>
       TransitionStarted(from: _side(from), to: _side(to)),
     rust.EngineUpdate_TransitionCompleted(:final from, :final to) =>
@@ -210,10 +212,10 @@ TrackInfo _track(rust.TrackDto track) => TrackInfo(
 double _peak(List<double> stereo) =>
     stereo.fold<double>(0, (peak, value) => value > peak ? value : peak);
 
-DeckSide _side(rust.Deck deck) =>
-    deck == rust.Deck.a ? DeckSide.a : DeckSide.b;
+DeckSide _side(rust.Deck deck) => deck == rust.Deck.a ? DeckSide.a : DeckSide.b;
 
-rust.Deck _deck(DeckSide side) => side == DeckSide.a ? rust.Deck.a : rust.Deck.b;
+rust.Deck _deck(DeckSide side) =>
+    side == DeckSide.a ? rust.Deck.a : rust.Deck.b;
 
 rust.CurveKind _curve(CrossfadeCurveType curve) => switch (curve) {
   CrossfadeCurveType.equalPower => rust.CurveKind.equalPower,

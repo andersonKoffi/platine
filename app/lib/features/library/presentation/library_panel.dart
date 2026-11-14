@@ -40,7 +40,9 @@ class _LibraryToolbar extends ConsumerWidget {
     final tokens = context.tokens;
     final query = ref.watch(libraryQueryControllerProvider);
     final controller = ref.read(libraryQueryControllerProvider.notifier);
-    final count = ref.watch(sessionStoreProvider.select((s) => s.library.length));
+    final count = ref.watch(
+      sessionStoreProvider.select((s) => s.library.length),
+    );
     return Row(
       children: [
         Expanded(
@@ -244,10 +246,7 @@ class _QueueList extends ConsumerWidget {
         return ListTile(
           key: ValueKey(id),
           dense: true,
-          leading: Text(
-            '${index + 1}',
-            style: counterStyle(context, size: 14),
-          ),
+          leading: Text('${index + 1}', style: counterStyle(context, size: 14)),
           title: Text(title, maxLines: 1, overflow: TextOverflow.ellipsis),
           trailing: ReorderableDragStartListener(
             index: index,

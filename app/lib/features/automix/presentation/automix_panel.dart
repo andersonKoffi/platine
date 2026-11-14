@@ -72,10 +72,8 @@ class _AutoMixSwitch extends StatelessWidget {
           shaderCallback: tokens.neonGradient.createShader,
           child: Text(
             'AUTO-MIX',
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-              color: Colors.white,
-              letterSpacing: 2,
-            ),
+            style: Theme.of(context).textTheme.titleMedium
+                ?.copyWith(color: Colors.white, letterSpacing: 2),
           ),
         ),
         SizedBox(width: tokens.space2),
@@ -188,7 +186,10 @@ class _CurvePicker extends StatelessWidget {
           value: CrossfadeCurveType.equalPower,
           label: Text('Equal-power'),
         ),
-        ButtonSegment(value: CrossfadeCurveType.linear, label: Text('Linéaire')),
+        ButtonSegment(
+          value: CrossfadeCurveType.linear,
+          label: Text('Linéaire'),
+        ),
         ButtonSegment(value: CrossfadeCurveType.cut, label: Text('Cut')),
       ],
       selected: {curve},

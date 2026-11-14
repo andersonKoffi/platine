@@ -292,9 +292,7 @@ class _Transport extends ConsumerWidget {
           color: accent,
           size: 72,
           active: deck.playing,
-          onPressed: enabled
-              ? () => unawaited(gateway.togglePlay(side))
-              : null,
+          onPressed: enabled ? () => unawaited(gateway.togglePlay(side)) : null,
         ),
       ],
     );
@@ -378,9 +376,8 @@ class _VerticalFader extends StatelessWidget {
               child: Semantics(
                 label: semantics,
                 child: SliderTheme(
-                  data: SliderTheme.of(context).copyWith(
-                    activeTrackColor: color,
-                  ),
+                  data: SliderTheme.of(context)
+                      .copyWith(activeTrackColor: color),
                   child: Slider(
                     value: value,
                     max: DeckControls.maxLevel,

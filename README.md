@@ -2,9 +2,10 @@
 
 A beautiful, fun DJ app for macOS (Apple Silicon and Intel). Flutter UI, Rust real-time audio engine.
 
-> Status: **P3 — auto-mix wired**. A session scans a folder, analyses silences, loads
-> both decks and auto-mixes them on the sound card (ADRs 0004, 0005, 0007). The Flutter API
-> (`dj_api::api::mix`) is generated; the real UI arrives in P4.
+> Status: **P4 — UI MVP**. Neon dark theme, animated vinyl decks, mixer (crossfader,
+> 3-band kill EQ, VU meters), auto-mix panel, searchable library with drag-to-reorder
+> queue, Finder drag and drop, keyboard shortcuts (press `?`). See ADR 0008.
+> Next: P5 (BPM, waveforms, SQLite cache, pitch/keylock).
 
 ## Repository layout
 

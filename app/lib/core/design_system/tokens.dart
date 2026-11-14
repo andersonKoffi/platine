@@ -114,13 +114,11 @@ class PlatineTokens extends ThemeExtension<PlatineTokens> {
   final double minTouchTarget;
 
   /// Accent of each deck: cyan for A, magenta for B.
-  Color deckColor({required bool isDeckA}) =>
-      isDeckA ? neonCyan : neonMagenta;
+  Color deckColor({required bool isDeckA}) => isDeckA ? neonCyan : neonMagenta;
 
   /// Signature gradient (magenta → violet → cyan).
-  LinearGradient get neonGradient => LinearGradient(
-    colors: [neonMagenta, neonViolet, neonCyan],
-  );
+  LinearGradient get neonGradient =>
+      LinearGradient(colors: [neonMagenta, neonViolet, neonCyan]);
 
   @override
   PlatineTokens copyWith({Color? neonMagenta, Color? neonCyan}) {

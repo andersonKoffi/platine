@@ -140,9 +140,8 @@ class SessionState {
     return upcoming.isEmpty ? null : upcoming.first;
   }
 
-  SessionState withDeck(DeckSide side, DeckState deck) => side == DeckSide.a
-      ? copyWith(deckA: deck)
-      : copyWith(deckB: deck);
+  SessionState withDeck(DeckSide side, DeckState deck) =>
+      side == DeckSide.a ? copyWith(deckA: deck) : copyWith(deckB: deck);
 
   SessionState copyWith({
     List<TrackInfo>? library,
@@ -221,10 +220,11 @@ SessionState reduceSession(
               positionUpdatedAt: now,
             ),
       ),
-    LevelsChanged(:final levels) => state
-        .copyWith(levels: levels)
-        .withDeck(DeckSide.a, state.deckA.copyWith(level: levels.deckA))
-        .withDeck(DeckSide.b, state.deckB.copyWith(level: levels.deckB)),
+    LevelsChanged(:final levels) =>
+      state
+          .copyWith(levels: levels)
+          .withDeck(DeckSide.a, state.deckA.copyWith(level: levels.deckA))
+          .withDeck(DeckSide.b, state.deckB.copyWith(level: levels.deckB)),
     final AutoMixChanged changed => _autoMixChanged(state, changed),
     QueueChanged(:final upcoming) => state.copyWith(upcoming: upcoming),
     TransitionStarted(:final from, :final to) => state.copyWith(

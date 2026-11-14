@@ -70,8 +70,7 @@ class _PlatineShellState extends ConsumerState<PlatineShell>
             child: const Text('Annuler'),
           ),
           TextButton(
-            onPressed: () =>
-                Navigator.of(context).pop(FolderLoadMode.replace),
+            onPressed: () => Navigator.of(context).pop(FolderLoadMode.replace),
             child: const Text('Remplacer la file'),
           ),
           FilledButton(
@@ -189,10 +188,8 @@ class _PlatineShellState extends ConsumerState<PlatineShell>
                     child: IgnorePointer(
                       child: AnimatedBuilder(
                         animation: _celebration,
-                        builder: (context, _) => _Celebration(
-                          t: _celebration.value,
-                          tokens: tokens,
-                        ),
+                        builder: (context, _) =>
+                            _Celebration(t: _celebration.value, tokens: tokens),
                       ),
                     ),
                   ),
@@ -218,9 +215,8 @@ class _Header extends StatelessWidget {
           shaderCallback: tokens.neonGradient.createShader,
           child: Text(
             'Platine',
-            style: Theme.of(context).textTheme.displaySmall?.copyWith(
-              color: Colors.white,
-            ),
+            style: Theme.of(context).textTheme.displaySmall
+                ?.copyWith(color: Colors.white),
           ),
         ),
         const Spacer(),

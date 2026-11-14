@@ -5,249 +5,386 @@
 
 import 'api/diagnostics.dart';
 import 'api/mix.dart';
+
 import 'dart:async';
 import 'dart:convert';
 import 'dart:ffi' as ffi;
+
 import 'frb_generated.dart';
 import 'lib.dart';
+
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated_io.dart';
 
+abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
+  RustLibApiImplPlatform({
+    required super.handler,
+    required super.wire,
+    required super.generalizedFrbRustBinding,
+    required super.portManager,
+  });
 
+  @protected
+  AnyhowException dco_decode_AnyhowException(dynamic raw);
 
+  @protected
+  RustStreamSink<EngineUpdate> dco_decode_StreamSink_engine_update_Sse(
+    dynamic raw,
+  );
 
-                abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
-                  RustLibApiImplPlatform({
-                    required super.handler,
-                    required super.wire,
-                    required super.generalizedFrbRustBinding,
-                    required super.portManager,
-                  });
+  @protected
+  String dco_decode_String(dynamic raw);
 
-                  
+  @protected
+  AutoMixStateDto dco_decode_auto_mix_state_dto(dynamic raw);
 
-                  @protected AnyhowException dco_decode_AnyhowException(dynamic raw);
+  @protected
+  AutoMixStatusDto dco_decode_auto_mix_status_dto(dynamic raw);
 
-@protected RustStreamSink<EngineUpdate> dco_decode_StreamSink_engine_update_Sse(dynamic raw);
+  @protected
+  Band dco_decode_band(dynamic raw);
 
-@protected String dco_decode_String(dynamic raw);
+  @protected
+  bool dco_decode_bool(dynamic raw);
 
-@protected AutoMixStateDto dco_decode_auto_mix_state_dto(dynamic raw);
+  @protected
+  AutoMixStateDto dco_decode_box_autoadd_auto_mix_state_dto(dynamic raw);
 
-@protected AutoMixStatusDto dco_decode_auto_mix_status_dto(dynamic raw);
+  @protected
+  LevelsDto dco_decode_box_autoadd_levels_dto(dynamic raw);
 
-@protected Band dco_decode_band(dynamic raw);
+  @protected
+  SessionConfig dco_decode_box_autoadd_session_config(dynamic raw);
 
-@protected bool dco_decode_bool(dynamic raw);
+  @protected
+  CurveKind dco_decode_curve_kind(dynamic raw);
 
-@protected AutoMixStateDto dco_decode_box_autoadd_auto_mix_state_dto(dynamic raw);
+  @protected
+  Deck dco_decode_deck(dynamic raw);
 
-@protected LevelsDto dco_decode_box_autoadd_levels_dto(dynamic raw);
+  @protected
+  EngineUpdate dco_decode_engine_update(dynamic raw);
 
-@protected SessionConfig dco_decode_box_autoadd_session_config(dynamic raw);
+  @protected
+  double dco_decode_f_32(dynamic raw);
 
-@protected CurveKind dco_decode_curve_kind(dynamic raw);
+  @protected
+  F32Array2 dco_decode_f_32_array_2(dynamic raw);
 
-@protected Deck dco_decode_deck(dynamic raw);
+  @protected
+  double dco_decode_f_64(dynamic raw);
 
-@protected EngineUpdate dco_decode_engine_update(dynamic raw);
+  @protected
+  FolderMode dco_decode_folder_mode(dynamic raw);
 
-@protected double dco_decode_f_32(dynamic raw);
+  @protected
+  int dco_decode_i_32(dynamic raw);
 
-@protected F32Array2 dco_decode_f_32_array_2(dynamic raw);
+  @protected
+  LevelsDto dco_decode_levels_dto(dynamic raw);
 
-@protected double dco_decode_f_64(dynamic raw);
+  @protected
+  Float32List dco_decode_list_prim_f_32_strict(dynamic raw);
 
-@protected FolderMode dco_decode_folder_mode(dynamic raw);
+  @protected
+  Uint64List dco_decode_list_prim_u_64_strict(dynamic raw);
 
-@protected int dco_decode_i_32(dynamic raw);
+  @protected
+  Uint8List dco_decode_list_prim_u_8_strict(dynamic raw);
 
-@protected LevelsDto dco_decode_levels_dto(dynamic raw);
+  @protected
+  List<SkippedDto> dco_decode_list_skipped_dto(dynamic raw);
 
-@protected Float32List dco_decode_list_prim_f_32_strict(dynamic raw);
+  @protected
+  List<TrackDto> dco_decode_list_track_dto(dynamic raw);
 
-@protected Uint64List dco_decode_list_prim_u_64_strict(dynamic raw);
+  @protected
+  NativeVersions dco_decode_native_versions(dynamic raw);
 
-@protected Uint8List dco_decode_list_prim_u_8_strict(dynamic raw);
+  @protected
+  String? dco_decode_opt_String(dynamic raw);
 
-@protected List<SkippedDto> dco_decode_list_skipped_dto(dynamic raw);
+  @protected
+  ScanResultDto dco_decode_scan_result_dto(dynamic raw);
 
-@protected List<TrackDto> dco_decode_list_track_dto(dynamic raw);
+  @protected
+  SessionConfig dco_decode_session_config(dynamic raw);
 
-@protected NativeVersions dco_decode_native_versions(dynamic raw);
+  @protected
+  SkippedDto dco_decode_skipped_dto(dynamic raw);
 
-@protected String? dco_decode_opt_String(dynamic raw);
+  @protected
+  TrackDto dco_decode_track_dto(dynamic raw);
 
-@protected ScanResultDto dco_decode_scan_result_dto(dynamic raw);
+  @protected
+  int dco_decode_u_32(dynamic raw);
 
-@protected SessionConfig dco_decode_session_config(dynamic raw);
+  @protected
+  BigInt dco_decode_u_64(dynamic raw);
 
-@protected SkippedDto dco_decode_skipped_dto(dynamic raw);
+  @protected
+  int dco_decode_u_8(dynamic raw);
 
-@protected TrackDto dco_decode_track_dto(dynamic raw);
+  @protected
+  void dco_decode_unit(dynamic raw);
 
-@protected int dco_decode_u_32(dynamic raw);
+  @protected
+  AnyhowException sse_decode_AnyhowException(SseDeserializer deserializer);
 
-@protected BigInt dco_decode_u_64(dynamic raw);
+  @protected
+  RustStreamSink<EngineUpdate> sse_decode_StreamSink_engine_update_Sse(
+    SseDeserializer deserializer,
+  );
 
-@protected int dco_decode_u_8(dynamic raw);
+  @protected
+  String sse_decode_String(SseDeserializer deserializer);
 
-@protected void dco_decode_unit(dynamic raw);
+  @protected
+  AutoMixStateDto sse_decode_auto_mix_state_dto(SseDeserializer deserializer);
 
-@protected AnyhowException sse_decode_AnyhowException(SseDeserializer deserializer);
+  @protected
+  AutoMixStatusDto sse_decode_auto_mix_status_dto(SseDeserializer deserializer);
 
-@protected RustStreamSink<EngineUpdate> sse_decode_StreamSink_engine_update_Sse(SseDeserializer deserializer);
+  @protected
+  Band sse_decode_band(SseDeserializer deserializer);
 
-@protected String sse_decode_String(SseDeserializer deserializer);
+  @protected
+  bool sse_decode_bool(SseDeserializer deserializer);
 
-@protected AutoMixStateDto sse_decode_auto_mix_state_dto(SseDeserializer deserializer);
+  @protected
+  AutoMixStateDto sse_decode_box_autoadd_auto_mix_state_dto(
+    SseDeserializer deserializer,
+  );
 
-@protected AutoMixStatusDto sse_decode_auto_mix_status_dto(SseDeserializer deserializer);
+  @protected
+  LevelsDto sse_decode_box_autoadd_levels_dto(SseDeserializer deserializer);
 
-@protected Band sse_decode_band(SseDeserializer deserializer);
+  @protected
+  SessionConfig sse_decode_box_autoadd_session_config(
+    SseDeserializer deserializer,
+  );
 
-@protected bool sse_decode_bool(SseDeserializer deserializer);
+  @protected
+  CurveKind sse_decode_curve_kind(SseDeserializer deserializer);
 
-@protected AutoMixStateDto sse_decode_box_autoadd_auto_mix_state_dto(SseDeserializer deserializer);
+  @protected
+  Deck sse_decode_deck(SseDeserializer deserializer);
 
-@protected LevelsDto sse_decode_box_autoadd_levels_dto(SseDeserializer deserializer);
+  @protected
+  EngineUpdate sse_decode_engine_update(SseDeserializer deserializer);
 
-@protected SessionConfig sse_decode_box_autoadd_session_config(SseDeserializer deserializer);
+  @protected
+  double sse_decode_f_32(SseDeserializer deserializer);
 
-@protected CurveKind sse_decode_curve_kind(SseDeserializer deserializer);
+  @protected
+  F32Array2 sse_decode_f_32_array_2(SseDeserializer deserializer);
 
-@protected Deck sse_decode_deck(SseDeserializer deserializer);
+  @protected
+  double sse_decode_f_64(SseDeserializer deserializer);
 
-@protected EngineUpdate sse_decode_engine_update(SseDeserializer deserializer);
+  @protected
+  FolderMode sse_decode_folder_mode(SseDeserializer deserializer);
 
-@protected double sse_decode_f_32(SseDeserializer deserializer);
+  @protected
+  int sse_decode_i_32(SseDeserializer deserializer);
 
-@protected F32Array2 sse_decode_f_32_array_2(SseDeserializer deserializer);
+  @protected
+  LevelsDto sse_decode_levels_dto(SseDeserializer deserializer);
 
-@protected double sse_decode_f_64(SseDeserializer deserializer);
+  @protected
+  Float32List sse_decode_list_prim_f_32_strict(SseDeserializer deserializer);
 
-@protected FolderMode sse_decode_folder_mode(SseDeserializer deserializer);
+  @protected
+  Uint64List sse_decode_list_prim_u_64_strict(SseDeserializer deserializer);
 
-@protected int sse_decode_i_32(SseDeserializer deserializer);
+  @protected
+  Uint8List sse_decode_list_prim_u_8_strict(SseDeserializer deserializer);
 
-@protected LevelsDto sse_decode_levels_dto(SseDeserializer deserializer);
+  @protected
+  List<SkippedDto> sse_decode_list_skipped_dto(SseDeserializer deserializer);
 
-@protected Float32List sse_decode_list_prim_f_32_strict(SseDeserializer deserializer);
+  @protected
+  List<TrackDto> sse_decode_list_track_dto(SseDeserializer deserializer);
 
-@protected Uint64List sse_decode_list_prim_u_64_strict(SseDeserializer deserializer);
+  @protected
+  NativeVersions sse_decode_native_versions(SseDeserializer deserializer);
 
-@protected Uint8List sse_decode_list_prim_u_8_strict(SseDeserializer deserializer);
+  @protected
+  String? sse_decode_opt_String(SseDeserializer deserializer);
 
-@protected List<SkippedDto> sse_decode_list_skipped_dto(SseDeserializer deserializer);
+  @protected
+  ScanResultDto sse_decode_scan_result_dto(SseDeserializer deserializer);
 
-@protected List<TrackDto> sse_decode_list_track_dto(SseDeserializer deserializer);
+  @protected
+  SessionConfig sse_decode_session_config(SseDeserializer deserializer);
 
-@protected NativeVersions sse_decode_native_versions(SseDeserializer deserializer);
+  @protected
+  SkippedDto sse_decode_skipped_dto(SseDeserializer deserializer);
 
-@protected String? sse_decode_opt_String(SseDeserializer deserializer);
+  @protected
+  TrackDto sse_decode_track_dto(SseDeserializer deserializer);
 
-@protected ScanResultDto sse_decode_scan_result_dto(SseDeserializer deserializer);
+  @protected
+  int sse_decode_u_32(SseDeserializer deserializer);
 
-@protected SessionConfig sse_decode_session_config(SseDeserializer deserializer);
+  @protected
+  BigInt sse_decode_u_64(SseDeserializer deserializer);
 
-@protected SkippedDto sse_decode_skipped_dto(SseDeserializer deserializer);
+  @protected
+  int sse_decode_u_8(SseDeserializer deserializer);
 
-@protected TrackDto sse_decode_track_dto(SseDeserializer deserializer);
+  @protected
+  void sse_decode_unit(SseDeserializer deserializer);
 
-@protected int sse_decode_u_32(SseDeserializer deserializer);
+  @protected
+  void sse_encode_AnyhowException(
+    AnyhowException self,
+    SseSerializer serializer,
+  );
 
-@protected BigInt sse_decode_u_64(SseDeserializer deserializer);
+  @protected
+  void sse_encode_StreamSink_engine_update_Sse(
+    RustStreamSink<EngineUpdate> self,
+    SseSerializer serializer,
+  );
 
-@protected int sse_decode_u_8(SseDeserializer deserializer);
+  @protected
+  void sse_encode_String(String self, SseSerializer serializer);
 
-@protected void sse_decode_unit(SseDeserializer deserializer);
+  @protected
+  void sse_encode_auto_mix_state_dto(
+    AutoMixStateDto self,
+    SseSerializer serializer,
+  );
 
-@protected void sse_encode_AnyhowException(AnyhowException self, SseSerializer serializer);
+  @protected
+  void sse_encode_auto_mix_status_dto(
+    AutoMixStatusDto self,
+    SseSerializer serializer,
+  );
 
-@protected void sse_encode_StreamSink_engine_update_Sse(RustStreamSink<EngineUpdate> self, SseSerializer serializer);
+  @protected
+  void sse_encode_band(Band self, SseSerializer serializer);
 
-@protected void sse_encode_String(String self, SseSerializer serializer);
+  @protected
+  void sse_encode_bool(bool self, SseSerializer serializer);
 
-@protected void sse_encode_auto_mix_state_dto(AutoMixStateDto self, SseSerializer serializer);
+  @protected
+  void sse_encode_box_autoadd_auto_mix_state_dto(
+    AutoMixStateDto self,
+    SseSerializer serializer,
+  );
 
-@protected void sse_encode_auto_mix_status_dto(AutoMixStatusDto self, SseSerializer serializer);
+  @protected
+  void sse_encode_box_autoadd_levels_dto(
+    LevelsDto self,
+    SseSerializer serializer,
+  );
 
-@protected void sse_encode_band(Band self, SseSerializer serializer);
+  @protected
+  void sse_encode_box_autoadd_session_config(
+    SessionConfig self,
+    SseSerializer serializer,
+  );
 
-@protected void sse_encode_bool(bool self, SseSerializer serializer);
+  @protected
+  void sse_encode_curve_kind(CurveKind self, SseSerializer serializer);
 
-@protected void sse_encode_box_autoadd_auto_mix_state_dto(AutoMixStateDto self, SseSerializer serializer);
+  @protected
+  void sse_encode_deck(Deck self, SseSerializer serializer);
 
-@protected void sse_encode_box_autoadd_levels_dto(LevelsDto self, SseSerializer serializer);
+  @protected
+  void sse_encode_engine_update(EngineUpdate self, SseSerializer serializer);
 
-@protected void sse_encode_box_autoadd_session_config(SessionConfig self, SseSerializer serializer);
+  @protected
+  void sse_encode_f_32(double self, SseSerializer serializer);
 
-@protected void sse_encode_curve_kind(CurveKind self, SseSerializer serializer);
+  @protected
+  void sse_encode_f_32_array_2(F32Array2 self, SseSerializer serializer);
 
-@protected void sse_encode_deck(Deck self, SseSerializer serializer);
+  @protected
+  void sse_encode_f_64(double self, SseSerializer serializer);
 
-@protected void sse_encode_engine_update(EngineUpdate self, SseSerializer serializer);
+  @protected
+  void sse_encode_folder_mode(FolderMode self, SseSerializer serializer);
 
-@protected void sse_encode_f_32(double self, SseSerializer serializer);
+  @protected
+  void sse_encode_i_32(int self, SseSerializer serializer);
 
-@protected void sse_encode_f_32_array_2(F32Array2 self, SseSerializer serializer);
+  @protected
+  void sse_encode_levels_dto(LevelsDto self, SseSerializer serializer);
 
-@protected void sse_encode_f_64(double self, SseSerializer serializer);
+  @protected
+  void sse_encode_list_prim_f_32_strict(
+    Float32List self,
+    SseSerializer serializer,
+  );
 
-@protected void sse_encode_folder_mode(FolderMode self, SseSerializer serializer);
+  @protected
+  void sse_encode_list_prim_u_64_strict(
+    Uint64List self,
+    SseSerializer serializer,
+  );
 
-@protected void sse_encode_i_32(int self, SseSerializer serializer);
+  @protected
+  void sse_encode_list_prim_u_8_strict(
+    Uint8List self,
+    SseSerializer serializer,
+  );
 
-@protected void sse_encode_levels_dto(LevelsDto self, SseSerializer serializer);
+  @protected
+  void sse_encode_list_skipped_dto(
+    List<SkippedDto> self,
+    SseSerializer serializer,
+  );
 
-@protected void sse_encode_list_prim_f_32_strict(Float32List self, SseSerializer serializer);
+  @protected
+  void sse_encode_list_track_dto(List<TrackDto> self, SseSerializer serializer);
 
-@protected void sse_encode_list_prim_u_64_strict(Uint64List self, SseSerializer serializer);
+  @protected
+  void sse_encode_native_versions(
+    NativeVersions self,
+    SseSerializer serializer,
+  );
 
-@protected void sse_encode_list_prim_u_8_strict(Uint8List self, SseSerializer serializer);
+  @protected
+  void sse_encode_opt_String(String? self, SseSerializer serializer);
 
-@protected void sse_encode_list_skipped_dto(List<SkippedDto> self, SseSerializer serializer);
+  @protected
+  void sse_encode_scan_result_dto(ScanResultDto self, SseSerializer serializer);
 
-@protected void sse_encode_list_track_dto(List<TrackDto> self, SseSerializer serializer);
+  @protected
+  void sse_encode_session_config(SessionConfig self, SseSerializer serializer);
 
-@protected void sse_encode_native_versions(NativeVersions self, SseSerializer serializer);
+  @protected
+  void sse_encode_skipped_dto(SkippedDto self, SseSerializer serializer);
 
-@protected void sse_encode_opt_String(String? self, SseSerializer serializer);
+  @protected
+  void sse_encode_track_dto(TrackDto self, SseSerializer serializer);
 
-@protected void sse_encode_scan_result_dto(ScanResultDto self, SseSerializer serializer);
+  @protected
+  void sse_encode_u_32(int self, SseSerializer serializer);
 
-@protected void sse_encode_session_config(SessionConfig self, SseSerializer serializer);
+  @protected
+  void sse_encode_u_64(BigInt self, SseSerializer serializer);
 
-@protected void sse_encode_skipped_dto(SkippedDto self, SseSerializer serializer);
+  @protected
+  void sse_encode_u_8(int self, SseSerializer serializer);
 
-@protected void sse_encode_track_dto(TrackDto self, SseSerializer serializer);
-
-@protected void sse_encode_u_32(int self, SseSerializer serializer);
-
-@protected void sse_encode_u_64(BigInt self, SseSerializer serializer);
-
-@protected void sse_encode_u_8(int self, SseSerializer serializer);
-
-@protected void sse_encode_unit(void self, SseSerializer serializer);
-                }
-                
-
+  @protected
+  void sse_encode_unit(void self, SseSerializer serializer);
+}
 
 // Section: wire_class
 
+class RustLibWire implements BaseWire {
+  factory RustLibWire.fromExternalLibrary(ExternalLibrary lib) =>
+      RustLibWire(lib.ffiDynamicLibrary);
 
-        class RustLibWire implements BaseWire {
+  /// Holds the symbol lookup function.
+  final ffi.Pointer<T> Function<T extends ffi.NativeType>(String symbolName)
+  _lookup;
 
-            factory RustLibWire.fromExternalLibrary(ExternalLibrary lib) =>
-              RustLibWire(lib.ffiDynamicLibrary);
-        
-            /// Holds the symbol lookup function.
-            final ffi.Pointer<T> Function<T extends ffi.NativeType>(String symbolName)
-                _lookup;
-  
-            /// The symbols are looked up in [dynamicLibrary].
-            RustLibWire(ffi.DynamicLibrary dynamicLibrary)
-                : _lookup = dynamicLibrary.lookup;
-
-            
-        }
-        
+  /// The symbols are looked up in [dynamicLibrary].
+  RustLibWire(ffi.DynamicLibrary dynamicLibrary)
+    : _lookup = dynamicLibrary.lookup;
+}

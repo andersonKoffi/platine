@@ -26,7 +26,8 @@ class LibraryQueryController extends _$LibraryQueryController {
   @override
   LibraryQuery build() => const LibraryQuery();
 
-  void search(String text) => state = LibraryQuery(text: text, sort: state.sort);
+  void search(String text) =>
+      state = LibraryQuery(text: text, sort: state.sort);
 
   void sortBy(LibrarySort sort) =>
       state = LibraryQuery(text: state.text, sort: sort);

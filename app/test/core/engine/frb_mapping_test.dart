@@ -13,9 +13,7 @@ void main() {
   test('library and deck updates map to domain events', () {
     final library = mapUpdate(
       rust.EngineUpdate.libraryChanged(
-        tracks: [
-          rust.TrackDto(id: BigInt.one, path: '/a.mp3', title: 'A'),
-        ],
+        tracks: [rust.TrackDto(id: BigInt.one, path: '/a.mp3', title: 'A')],
       ),
     );
     expect(library, isA<LibraryChanged>());

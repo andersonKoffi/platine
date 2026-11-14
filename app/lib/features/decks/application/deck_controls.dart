@@ -24,9 +24,24 @@ class DeckControls {
   };
 
   DeckControls withBand(EqBandType band, double value) => switch (band) {
-    EqBandType.low => DeckControls(gain: gain, low: value, mid: mid, high: high),
-    EqBandType.mid => DeckControls(gain: gain, low: low, mid: value, high: high),
-    EqBandType.high => DeckControls(gain: gain, low: low, mid: mid, high: value),
+    EqBandType.low => DeckControls(
+      gain: gain,
+      low: value,
+      mid: mid,
+      high: high,
+    ),
+    EqBandType.mid => DeckControls(
+      gain: gain,
+      low: low,
+      mid: value,
+      high: high,
+    ),
+    EqBandType.high => DeckControls(
+      gain: gain,
+      low: low,
+      mid: mid,
+      high: value,
+    ),
   };
 
   DeckControls withGain(double value) =>

@@ -174,9 +174,8 @@ class _VinylPainter extends CustomPainter {
         Offset.zero,
         radius * 0.36,
         Paint()
-          ..shader = SweepGradient(
-            colors: [...cover, cover.first],
-          ).createShader(labelRect),
+          ..shader = SweepGradient(colors: [...cover, cover.first])
+              .createShader(labelRect),
       )
       ..drawCircle(
         Offset(radius * 0.22, 0),
