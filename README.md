@@ -2,10 +2,10 @@
 
 A beautiful, fun DJ app for macOS (Apple Silicon and Intel). Flutter UI, Rust real-time audio engine.
 
-> Status: **P4 — UI MVP**. Neon dark theme, animated vinyl decks, mixer (crossfader,
-> 3-band kill EQ, VU meters), auto-mix panel, searchable library with drag-to-reorder
-> queue, Finder drag and drop, keyboard shortcuts (press `?`). See ADR 0008.
-> Next: P5 (BPM, waveforms, SQLite cache, pitch/keylock).
+> Status: **P5 — tempo and speed**. BPM detection with a beat grid, SQLite analysis
+> cache, "mix now", pitch faders (±8/16/50 %), keylock (Signalsmith Stretch) and SYNC, on top
+> of the P4 interface (decks, mixer, library, drag and drop). See ADRs 0009 and 0010.
+> Next: P6 (polish, accessibility, persistent folder access, licenses screen).
 
 ## Repository layout
 
