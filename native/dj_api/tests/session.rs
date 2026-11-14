@@ -521,7 +521,7 @@ fn mix_now_starts_the_fade_right_away() {
     h.load_folder(&dir.0, LoadMode::Replace).unwrap();
     // Let deck A play for two seconds.
     h.run_until(2.0, |_| false);
-    assert!(h.transitions().is_empty());
+    assert_eq!(h.transitions(), Vec::new());
     let pressed_at = h.audio.len() as f64 / f64::from(RATE);
     h.controller.handle(SessionCommand::MixNow);
     h.run_until(2.0, |_| false);
