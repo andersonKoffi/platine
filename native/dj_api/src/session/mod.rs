@@ -13,7 +13,9 @@ use crossbeam_channel::{Receiver, Sender, select, unbounded};
 use dj_domain::DeckId;
 use dj_domain::ports::{AudioOutput, OutputError, RandomSource, RenderCallback};
 use dj_engine::{Engine, EngineConfig};
-use dj_infra::{DeckLoader, SilenceAnalyzer, SymphoniaDecoder};
+use dj_infra::{
+    CachedAnalyzer, DeckLoader, SilenceAnalyzer, SqliteAnalysisCache, SymphoniaDecoder,
+};
 
 pub use controller::{Controller, SessionSettings};
 
@@ -59,6 +61,8 @@ pub fn build<R: RandomSource>(
 ///
 /// # Errors
 /// Returns an error if a worker thread cannot be spawned.
+// Settings are taken by value: callers hand them over to the session.
+#[allow(clippy::needless_pass_by_value)]
 pub fn build_with_config<R: RandomSource>(
     config: EngineConfig,
     channels: u16,
@@ -72,8 +76,15 @@ pub fn build_with_config<R: RandomSource>(
         DeckLoader::spawn(DeckId::A, SymphoniaDecoder, feed_a, rate, loader_tx.clone())?,
         DeckLoader::spawn(DeckId::B, SymphoniaDecoder, feed_b, rate, loader_tx)?,
     ];
-    let (analysis, analysis_events) =
-        AnalysisWorker::spawn(SilenceAnalyzer::new(SymphoniaDecoder))?;
+    // The cache is an optimisation: a broken database just means no cache.
+    let cache = settings
+        .analysis_cache
+        .as_deref()
+        .and_then(|path| SqliteAnalysisCache::open(path).ok());
+    let (analysis, analysis_events) = AnalysisWorker::spawn(CachedAnalyzer::new(
+        SilenceAnalyzer::new(SymphoniaDecoder),
+        cache,
+    ))?;
     let (events_tx, events) = unbounded();
     let controller = Controller::new(
         ControllerParts {
@@ -85,7 +96,7 @@ pub fn build_with_config<R: RandomSource>(
             rng,
             events: events_tx,
         },
-        settings,
+        &settings,
     );
     Ok(SessionParts {
         controller,

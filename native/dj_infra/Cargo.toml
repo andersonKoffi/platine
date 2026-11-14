@@ -12,6 +12,8 @@ dj_domain.workspace = true
 dj_engine.workspace = true
 cpal.workspace = true
 crossbeam-channel.workspace = true
+dirs.workspace = true
+rusqlite.workspace = true
 rubato.workspace = true
 rtrb.workspace = true
 symphonia = { workspace = true, features = ["aac", "adpcm", "aiff", "alac", "flac", "isomp4", "mp3", "ogg", "pcm", "vorbis", "wav"] }

@@ -22,6 +22,7 @@
 )]
 
 pub mod analysis;
+pub mod cache;
 pub mod decode;
 pub mod loader;
 pub mod output;
@@ -30,6 +31,7 @@ pub mod resample;
 pub mod scan;
 
 pub use analysis::SilenceAnalyzer;
+pub use cache::{CachedAnalyzer, SqliteAnalysisCache};
 pub use decode::{SymphoniaDecoder, SymphoniaStream};
 pub use loader::{DeckLoader, LoadedTrackInfo, LoaderEvent, LoaderRequest};
 pub use output::CpalOutput;

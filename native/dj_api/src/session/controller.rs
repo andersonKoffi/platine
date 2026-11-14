@@ -3,7 +3,7 @@
 //! (never the audio thread).
 
 use std::collections::HashMap;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use std::time::{Duration, Instant};
 
 use crossbeam_channel::{Receiver, Sender};
@@ -19,7 +19,7 @@ use super::analysis_worker::{AnalysisJob, AnalysisOutcome, AnalysisWorker};
 use super::protocol::{LoadMode, ScanSummary, SessionCommand, SessionEvent};
 
 /// Initial settings of a session.
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct SessionSettings {
     pub automix: AutoMixSettings,
     pub order: PlayOrder,
@@ -27,6 +27,8 @@ pub struct SessionSettings {
     pub silence_threshold_db: f32,
     /// Minimum delay between two position/level events sent to the UI.
     pub ui_interval: Duration,
+    /// Where analyses are cached between sessions (`None`: no cache).
+    pub analysis_cache: Option<PathBuf>,
 }
 
 impl Default for SessionSettings {
@@ -37,6 +39,7 @@ impl Default for SessionSettings {
             repeat: RepeatMode::Off,
             silence_threshold_db: AnalysisRequest::default().silence_threshold_db,
             ui_interval: Duration::from_millis(33),
+            analysis_cache: None,
         }
     }
 }
@@ -100,7 +103,7 @@ pub(crate) struct ControllerParts<R: RandomSource> {
 }
 
 impl<R: RandomSource> Controller<R> {
-    pub(crate) fn new(parts: ControllerParts<R>, settings: SessionSettings) -> Self {
+    pub(crate) fn new(parts: ControllerParts<R>, settings: &SessionSettings) -> Self {
         Self {
             scheduler: AutoMixScheduler::new(
                 settings.automix,

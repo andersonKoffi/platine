@@ -227,9 +227,10 @@ SessionState reduceSession(
       state.copyWith(
         library: [
           for (final track in state.library)
-            track.id == trackId
-                ? track.withTempo(bpm: bpm, firstBeat: firstBeat)
-                : track,
+            if (track.id == trackId)
+              track.withTempo(bpm: bpm, firstBeat: firstBeat)
+            else
+              track,
         ],
       ),
     DeckPositionChanged(:final deck, :final position, :final playing) =>

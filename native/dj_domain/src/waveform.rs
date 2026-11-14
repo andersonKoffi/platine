@@ -41,6 +41,23 @@ impl Waveform {
         }
     }
 
+    /// Rebuilds a waveform from stored bands (e.g. the analysis cache).
+    /// Bands are truncated to the shortest one.
+    pub fn from_bands(points_per_second: u16, low: Vec<u8>, mid: Vec<u8>, high: Vec<u8>) -> Self {
+        let len = low.len().min(mid.len()).min(high.len());
+        let mut bands = [low, mid, high];
+        for band in &mut bands {
+            band.truncate(len);
+        }
+        let [low, mid, high] = bands;
+        Self {
+            points_per_second: points_per_second.max(1),
+            low,
+            mid,
+            high,
+        }
+    }
+
     pub fn points_per_second(&self) -> u16 {
         self.points_per_second
     }

@@ -17,7 +17,7 @@ use dj_domain::{
     CrossfaderPosition, DeckId, Gain, PlayOrder, RepeatMode, Seconds, Track, TrackId,
 };
 use dj_engine::EqBand;
-use dj_infra::{CpalOutput, XorShiftRandom};
+use dj_infra::{CpalOutput, SqliteAnalysisCache, XorShiftRandom};
 
 use crate::frb_generated::StreamSink;
 use crate::session::{LoadMode, SessionCommand, SessionEvent, SessionHandle, SessionSettings};
@@ -223,6 +223,7 @@ pub fn start_session(config: SessionConfig) -> anyhow::Result<()> {
             RepeatMode::Off
         },
         silence_threshold_db: config.silence_threshold_db,
+        analysis_cache: SqliteAnalysisCache::default_path(),
         ..SessionSettings::default()
     };
     let mut slot = session_slot();
