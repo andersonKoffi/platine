@@ -88,8 +88,9 @@ class _EmptyLibraryState extends ConsumerState<EmptyLibrary>
             ),
             SizedBox(height: tokens.space2),
             Text(
-              'Platine charge le titre 1 sur la platine A, le titre 2 sur la '
-              'platine B, et enchaîne tout seul.',
+              'Platine charge le titre 1 sur la platine A, '
+              'le titre 2 sur la platine B, '
+              'et enchaîne tout seul.',
               style: TextStyle(color: tokens.textSecondary),
             ),
             SizedBox(height: tokens.space4),

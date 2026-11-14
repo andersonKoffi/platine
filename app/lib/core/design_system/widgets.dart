@@ -157,7 +157,9 @@ class PadButton extends StatelessWidget {
             borderRadius: BorderRadius.circular(tokens.radiusSmall),
             onTap: onPressed,
             child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: tokens.space2),
+              padding: EdgeInsets.symmetric(
+                horizontal: label.isEmpty ? tokens.space1 / 2 : tokens.space2,
+              ),
               child: Center(child: content),
             ),
           ),
