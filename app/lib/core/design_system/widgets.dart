@@ -110,7 +110,10 @@ class PadButton extends StatelessWidget {
         : active
         ? tokens.background
         : accent;
-    final content = Row(
+    // Scales down rather than overflowing in narrow slots.
+    final content = FittedBox(
+      fit: BoxFit.scaleDown,
+      child: Row(
       mainAxisSize: MainAxisSize.min,
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -129,6 +132,7 @@ class PadButton extends StatelessWidget {
             ),
           ),
       ],
+      ),
     );
     final button = Semantics(
       button: true,
