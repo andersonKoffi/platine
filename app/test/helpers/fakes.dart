@@ -12,6 +12,7 @@ import 'package:platine/core/engine/domain/models.dart';
 import 'package:platine/features/library/application/library_controller.dart';
 import 'package:platine/features/settings/application/settings_controller.dart';
 import 'package:platine/features/settings/domain/settings_repository.dart';
+import 'package:platine/features/shell/application/drop_zone_provider.dart';
 
 /// Records every command; events are pushed by the test.
 class FakeEngineGateway implements EngineGateway {
@@ -128,7 +129,18 @@ List<Override> testOverrides(
       settings ?? InMemorySettingsRepository(),
     ),
     folderPickerProvider.overrideWithValue(() async => pickedFolder),
+    // desktop_drop needs its native library, absent from unit tests.
+    dropZoneProvider.overrideWithValue(_passThroughDropZone),
   ];
+}
+
+Widget _passThroughDropZone({
+  required Widget child,
+  required Future<void> Function(String? folder) onFolder,
+  required VoidCallback onEnter,
+  required VoidCallback onLeave,
+}) {
+  return child;
 }
 
 /// Pumps the whole app on a 1440×900 window.

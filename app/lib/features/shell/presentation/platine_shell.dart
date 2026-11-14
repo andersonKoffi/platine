@@ -1,7 +1,5 @@
 import 'dart:async';
-import 'dart:io';
 
-import 'package:desktop_drop/desktop_drop.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:platine/core/design_system/tokens.dart';
@@ -16,6 +14,7 @@ import 'package:platine/features/library/presentation/empty_state.dart';
 import 'package:platine/features/library/presentation/library_panel.dart';
 import 'package:platine/features/mixer/presentation/mixer_panel.dart';
 import 'package:platine/features/settings/application/settings_controller.dart';
+import 'package:platine/features/shell/application/drop_zone_provider.dart';
 import 'package:platine/features/shell/presentation/shortcuts.dart';
 
 /// Width under which the library moves below the decks.
@@ -45,9 +44,8 @@ class _PlatineShellState extends ConsumerState<PlatineShell>
     super.dispose();
   }
 
-  Future<void> _onDrop(DropDetails details) async {
+  Future<void> _onFolder(String? folder) async {
     setState(() => _dragging = false);
-    final folder = folderFromDrop(details.items);
     if (folder == null) {
       ref
           .read(sessionStoreProvider.notifier)
@@ -141,10 +139,10 @@ class _PlatineShellState extends ConsumerState<PlatineShell>
     );
 
     return Scaffold(
-      body: DropTarget(
-        onEnter: (_) => setState(() => _dragging = true),
+      body: ref.watch(dropZoneProvider)(
+        onEnter: () => setState(() => _dragging = true),
         onLeave: () => setState(() => _dragging = false),
-        onDrop: _onDrop,
+        onFolder: _onFolder,
         child: CallbackShortcuts(
           bindings: buildShortcuts(context, ref),
           child: Focus(
@@ -206,22 +204,6 @@ class _PlatineShellState extends ConsumerState<PlatineShell>
       ),
     );
   }
-}
-
-/// Folder to load from dropped items: a dropped folder, or the folder of a
-/// dropped file.
-String? folderFromDrop(List<DropItem> items) {
-  for (final item in items) {
-    switch (item) {
-      case DropDirectoryItem(:final localPath?):
-        return localPath;
-      case DropFileItem(:final localPath?):
-        return File(localPath).parent.path;
-      case DropDirectoryItem() || DropFileItem() || DropStringItem():
-        continue;
-    }
-  }
-  return null;
 }
 
 class _Header extends StatelessWidget {
