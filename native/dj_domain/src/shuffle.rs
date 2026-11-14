@@ -139,7 +139,7 @@ mod tests {
     fn empty_and_single_lists_are_fine() {
         let mut empty: Vec<TrackId> = Vec::new();
         FisherYates.arrange(&mut empty, &ids(&[1]), &mut XorShift(1));
-        assert!(empty.is_empty());
+        assert_eq!(empty, Vec::<TrackId>::new());
         let mut single = ids(&[1]);
         FisherYates.arrange(&mut single, &ids(&[1]), &mut XorShift(1));
         assert_eq!(single, ids(&[1]));

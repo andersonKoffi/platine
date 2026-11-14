@@ -12,6 +12,9 @@ use dj_domain::{
 
 use DeckId::{A as DA, B as DB};
 
+/// No command expected.
+const NONE: Vec<A> = Vec::new();
+
 fn settings() -> AutoMixSettings {
     AutoMixSettings::default()
 }
@@ -85,7 +88,7 @@ mod loading {
     fn deck_b_ready_first_waits_for_deck_a() {
         let mut mix = scheduler(settings(), RepeatMode::Off);
         mix.load_library(ids(&[1, 2]));
-        assert!(mix.handle(loaded(DB, 2, untrimmed(200.0))).is_empty());
+        assert_eq!(mix.handle(loaded(DB, 2, untrimmed(200.0))), NONE);
         let actions = mix.handle(loaded(DA, 1, untrimmed(180.0)));
         assert!(matches!(actions[0], A::Play { deck: DA, .. }));
         assert!(plan_of(&actions).is_some());
@@ -99,8 +102,8 @@ mod loading {
         };
         let mut mix = scheduler(off, RepeatMode::Off);
         mix.load_library(ids(&[1, 2]));
-        assert!(mix.handle(loaded(DA, 1, untrimmed(180.0))).is_empty());
-        assert!(mix.handle(loaded(DB, 2, untrimmed(180.0))).is_empty());
+        assert_eq!(mix.handle(loaded(DA, 1, untrimmed(180.0))), NONE);
+        assert_eq!(mix.handle(loaded(DB, 2, untrimmed(180.0))), NONE);
         assert_eq!(mix.status(), AutoMixStatus::Off);
 
         let actions = mix.handle(In::SetEnabled(true));
@@ -113,7 +116,7 @@ mod loading {
     fn stale_load_reports_are_ignored() {
         let mut mix = scheduler(settings(), RepeatMode::Off);
         mix.load_library(ids(&[1, 2]));
-        assert!(mix.handle(loaded(DA, 9, untrimmed(180.0))).is_empty());
+        assert_eq!(mix.handle(loaded(DA, 9, untrimmed(180.0))), NONE);
         assert!(mix.deck(DA).is_loading());
     }
 
@@ -201,10 +204,7 @@ mod transitions {
     #[test]
     fn completed_transition_swaps_roles_and_loads_the_next_track() {
         let mut mix = playing_a(3);
-        assert!(
-            mix.handle(In::TransitionStarted { from: DA, to: DB })
-                .is_empty()
-        );
+        assert_eq!(mix.handle(In::TransitionStarted { from: DA, to: DB }), NONE);
         assert_eq!(mix.state(), AutoMixState::Crossfading { from: DA, to: DB });
         assert_eq!(mix.planned_transition(), None);
 
@@ -229,13 +229,10 @@ mod transitions {
     #[test]
     fn unexpected_transition_reports_are_ignored() {
         let mut mix = playing_a(3);
-        assert!(
-            mix.handle(In::TransitionStarted { from: DB, to: DA })
-                .is_empty()
-        );
-        assert!(
-            mix.handle(In::TransitionCompleted { from: DA, to: DB })
-                .is_empty()
+        assert_eq!(mix.handle(In::TransitionStarted { from: DB, to: DA }), NONE);
+        assert_eq!(
+            mix.handle(In::TransitionCompleted { from: DA, to: DB }),
+            NONE
         );
         assert_eq!(mix.state(), AutoMixState::Playing { active: DA });
     }
@@ -296,7 +293,7 @@ mod transitions {
     #[test]
     fn end_reports_for_idle_decks_are_ignored() {
         let mut mix = playing_a(3);
-        assert!(mix.handle(In::TrackEnded { deck: DB }).is_empty());
+        assert_eq!(mix.handle(In::TrackEnded { deck: DB }), NONE);
     }
 }
 
@@ -383,12 +380,12 @@ mod failures {
     #[test]
     fn stale_failure_reports_are_ignored() {
         let mut mix = playing_a(3);
-        assert!(
+        assert_eq!(
             mix.handle(In::TrackLoadFailed {
                 deck: DB,
                 track: t(2)
-            })
-            .is_empty()
+            }),
+            NONE
         );
     }
 }
@@ -405,7 +402,7 @@ mod manual_control {
         );
         assert_eq!(mix.status(), AutoMixStatus::Suspended);
         assert_eq!(mix.planned_transition(), None);
-        assert!(mix.handle(In::ManualIntervention).is_empty());
+        assert_eq!(mix.handle(In::ManualIntervention), NONE);
     }
 
     #[test]
@@ -423,7 +420,7 @@ mod manual_control {
         assert_eq!(actions[1], A::SetCrossfader(CrossfaderPosition::fully(DA)));
         assert!(plan_of(&actions).is_some());
         assert_eq!(mix.status(), AutoMixStatus::Running);
-        assert!(mix.handle(In::Resume).is_empty());
+        assert_eq!(mix.handle(In::Resume), NONE);
     }
 
     #[test]
@@ -473,7 +470,7 @@ mod manual_control {
     fn manual_load_while_suspended_is_accepted() {
         let mut mix = playing_a(3);
         mix.handle(In::ManualIntervention);
-        assert!(mix.handle(loaded(DB, 42, untrimmed(90.0))).is_empty());
+        assert_eq!(mix.handle(loaded(DB, 42, untrimmed(90.0))), NONE);
         assert_eq!(mix.deck(DB).track(), Some(t(42)));
         let plan = plan_of(&mix.handle(In::Resume)).unwrap();
         assert_eq!(plan.to, DB);
@@ -494,7 +491,7 @@ mod manual_control {
         mix.handle(loaded(DA, 1, untrimmed(60.0)));
         mix.handle(In::TrackEnded { deck: DA });
         mix.handle(In::ManualIntervention);
-        assert!(mix.handle(loaded(DB, 2, untrimmed(60.0))).is_empty());
+        assert_eq!(mix.handle(loaded(DB, 2, untrimmed(60.0))), NONE);
         let actions = mix.handle(In::Resume);
         assert_eq!(
             actions[0],
@@ -531,7 +528,7 @@ mod settings_changes {
     fn running_fade_keeps_its_duration_and_the_next_one_uses_the_new_value() {
         let mut mix = playing_a(3);
         mix.handle(In::TransitionStarted { from: DA, to: DB });
-        assert!(mix.handle(In::SetCrossfadeDuration(fade(16.0))).is_empty());
+        assert_eq!(mix.handle(In::SetCrossfadeDuration(fade(16.0))), NONE);
         mix.handle(In::TransitionCompleted { from: DA, to: DB });
         let plan = plan_of(&mix.handle(loaded(DA, 3, untrimmed(120.0)))).unwrap();
         assert_eq!(plan.fade, s(16.0));
@@ -544,7 +541,7 @@ mod settings_changes {
         let plan = plan_of(&mix.handle(In::SetCurve(CrossfadeCurve::Linear))).unwrap();
         assert_eq!(plan.curve, CrossfadeCurve::Linear);
         mix.handle(In::ManualIntervention);
-        assert!(mix.handle(In::SetCurve(CrossfadeCurve::Cut)).is_empty());
+        assert_eq!(mix.handle(In::SetCurve(CrossfadeCurve::Cut)), NONE);
     }
 }
 
@@ -592,7 +589,7 @@ mod library_changes {
     fn replacing_during_a_fade_waits_for_its_end() {
         let mut mix = playing_a(3);
         mix.handle(In::TransitionStarted { from: DA, to: DB });
-        assert!(mix.load_library(ids(&[7])).is_empty());
+        assert_eq!(mix.load_library(ids(&[7])), NONE);
         let actions = mix.handle(In::TransitionCompleted { from: DA, to: DB });
         assert_eq!(
             actions[1],

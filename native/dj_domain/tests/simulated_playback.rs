@@ -146,7 +146,7 @@ fn suspension_stops_automatic_transitions_until_resumed() {
     sim.run(5.0, DT);
     sim.feed(AutoMixInput::ManualIntervention);
     sim.run(40.0, DT);
-    assert!(sim.fades().is_empty());
+    assert_eq!(sim.fades(), Vec::<(f64, f64)>::new());
 
     sim.feed(AutoMixInput::Resume);
     sim.run(600.0, DT);
